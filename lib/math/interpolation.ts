@@ -9,6 +9,18 @@ import {
 import { polynomialToLatex, evaluatePolynomial } from './expression-parser'
 
 /**
+ * Calculate absolute and relative errors for each data point
+ */
+function calculatePointErrors(points: DataPoint[], result: InterpolationResult): { absolute: number, relative: number }[] {
+  return points.map(point => {
+    const yPred = evaluatePolynomial(result.coefficients, point.x)
+    const absolute = Math.abs(point.y - yPred)
+    const relative = point.y !== 0 ? absolute / Math.abs(point.y) : 0
+    return { absolute, relative }
+  })
+}
+
+/**
  * Lagrange interpolation
  * P(x) = Σ yₖ·Lₖ(x) where Lₖ(x) = Π(i≠k) (x - xᵢ)/(xₖ - xᵢ)
  */
@@ -56,7 +68,7 @@ export function lagrangeInterpolation(points: DataPoint[]): InterpolationResult 
   steps.push(`\\text{Expanding and combining terms:}`)
   steps.push(`P(x) = ${polynomialToLatex(coefficients)}`)
 
-  return {
+  const result: InterpolationResult & { steps: string[] } = {
     type: 'lagrange-interpolation',
     polynomial: polynomialToLatex(coefficients),
     coefficients,
@@ -64,6 +76,9 @@ export function lagrangeInterpolation(points: DataPoint[]): InterpolationResult 
     basisPolynomials,
     steps,
   }
+
+  result.pointErrors = calculatePointErrors(points, result)
+  return result
 }
 
 /**
@@ -201,7 +216,7 @@ export function newtonInterpolation(points: DataPoint[]): InterpolationResult & 
   steps.push(`\\text{Standard form:}`)
   steps.push(`P(x) = ${polynomialToLatex(coefficients)}`)
 
-  return {
+  const result: InterpolationResult & { steps: string[] } = {
     type: 'newton-interpolation',
     polynomial: polynomialToLatex(coefficients),
     coefficients,
@@ -209,6 +224,9 @@ export function newtonInterpolation(points: DataPoint[]): InterpolationResult & 
     dividedDifferences: divDiff,
     steps,
   }
+
+  result.pointErrors = calculatePointErrors(points, result)
+  return result
 }
 
 /**
@@ -324,7 +342,7 @@ export function directInterpolation(points: DataPoint[]): InterpolationResult & 
   steps.push(`\\text{Result:}`)
   steps.push(`P(x) = ${polynomialToLatex(coefficients)}`)
 
-  return {
+  const result: InterpolationResult & { steps: string[] } = {
     type: 'direct-interpolation',
     polynomial: polynomialToLatex(coefficients),
     coefficients,
@@ -332,6 +350,9 @@ export function directInterpolation(points: DataPoint[]): InterpolationResult & 
     vandermondeMatrix: V,
     steps,
   }
+
+  result.pointErrors = calculatePointErrors(points, result)
+  return result
 }
 
 /**

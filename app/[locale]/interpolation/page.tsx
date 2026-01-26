@@ -9,9 +9,11 @@ import { InputTabs } from '@/components/data-input/input-tabs'
 import { PolynomialResult } from '@/components/results/polynomial-result'
 import { StepDisplay } from '@/components/results/step-display'
 import { MatrixDisplay } from '@/components/math/latex-display'
+import { ErrorCard } from '@/components/results/error-card'
 import { FunctionPlot } from '@/components/math/function-plot'
 import { useCalculation } from '@/lib/hooks/use-calculation'
 import { useHistory } from '@/lib/hooks/use-history'
+import { getValidationErrorKey } from '@/lib/math/validators'
 import type { DataPoint, InterpolationResult } from '@/lib/types'
 
 type InterpolationMethod =
@@ -36,6 +38,7 @@ export default function InterpolationPage() {
   ])
   const [selectedMethod, setSelectedMethod] =
     useState<InterpolationMethod>('lagrange-interpolation')
+  const [originalCurve, setOriginalCurve] = useState<DataPoint[]>([])
 
   const methods: { id: InterpolationMethod; labelKey: string; descKey: string }[] = [
     { id: 'lagrange-interpolation', labelKey: 'lagrange', descKey: 'lagrangeDesc' },
@@ -85,6 +88,10 @@ export default function InterpolationPage() {
       evaluateAt: tResults('evaluateAt'),
       evaluatedValue: tResults('evaluatedValue'),
       coefficients: t('approximation.coefficients'),
+      absoluteError: tResults('absoluteError'),
+      relativeError: tResults('relativeError'),
+      pointErrors: tResults('pointErrors'),
+      resultsTitle: tResults('title'),
     }),
     [tResults, t]
   )
@@ -114,6 +121,15 @@ export default function InterpolationPage() {
       })
     }
   }, [result, points, selectedMethod, addEntry])
+
+  const handlePointsChange = useCallback((newPoints: DataPoint[], curve?: DataPoint[]) => {
+    setPoints(newPoints)
+    if (curve) {
+      setOriginalCurve(curve)
+    } else {
+      setOriginalCurve([])
+    }
+  }, [])
 
   const validPointCount = points.filter(
     (p) => !isNaN(p.x) && !isNaN(p.y) && isFinite(p.x) && isFinite(p.y)
@@ -166,8 +182,8 @@ export default function InterpolationPage() {
       </div>
 
       {/* Tier 1: Method and Input */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        <div className="space-y-6">
+      <div className="grid gap-6 lg:grid-cols-12">
+        <div className="space-y-6 lg:col-span-4">
           <Card className="h-full">
             <CardHeader>
               <CardTitle>{t('interpolation.selectMethod')}</CardTitle>
@@ -196,12 +212,12 @@ export default function InterpolationPage() {
           </Card>
         </div>
 
-        <div className="space-y-6 flex flex-col">
+        <div className="space-y-6 flex flex-col lg:col-span-8">
           <Card className="flex-1">
             <CardContent className="pt-6">
               <InputTabs
                 points={points}
-                onPointsChange={setPoints}
+                onPointsChange={handlePointsChange}
                 translations={inputTranslations}
               />
             </CardContent>
@@ -231,11 +247,7 @@ export default function InterpolationPage() {
               </div>
               <ul className="list-disc list-inside text-sm text-destructive">
                 {validation.errors.map((err, i) => (
-                  <li key={i}>
-                    {err === 'uniqueXRequired'
-                      ? t('validation.uniqueXRequired')
-                      : err}
-                  </li>
+                  <li key={i}>{t(getValidationErrorKey(err))}</li>
                 ))}
               </ul>
             </div>
@@ -258,8 +270,12 @@ export default function InterpolationPage() {
         <CardContent>
           <FunctionPlot
             dataPoints={points.filter(p => !isNaN(p.x) && !isNaN(p.y))}
+            originalCurve={originalCurve}
             fittedCurve={resultWithCurve ? resultWithCurve.fittedPoints : []}
             height={500}
+            dataPointsLabel={t('plot.dataPoints')}
+            fittedCurveLabel={t('plot.fittedCurve')}
+            originalCurveLabel={t('plot.originalCurve')}
           />
         </CardContent>
       </Card>
@@ -267,19 +283,27 @@ export default function InterpolationPage() {
       {/* Tier 3: Results and Steps */}
       {resultWithCurve && (
         <div className="grid gap-6 lg:grid-cols-2 group">
-          <Card>
-            <CardHeader>
-              <CardTitle>{t('results.title')}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <PolynomialResult
-                result={resultWithCurve}
-                onEvaluate={evaluate}
-                onSaveToHistory={handleSaveToHistory}
-                translations={resultTranslations}
-              />
-            </CardContent>
-          </Card>
+          {/* Left Column: Results & Mistakes */}
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>{t('results.title')}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <PolynomialResult
+                  result={resultWithCurve}
+                  onEvaluate={evaluate}
+                  onSaveToHistory={handleSaveToHistory}
+                  translations={resultTranslations}
+                />
+              </CardContent>
+            </Card>
+
+            <ErrorCard
+              result={resultWithCurve}
+              translations={resultTranslations}
+            />
+          </div>
 
           <div className="space-y-6">
             {error && !validation?.errors.length && (

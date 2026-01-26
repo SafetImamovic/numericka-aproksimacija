@@ -9,7 +9,7 @@ import type { DataPoint, InputMode } from '@/lib/types'
 
 interface InputTabsProps {
   points: DataPoint[]
-  onPointsChange: (points: DataPoint[]) => void
+  onPointsChange: (points: DataPoint[], originalCurve?: DataPoint[]) => void
   errors?: Map<number, { x?: string; y?: string }>
   disabled?: boolean
   translations: {
@@ -70,8 +70,8 @@ export function InputTabs({
   ]
 
   const handleDataLoaded = useCallback(
-    (newPoints: DataPoint[]) => {
-      onPointsChange(newPoints)
+    (newPoints: DataPoint[], originalCurve?: DataPoint[]) => {
+      onPointsChange(newPoints, originalCurve)
       setActiveTab('manual') // Switch to manual view to show/edit loaded data
     },
     [onPointsChange]
@@ -93,10 +93,9 @@ export function InputTabs({
               onClick={() => setActiveTab(tab.id)}
               disabled={disabled}
               className={`flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors
-                ${
-                  isActive
-                    ? 'text-primary border-b-2 border-primary -mb-px'
-                    : 'text-muted-foreground hover:text-foreground'
+                ${isActive
+                  ? 'text-primary border-b-2 border-primary -mb-px'
+                  : 'text-muted-foreground hover:text-foreground'
                 }
                 ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
               `}

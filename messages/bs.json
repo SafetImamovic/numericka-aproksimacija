@@ -25,8 +25,6 @@
   "nav": {
     "home": "Početna",
     "approximation": "Aproksimacija",
-    "interpolation": "Interpolacija",
-    "history": "Historija",
     "language": "Jezik"
   },
   "home": {
@@ -80,7 +78,9 @@
     "invalidExpression": "Nevalidan matematički izraz",
     "domainError": "Minimalna vrijednost domene mora biti manja od maksimalne",
     "parseError": "Nije moguće parsirati učitani fajl",
-    "emptyFile": "Učitani fajl je prazan"
+    "emptyFile": "Učitani fajl je prazan",
+    "positiveXRequired": "Vrijednosti X moraju biti pozitivne (X > 0)",
+    "positiveYRequired": "Vrijednosti Y moraju biti pozitivne (Y > 0)"
   },
   "approximation": {
     "title": "Metode Aproksimacije",
@@ -131,12 +131,17 @@
     "saveToHistory": "Sačuvaj u Historiju",
     "evaluate": "Izračunaj",
     "evaluateAt": "Izračunaj P(x) za x =",
-    "evaluatedValue": "P(x) ="
+    "evaluatedValue": "Evaluirana vrijednost",
+    "absoluteError": "Apsolutna greška",
+    "relativeError": "Relativna greška",
+    "pointErrors": "Greške po tačkama",
+    "point": "Tačka"
   },
   "plot": {
     "title": "Grafik Funkcije",
     "dataPoints": "Tačke Podataka",
     "fittedCurve": "Prilagođena Kriva",
+    "originalCurve": "Originalna Funkcija",
     "zoomIn": "Uvećaj",
     "zoomOut": "Umanji",
     "resetZoom": "Resetuj Zum",

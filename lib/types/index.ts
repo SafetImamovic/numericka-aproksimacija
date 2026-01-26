@@ -15,6 +15,12 @@ export type CalculationType =
   | 'newton-interpolation'
   | 'direct-interpolation'
 
+// Error information for a single data point
+export interface PointError {
+  absolute: number
+  relative: number
+}
+
 // Approximation result
 export interface ApproximationResult {
   type: CalculationType
@@ -24,6 +30,7 @@ export interface ApproximationResult {
   sumSquaredError?: number
   points: DataPoint[] // Original data points
   fittedPoints: DataPoint[] // Points on the fitted curve
+  pointErrors?: PointError[] // Errors for each input point
 }
 
 // Interpolation result
@@ -35,6 +42,7 @@ export interface InterpolationResult {
   dividedDifferences?: number[][] // For Newton method
   basisPolynomials?: string[] // For Lagrange method
   vandermondeMatrix?: number[][] // For direct method
+  pointErrors?: PointError[] // Errors for each input point
 }
 
 // Calculation history entry

@@ -33,6 +33,7 @@ interface PlotData {
     color: string
     width: number
     shape?: string
+    dash?: 'dash' | 'dot' | 'dashdot' | 'solid'
   }
   hovertemplate?: string
 }
@@ -92,23 +93,31 @@ interface PlotConfig {
 interface FunctionPlotProps {
   dataPoints?: DataPoint[]
   fittedCurve?: DataPoint[]
+  originalCurve?: DataPoint[]
   title?: string
   xLabel?: string
   yLabel?: string
   showLegend?: boolean
   className?: string
   height?: number
+  dataPointsLabel?: string
+  fittedCurveLabel?: string
+  originalCurveLabel?: string
 }
 
 export function FunctionPlot({
   dataPoints = [],
   fittedCurve = [],
+  originalCurve = [],
   title,
   xLabel = 'x',
   yLabel = 'y',
   showLegend = true,
   className = '',
   height = 500,
+  dataPointsLabel = 'Data Points',
+  fittedCurveLabel = 'Fitted Curve',
+  originalCurveLabel = 'Original Function',
 }: FunctionPlotProps) {
   const { traces, layout } = useMemo(() => {
     const traces: PlotData[] = []
@@ -120,7 +129,7 @@ export function FunctionPlot({
         y: dataPoints.map((p) => p.y),
         mode: 'markers',
         type: 'scatter',
-        name: 'Data Points',
+        name: dataPointsLabel,
         marker: {
           color: '#8b5cf6', // Purple
           size: 10,
@@ -140,7 +149,7 @@ export function FunctionPlot({
         y: fittedCurve.map((p) => p.y),
         mode: 'lines',
         type: 'scatter',
-        name: 'Fitted Curve',
+        name: fittedCurveLabel,
         line: {
           color: '#22c55e', // Green
           width: 2,
@@ -150,9 +159,27 @@ export function FunctionPlot({
       })
     }
 
+    // Add original function curve (dashed)
+    if (originalCurve.length > 0) {
+      traces.push({
+        x: originalCurve.map((p) => p.x),
+        y: originalCurve.map((p) => p.y),
+        mode: 'lines',
+        type: 'scatter',
+        name: originalCurveLabel,
+        line: {
+          color: '#fbbf24', // Amber/Yellow
+          width: 2,
+          shape: 'spline',
+          dash: 'dash',
+        },
+        hovertemplate: '(%{x:.4f}, %{y:.4f})<extra></extra>',
+      })
+    }
+
     // Calculate axis ranges with padding
-    const allX = [...dataPoints, ...fittedCurve].map((p) => p.x)
-    const allY = [...dataPoints, ...fittedCurve].map((p) => p.y)
+    const allX = [...dataPoints, ...fittedCurve, ...originalCurve].map((p) => p.x)
+    const allY = [...dataPoints, ...fittedCurve, ...originalCurve].map((p) => p.y)
 
     const xMin = Math.min(...allX)
     const xMax = Math.max(...allX)
@@ -204,7 +231,7 @@ export function FunctionPlot({
     }
 
     return { traces, layout }
-  }, [dataPoints, fittedCurve, title, xLabel, yLabel, showLegend])
+  }, [dataPoints, fittedCurve, originalCurve, title, xLabel, yLabel, showLegend])
 
   const config: PlotConfig = {
     responsive: true,
@@ -223,8 +250,9 @@ export function FunctionPlot({
       scale: 2,
     },
   }
+  const hasData = dataPoints.length > 0 || fittedCurve.length > 0 || originalCurve.length > 0
 
-  if (dataPoints.length === 0 && fittedCurve.length === 0) {
+  if (!hasData) {
     return (
       <div
         className={`w-full flex items-center justify-center bg-card rounded-lg border border-border ${className}`}

@@ -22,6 +22,9 @@ interface PolynomialResultProps {
     rSquared?: string
     sumSquaredError?: string
     coefficients: string
+    absoluteError?: string
+    relativeError?: string
+    pointErrors?: string
   }
 }
 
@@ -120,36 +123,9 @@ export function PolynomialResult({
         </div>
       </div>
 
-      {/* Approximation-specific metrics */}
-      {isApproximation && (
-        <div className="grid grid-cols-2 gap-4">
-          {(result as ApproximationResult).rSquared !== undefined && (
-            <div className="p-3 bg-card border border-border rounded-lg">
-              <p className="text-sm text-muted-foreground">
-                {translations.rSquared}
-              </p>
-              <p className="text-lg font-mono font-semibold">
-                {((result as ApproximationResult).rSquared! * 100).toFixed(2)}%
-              </p>
-            </div>
-          )}
-          {(result as ApproximationResult).sumSquaredError !== undefined && (
-            <div className="p-3 bg-card border border-border rounded-lg">
-              <p className="text-sm text-muted-foreground">
-                {translations.sumSquaredError}
-              </p>
-              <p className="text-lg font-mono font-semibold">
-                {(result as ApproximationResult).sumSquaredError!.toFixed(6)}
-              </p>
-            </div>
-          )}
-        </div>
-      )}
-
-
       {/* Evaluate polynomial */}
       {onEvaluate && (
-        <div className="space-y-3">
+        <div className="space-y-3 pt-6 border-t border-border">
           <h4 className="font-medium">{translations.evaluate}</h4>
           <div className="flex gap-2 items-end">
             <div className="flex-1">
@@ -162,7 +138,7 @@ export function PolynomialResult({
                 value={evalX}
                 onChange={(e) => setEvalX(e.target.value)}
                 placeholder="x"
-                className="font-mono"
+                className="font-mono text-sm"
                 onKeyDown={(e) => e.key === 'Enter' && handleEvaluate()}
               />
             </div>

@@ -79,8 +79,10 @@
     "minPoints": "At least {count} points are required",
     "invalidExpression": "Invalid mathematical expression",
     "domainError": "Domain min must be less than max",
-    "parseError": "Could not parse the uploaded file",
-    "emptyFile": "The uploaded file is empty"
+    "parseError": "Could not parse uploaded file",
+    "emptyFile": "Uploaded file is empty",
+    "positiveXRequired": "X values must be positive (X > 0)",
+    "positiveYRequired": "Y values must be positive (Y > 0)"
   },
   "approximation": {
     "title": "Approximation Methods",
@@ -130,13 +132,18 @@
     "copyLatex": "Copy LaTeX",
     "saveToHistory": "Save to History",
     "evaluate": "Evaluate",
-    "evaluateAt": "Evaluate P(x) at x =",
-    "evaluatedValue": "P(x) ="
+    "evaluateAt": "Evaluate P(x) for x =",
+    "evaluatedValue": "Evaluated value",
+    "absoluteError": "Absolute error",
+    "relativeError": "Relative error",
+    "pointErrors": "Point-wise Errors",
+    "point": "Point"
   },
   "plot": {
     "title": "Function Plot",
     "dataPoints": "Data Points",
     "fittedCurve": "Fitted Curve",
+    "originalCurve": "Original Function",
     "zoomIn": "Zoom In",
     "zoomOut": "Zoom Out",
     "resetZoom": "Reset Zoom",

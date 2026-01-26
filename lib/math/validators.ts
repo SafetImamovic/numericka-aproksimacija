@@ -207,8 +207,11 @@ export function getValidationErrorKey(error: string): string {
   if (error === 'uniqueXRequired') {
     return 'validation.uniqueXRequired'
   }
-  if (error === 'positiveXRequired' || error === 'positiveYRequired') {
-    return 'validation.positiveRequired'
+  if (error === 'positiveXRequired') {
+    return 'validation.positiveXRequired'
+  }
+  if (error === 'positiveYRequired') {
+    return 'validation.positiveYRequired'
   }
   return 'validation.error'
 }

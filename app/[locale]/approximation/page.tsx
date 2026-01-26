@@ -9,9 +9,11 @@ import { Input } from '@/components/ui/input'
 import { InputTabs } from '@/components/data-input/input-tabs'
 import { PolynomialResult } from '@/components/results/polynomial-result'
 import { StepDisplay } from '@/components/results/step-display'
+import { ErrorCard } from '@/components/results/error-card'
 import { FunctionPlot } from '@/components/math/function-plot'
 import { useCalculation } from '@/lib/hooks/use-calculation'
 import { useHistory } from '@/lib/hooks/use-history'
+import { getValidationErrorKey } from '@/lib/math/validators'
 import type { DataPoint, ApproximationResult } from '@/lib/types'
 
 type ApproximationMethod =
@@ -41,6 +43,7 @@ export default function ApproximationPage() {
   const [selectedMethod, setSelectedMethod] =
     useState<ApproximationMethod>('linear-approximation')
   const [polynomialDegree, setPolynomialDegree] = useState(3)
+  const [originalCurve, setOriginalCurve] = useState<DataPoint[]>([])
 
   const methods: { id: ApproximationMethod; labelKey: string; descKey: string }[] = [
     { id: 'linear-approximation', labelKey: 'linear', descKey: 'linearDesc' },
@@ -94,6 +97,10 @@ export default function ApproximationPage() {
       rSquared: tApproximation('rSquared'),
       sumSquaredError: tApproximation('sumSquaredError'),
       coefficients: tApproximation('coefficients'),
+      absoluteError: tResults('absoluteError'),
+      relativeError: tResults('relativeError'),
+      pointErrors: tResults('pointErrors'),
+      resultsTitle: tResults('title'),
     }),
     [tResults, tApproximation]
   )
@@ -124,6 +131,15 @@ export default function ApproximationPage() {
     }
   }, [result, points, selectedMethod, addEntry])
 
+  const handlePointsChange = useCallback((newPoints: DataPoint[], curve?: DataPoint[]) => {
+    setPoints(newPoints)
+    if (curve) {
+      setOriginalCurve(curve)
+    } else {
+      setOriginalCurve([])
+    }
+  }, [])
+
   const validPointCount = points.filter(
     (p) => !isNaN(p.x) && !isNaN(p.y) && isFinite(p.x) && isFinite(p.y)
   ).length
@@ -137,8 +153,8 @@ export default function ApproximationPage() {
       </div>
 
       {/* Tier 1: Method and Input */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        <div className="space-y-6">
+      <div className="grid gap-6 lg:grid-cols-12">
+        <div className="space-y-6 lg:col-span-4">
           <Card className="h-full">
             <CardHeader>
               <CardTitle>{t('approximation.selectMethod')}</CardTitle>
@@ -184,12 +200,12 @@ export default function ApproximationPage() {
           </Card>
         </div>
 
-        <div className="space-y-6 flex flex-col">
+        <div className="space-y-6 flex flex-col lg:col-span-8">
           <Card className="flex-1">
             <CardContent className="pt-6">
               <InputTabs
                 points={points}
-                onPointsChange={setPoints}
+                onPointsChange={handlePointsChange}
                 translations={inputTranslations}
               />
             </CardContent>
@@ -219,7 +235,7 @@ export default function ApproximationPage() {
               </div>
               <ul className="list-disc list-inside text-sm text-destructive">
                 {validation.errors.map((err, i) => (
-                  <li key={i}>{err}</li>
+                  <li key={i}>{t(getValidationErrorKey(err))}</li>
                 ))}
               </ul>
             </div>
@@ -242,8 +258,12 @@ export default function ApproximationPage() {
         <CardContent>
           <FunctionPlot
             dataPoints={points.filter(p => !isNaN(p.x) && !isNaN(p.y))}
+            originalCurve={originalCurve}
             fittedCurve={result ? (result as ApproximationResult).fittedPoints : []}
             height={500}
+            dataPointsLabel={t('plot.dataPoints')}
+            fittedCurveLabel={t('plot.fittedCurve')}
+            originalCurveLabel={t('plot.originalCurve')}
           />
         </CardContent>
       </Card>
@@ -251,20 +271,29 @@ export default function ApproximationPage() {
       {/* Tier 3: Results and Steps */}
       {result && (
         <div className="grid gap-6 lg:grid-cols-2">
-          <Card>
-            <CardHeader>
-              <CardTitle>{t('results.title')}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <PolynomialResult
-                result={result}
-                onEvaluate={evaluate}
-                onSaveToHistory={handleSaveToHistory}
-                translations={resultTranslations}
-              />
-            </CardContent>
-          </Card>
+          {/* Left Column: Result & Errors */}
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>{t('results.title')}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <PolynomialResult
+                  result={result}
+                  onEvaluate={evaluate}
+                  onSaveToHistory={handleSaveToHistory}
+                  translations={resultTranslations}
+                />
+              </CardContent>
+            </Card>
 
+            <ErrorCard
+              result={result}
+              translations={resultTranslations}
+            />
+          </div>
+
+          {/* Right Column: Steps & Errors/Validation */}
           <div className="space-y-6">
             {error && !validation?.errors.length && (
               <Card className="border-destructive">

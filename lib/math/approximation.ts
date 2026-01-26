@@ -63,6 +63,33 @@ function calculateSSE(points: DataPoint[], coefficients: number[]): number {
 }
 
 /**
+ * Calculate absolute and relative errors for each data point
+ */
+function calculatePointErrors(points: DataPoint[], coefficients: number[], type: string): { absolute: number, relative: number }[] {
+  return points.map(point => {
+    let yPred = 0
+
+    if (type === 'power-approximation') {
+      const [a, b] = coefficients
+      yPred = a * Math.pow(point.x, b)
+    } else if (type === 'exponential-approximation') {
+      const [a, b] = coefficients
+      yPred = a * Math.exp(b * point.x)
+    } else {
+      // Standard polynomial
+      for (let i = 0; i < coefficients.length; i++) {
+        yPred += coefficients[i] * Math.pow(point.x, i)
+      }
+    }
+
+    const absolute = Math.abs(point.y - yPred)
+    const relative = point.y !== 0 ? absolute / Math.abs(point.y) : 0
+
+    return { absolute, relative }
+  })
+}
+
+/**
  * Linear least squares approximation: y = a + bx
  */
 export function linearApproximation(points: DataPoint[]): ApproximationResult & { steps: string[] } {
@@ -111,6 +138,7 @@ export function linearApproximation(points: DataPoint[]): ApproximationResult & 
     points,
     fittedPoints,
     steps,
+    pointErrors: calculatePointErrors(points, coefficients, 'linear-approximation'),
   }
 }
 
@@ -166,6 +194,7 @@ export function quadraticApproximation(points: DataPoint[]): ApproximationResult
     points,
     fittedPoints,
     steps,
+    pointErrors: calculatePointErrors(points, coefficients, 'quadratic-approximation'),
   }
 }
 
@@ -216,6 +245,7 @@ export function polynomialApproximation(
     steps,
     normalMatrix: AtA,
     normalVector: Atb,
+    pointErrors: calculatePointErrors(points, coefficients, 'polynomial-approximation'),
   }
 }
 
@@ -227,8 +257,11 @@ export function powerApproximation(points: DataPoint[]): ApproximationResult & {
   const steps: string[] = []
 
   // Check for positive values
-  if (points.some((p) => p.x <= 0 || p.y <= 0)) {
-    throw new Error('Power approximation requires positive x and y values')
+  if (points.some((p) => p.x <= 0)) {
+    throw new Error('positiveXRequired')
+  }
+  if (points.some((p) => p.y <= 0)) {
+    throw new Error('positiveYRequired')
   }
 
   // Transform to linear: X = ln(x), Y = ln(y)
@@ -298,6 +331,7 @@ export function powerApproximation(points: DataPoint[]): ApproximationResult & {
     fittedPoints,
     steps,
     transformedPoints,
+    pointErrors: calculatePointErrors(points, [a, b], 'power-approximation'),
   }
 }
 
@@ -310,7 +344,7 @@ export function exponentialApproximation(points: DataPoint[]): ApproximationResu
 
   // Check for positive y values
   if (points.some((p) => p.y <= 0)) {
-    throw new Error('Exponential approximation requires positive y values')
+    throw new Error('positiveYRequired')
   }
 
   // Transform: Y = ln(y)
@@ -380,6 +414,7 @@ export function exponentialApproximation(points: DataPoint[]): ApproximationResu
     fittedPoints,
     steps,
     transformedPoints,
+    pointErrors: calculatePointErrors(points, [a, b], 'exponential-approximation'),
   }
 }
 

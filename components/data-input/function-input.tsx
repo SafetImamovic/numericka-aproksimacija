@@ -14,7 +14,7 @@ import {
 import type { DataPoint, FunctionInput as FunctionInputType } from '@/lib/types'
 
 interface FunctionInputProps {
-  onPointsGenerated: (points: DataPoint[]) => void
+  onPointsGenerated: (points: DataPoint[], originalCurve?: DataPoint[]) => void
   disabled?: boolean
   translations: {
     functionExpression: string
@@ -41,11 +41,13 @@ export function FunctionInput({
   const [sampleCount, setSampleCount] = useState('10')
   const [error, setError] = useState<string | null>(null)
   const [preview, setPreview] = useState<DataPoint[] | null>(null)
+  const [originalCurve, setOriginalCurve] = useState<DataPoint[] | null>(null)
   const [showHelp, setShowHelp] = useState(false)
 
   const handleGenerate = useCallback(() => {
     setError(null)
     setPreview(null)
+    setOriginalCurve(null)
 
     // Validate expression
     const validation = validateExpression(expression)
@@ -78,12 +80,19 @@ export function FunctionInput({
 
       const points = generatePointsFromExpression(input)
 
+      // Generate high-resolution points for smooth plotting
+      const highResPoints = generatePointsFromExpression({
+        ...input,
+        sampleCount: 200 // More points for a smoother curve
+      })
+
       if (points.length < 2) {
         setError('Could not generate enough valid points')
         return
       }
 
       setPreview(points)
+      setOriginalCurve(highResPoints)
     } catch (err) {
       setError(err instanceof Error ? err.message : translations.invalidExpression)
     }
@@ -91,13 +100,15 @@ export function FunctionInput({
 
   const handleConfirm = useCallback(() => {
     if (preview) {
-      onPointsGenerated(preview)
+      onPointsGenerated(preview, originalCurve || undefined)
       setPreview(null)
+      setOriginalCurve(null)
     }
-  }, [preview, onPointsGenerated])
+  }, [preview, originalCurve, onPointsGenerated])
 
   const handleCancel = useCallback(() => {
     setPreview(null)
+    setOriginalCurve(null)
     setError(null)
   }, [])
 
