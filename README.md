@@ -1,36 +1,91 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Numerička Aproksimacija i Interpolacija (PNMuSI)
 
-## Getting Started
+Ovaj projekat je moderna web aplikacija za numeričku aproksimaciju i interpolaciju funkcija, razvijena u okviru predmeta **Projektovanje i analiza algoritama (PNMuSI)**. Aplikacija omogućava korisnicima da unesu podatke ručno, putem datoteka ili definisanjem funkcija, te izračunaju aproksimacione polinome i interpolacione funkcije uz detaljan prikaz koraka i grafičku vizuelizaciju.
 
-First, run the development server:
+## 🚀 Screenshots
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+![Početna stranica](images/landing-page.png)
+*Glavni meni sa izborom metoda*
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+![Aproksimacija funkcije](images/aproksimacija.png)
+*Proces aproksimacije sa Plotly grafikom*
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+![Detaljni koraci](images/koraci-izracuna.png)
+*Detaljan matematički izvod proračuna*
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## ✨ Ključne Funkcionalnosti
 
-## Learn More
+### 1. Numerička Aproksimacija (Metoda najmanjih kvadrata)
+- **Linearna:** y = a + bx
+- **Kvadratna:** y = a + bx + cx²
+- **Polinomijalna:** Proračun polinoma proizvoljnog stepena `n`.
+- **Stepena:** y = axᵇ (koristeći logaritamsku transformaciju).
+- **Eksponencijalna:** y = aeᵇˣ (koristeći logaritamsku transformaciju).
 
-To learn more about Next.js, take a look at the following resources:
+### 2. Interpolacija 
+> Ovo cemo najvjerovatnije ukiniti kasnije jer nije traženo
+- **Lagrangeova metoda:** Konstrukcija polinoma pomoću baznih polinoma.
+- **Newtonova metoda:** Korišćenje podijeljenih razlika za efikasnu interpolaciju.
+- **Direktna metoda:** Rješavanje sistema linearnih jednačina pomoću Vandermondeove matrice.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 3. Modovi unosa podataka
+- **Ručni unos:** Interaktivna tabela za dodavanje i brisanje tačaka.
+- **Unos funkcije:** Definisanje f(x) izraza i automatsko generisanje tačaka u zadatom intervalu.
+- **Otpremanje datoteka:** Podrška za CSV (x,y) i JSON formate.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 4. Napredne mogućnosti
+- **MathLive Integracija:** Profesionalni editor za matematičke formule sa virtuelnom tastaturom.
+- **Cortex Compute Engine:** Robusna evaluacija matematičkih izraza i LaTeX parsing.
+- **Detaljni koraci izračuna:** Prikaz svake faze algoritma (matrice sistema, normalne jednačine, rješenja).
+- **Interaktivni grafici:** Zumiranje i detaljan pregled funkcija pomoću Plotly.js biblioteke.
+- **Dvojezičnost:** Potpuna podrška za bosanski i engleski jezik.
 
-## Deploy on Vercel
+## 🛠️ Tehnološki Stog
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **Framework:** [Next.js 15](https://nextjs.org/) (App Router, Turbopack)
+- **Jezik:** [TypeScript](https://www.typescriptlang.org/)
+- **Stilizacija:** [Tailwind CSS 4](https://tailwindcss.com/)
+- **Matematika:** [@cortex-js/compute-engine](https://cortexjs.io/compute-engine/), [MathLive](https://mathlive.io/)
+- **Vizuelizacija:** [Plotly.js](https://plotly.com/javascript/), [KaTeX](https://katex.org/)
+- **UI Komponente:** [Radix UI](https://www.radix-ui.com/), [Lucide Icons](https://lucide.dev/)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 💻 Postavljanje Projekta (Setup)
+
+Pratite ove korake da biste pokrenuli aplikaciju lokalno:
+
+### Preduslovi
+- Instaliran [Node.js](https://nodejs.org/) (verzija 18 ili novija)
+- npm (dolazi uz Node.js)
+
+### Instalacija i pokretanje
+
+1. **Klonirajte repozitorij:**
+   ```bash
+   git clone https://github.com/SafetImamovic/numericka-aproksimacija.git
+   cd numericka-aproksimacija/
+   ```
+
+2. **Instalirajte zavisnosti:**
+   ```bash
+   npm install
+   ```
+
+3. **Pokrenite razvojni server:**
+   ```bash
+   npm run dev
+   ```
+
+4. **Otvorite aplikaciju u pregledniku:**
+   Posjetite [http://localhost:3000](http://localhost:3000).
+
+## 🤝 Doprinos Projektu (Contributing)
+
+Ako ste član tima ili želite doprinijeti projektu:
+
+1. Provjerite `CLAUDE.md` za smjernice o arhitekturi i stilu koda.
+2. Sve matematičke algoritme dodajte u `lib/math` direktorij.
+3. Nove UI komponente kreirajte u skladu sa postojećim dizajnom u `components/ui`.
+4. Sve nove stringove za prevod dodajte u `messages/bs.json` i `messages/en.json`.
+
+---
+*Projekat razvijen za potrebe predmeta PNMuSI.*

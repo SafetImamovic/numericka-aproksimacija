@@ -14,7 +14,7 @@ Next.js 15 numerical approximation web app for PNMuSI course. Implements various
 - **UI Components:** Custom shadcn-style components + Radix UI primitives
 - **Math Libraries:**
   - MathLive - Mathematical expression input with virtual keyboard
-  - math.js - Expression parsing and evaluation
+  - @cortex-js/compute-engine - Expression parsing, evaluation, and LaTeX support
   - KaTeX - LaTeX rendering
   - Plotly.js - Interactive plotting
 - **i18n:** next-intl for English/Bosnian support
@@ -71,7 +71,8 @@ lib/
 │   ├── approximation.ts    # Least squares methods
 │   ├── interpolation.ts    # Lagrange, Newton, Direct
 │   ├── matrix-utils.ts     # Linear algebra operations
-│   ├── expression-parser.ts # math.js wrapper
+│   ├── expression-parser.ts # Compute Engine wrapper
+│   ├── compute-engine.esm.js # Local Compute Engine bundle
 │   ├── validators.ts       # Data validation
 │   └── nonlinear.ts        # Power, exponential
 ├── hooks/                  # React hooks
