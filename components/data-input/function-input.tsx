@@ -1,0 +1,254 @@
+'use client'
+
+import { useState, useCallback } from 'react'
+import { Play, AlertCircle, Info } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import {
+  validateExpression,
+  generatePointsFromExpression,
+  getSupportedFunctions,
+} from '@/lib/math/expression-parser'
+import type { DataPoint, FunctionInput as FunctionInputType } from '@/lib/types'
+
+interface FunctionInputProps {
+  onPointsGenerated: (points: DataPoint[]) => void
+  disabled?: boolean
+  translations: {
+    functionExpression: string
+    functionPlaceholder: string
+    domainMin: string
+    domainMax: string
+    samplePoints: string
+    generatePoints: string
+    invalidExpression: string
+    domainError: string
+    preview: string
+    dataPoints: string
+  }
+}
+
+export function FunctionInput({
+  onPointsGenerated,
+  disabled = false,
+  translations,
+}: FunctionInputProps) {
+  const [expression, setExpression] = useState('')
+  const [domainMin, setDomainMin] = useState('-5')
+  const [domainMax, setDomainMax] = useState('5')
+  const [sampleCount, setSampleCount] = useState('10')
+  const [error, setError] = useState<string | null>(null)
+  const [preview, setPreview] = useState<DataPoint[] | null>(null)
+  const [showHelp, setShowHelp] = useState(false)
+
+  const handleGenerate = useCallback(() => {
+    setError(null)
+    setPreview(null)
+
+    // Validate expression
+    const validation = validateExpression(expression)
+    if (!validation.isValid) {
+      setError(validation.error || translations.invalidExpression)
+      return
+    }
+
+    // Validate domain
+    const min = parseFloat(domainMin)
+    const max = parseFloat(domainMax)
+    const count = parseInt(sampleCount, 10)
+
+    if (isNaN(min) || isNaN(max) || min >= max) {
+      setError(translations.domainError)
+      return
+    }
+
+    if (isNaN(count) || count < 2 || count > 100) {
+      setError('Sample count must be between 2 and 100')
+      return
+    }
+
+    try {
+      const input: FunctionInputType = {
+        expression,
+        domain: { min, max },
+        sampleCount: count,
+      }
+
+      const points = generatePointsFromExpression(input)
+
+      if (points.length < 2) {
+        setError('Could not generate enough valid points')
+        return
+      }
+
+      setPreview(points)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : translations.invalidExpression)
+    }
+  }, [expression, domainMin, domainMax, sampleCount, translations])
+
+  const handleConfirm = useCallback(() => {
+    if (preview) {
+      onPointsGenerated(preview)
+      setPreview(null)
+    }
+  }, [preview, onPointsGenerated])
+
+  const handleCancel = useCallback(() => {
+    setPreview(null)
+    setError(null)
+  }, [])
+
+  const supportedFunctions = getSupportedFunctions()
+
+  return (
+    <div className="space-y-4">
+      {/* Expression input */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <label className="text-sm font-medium">
+            {translations.functionExpression}
+          </label>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowHelp(!showHelp)}
+            className="h-6 px-2 text-muted-foreground"
+          >
+            <Info className="h-3 w-3 mr-1" />
+            Help
+          </Button>
+        </div>
+
+        <Input
+          value={expression}
+          onChange={(e) => setExpression(e.target.value)}
+          placeholder={translations.functionPlaceholder}
+          disabled={disabled}
+          className="font-mono"
+        />
+
+        {showHelp && (
+          <div className="p-3 bg-card border border-border rounded-lg text-sm">
+            <p className="font-medium mb-2">Supported functions:</p>
+            <ul className="space-y-1 text-muted-foreground">
+              {supportedFunctions.map((func, i) => (
+                <li key={i} className="font-mono text-xs">
+                  {func}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+
+      {/* Domain inputs */}
+      <div className="grid grid-cols-3 gap-3">
+        <div className="space-y-1">
+          <label className="text-sm text-muted-foreground">
+            {translations.domainMin}
+          </label>
+          <Input
+            type="number"
+            value={domainMin}
+            onChange={(e) => setDomainMin(e.target.value)}
+            disabled={disabled}
+            className="font-mono"
+          />
+        </div>
+
+        <div className="space-y-1">
+          <label className="text-sm text-muted-foreground">
+            {translations.domainMax}
+          </label>
+          <Input
+            type="number"
+            value={domainMax}
+            onChange={(e) => setDomainMax(e.target.value)}
+            disabled={disabled}
+            className="font-mono"
+          />
+        </div>
+
+        <div className="space-y-1">
+          <label className="text-sm text-muted-foreground">
+            {translations.samplePoints}
+          </label>
+          <Input
+            type="number"
+            min={2}
+            max={100}
+            value={sampleCount}
+            onChange={(e) => setSampleCount(e.target.value)}
+            disabled={disabled}
+            className="font-mono"
+          />
+        </div>
+      </div>
+
+      {/* Generate button */}
+      <Button
+        onClick={handleGenerate}
+        disabled={disabled || !expression.trim()}
+        className="w-full"
+      >
+        <Play className="h-4 w-4 mr-2" />
+        {translations.generatePoints}
+      </Button>
+
+      {/* Error message */}
+      {error && (
+        <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/30 rounded-lg">
+          <AlertCircle className="h-4 w-4 text-destructive" />
+          <p className="text-sm text-destructive">{error}</p>
+        </div>
+      )}
+
+      {/* Preview */}
+      {preview && (
+        <div className="space-y-3">
+          <p className="text-sm font-medium">
+            {translations.preview}: {preview.length} {translations.dataPoints}
+          </p>
+
+          <div className="max-h-[200px] overflow-y-auto bg-card border border-border rounded-lg">
+            <table className="data-table text-sm">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>x</th>
+                  <th>y</th>
+                </tr>
+              </thead>
+              <tbody>
+                {preview.slice(0, 10).map((point, index) => (
+                  <tr key={index}>
+                    <td className="text-muted-foreground">{index + 1}</td>
+                    <td className="font-mono">{point.x.toFixed(4)}</td>
+                    <td className="font-mono">{point.y.toFixed(4)}</td>
+                  </tr>
+                ))}
+                {preview.length > 10 && (
+                  <tr>
+                    <td colSpan={3} className="text-muted-foreground">
+                      ... and {preview.length - 10} more
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="flex gap-2">
+            <Button onClick={handleConfirm} className="flex-1">
+              Use Points
+            </Button>
+            <Button variant="outline" onClick={handleCancel}>
+              Cancel
+            </Button>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}

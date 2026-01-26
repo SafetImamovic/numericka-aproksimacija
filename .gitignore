@@ -1,0 +1,45 @@
+# Node modules
+/node_modules/
+
+# Build output
+/dist/
+/build/
+/out/
+
+# Local env files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# IDEs and editors
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Optional: coverage reports
+coverage/
+
+# Optional: TypeScript
+*.tsbuildinfo
+
+# Optional: test outputs
+/jest-cache/
+/jest-result/
+/.cypress/
+
+# Optional: Next.js
+.next/
+.vercel/
