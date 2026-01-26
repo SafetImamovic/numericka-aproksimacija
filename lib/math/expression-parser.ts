@@ -1,63 +1,32 @@
-import { create, all, type MathJsInstance } from 'mathjs'
+// @ts-ignore - Importing from local ESM bundle
+import { ComputeEngine } from './compute-engine.esm.js'
 import type { DataPoint, FunctionInput } from '@/lib/types'
 
-// Create a mathjs instance with all functions
-const math: MathJsInstance = create(all)
+// Create a Compute Engine instance
+const ce = new ComputeEngine()
 
 /**
  * Parse and evaluate a mathematical expression at a given x value
  */
 export function evaluateExpression(expression: string, x: number): number {
   try {
-    // Replace common notations with mathjs compatible syntax
-    const normalized = normalizeExpression(expression)
-    const result = math.evaluate(normalized, { x })
+    const expr = ce.parse(expression)
+    // Use .N() for numeric evaluation and handle possible non-number returns
+    const result = expr.subs({ x }).N().numericValue
 
-    if (typeof result === 'number' && isFinite(result)) {
-      return result
+    if (result === null || result === undefined) {
+      throw new Error('Expression did not evaluate to a value')
     }
 
-    throw new Error('Expression did not evaluate to a finite number')
+    const val = typeof result === 'number' ? result : Number(result)
+    if (isNaN(val) || !isFinite(val)) {
+      throw new Error('Expression did not evaluate to a finite number')
+    }
+
+    return val
   } catch (error) {
     throw new Error(`Failed to evaluate expression: ${error instanceof Error ? error.message : 'Unknown error'}`)
   }
-}
-
-/**
- * Normalize mathematical expression for mathjs parsing
- */
-function normalizeExpression(expression: string): string {
-  const normalized = expression
-    // Replace e^x with exp(x)
-    .replace(/e\^(\([^)]+\))/g, 'exp($1)')
-    .replace(/e\^(-?\d+\.?\d*)/g, 'exp($1)')
-    .replace(/e\^x/g, 'exp(x)')
-    .replace(/e\^(-?x)/g, 'exp($1)')
-    // Replace ln with log (mathjs uses log for natural log)
-    .replace(/\bln\(/g, 'log(')
-    // Replace log10 for base-10 log
-    .replace(/\blog10\(/g, 'log10(')
-    // Handle implicit multiplication: 2x -> 2*x, x2 -> x*2
-    .replace(/(\d)([a-zA-Z])/g, '$1*$2')
-    .replace(/([a-zA-Z])(\d)/g, '$1*$2')
-    // Handle implicit multiplication with parentheses: 2(x) -> 2*(x), (x)2 -> (x)*2
-    .replace(/(\d)\(/g, '$1*(')
-    .replace(/\)(\d)/g, ')*$1')
-    // Handle )( -> )*(
-    .replace(/\)\(/g, ')*(')
-    // Handle x( -> x*(
-    .replace(/([a-zA-Z])\(/g, (match, letter) => {
-      // Don't add * before function names
-      const funcs = ['sin', 'cos', 'tan', 'exp', 'log', 'sqrt', 'abs', 'ceil', 'floor', 'asin', 'acos', 'atan', 'sinh', 'cosh', 'tanh']
-      const preceding = normalized.substring(0, normalized.indexOf(match)).split(/[^a-zA-Z]/).pop() || ''
-      const funcName = preceding + letter
-      if (funcs.includes(funcName)) {
-        return match
-      }
-      return `${letter}*(`
-    })
-
-  return normalized
 }
 
 /**
@@ -69,14 +38,18 @@ export function validateExpression(expression: string): { isValid: boolean; erro
   }
 
   try {
-    // Try parsing the expression
-    const normalized = normalizeExpression(expression)
-    math.parse(normalized)
+    const expr = ce.parse(expression)
+
+    // Check for obvious parsing errors (e.g., unexpected tokens)
+    if (expr.head === 'Error') {
+      return { isValid: false, error: 'Malformed expression' }
+    }
 
     // Try evaluating at a test point
-    const testResult = math.evaluate(normalized, { x: 1 })
+    const testResult = expr.subs({ x: 1 }).N().numericValue
+    const val = typeof testResult === 'number' ? testResult : Number(testResult)
 
-    if (typeof testResult !== 'number' || !isFinite(testResult)) {
+    if (isNaN(val) || !isFinite(val)) {
       return { isValid: false, error: 'Expression does not evaluate to a number' }
     }
 
@@ -111,12 +84,18 @@ export function generatePointsFromExpression(input: FunctionInput): DataPoint[] 
   const points: DataPoint[] = []
   const step = (domain.max - domain.min) / (sampleCount - 1)
 
+  // Compile expression for better performance in loops
+  const compiledExpr = ce.parse(expression)
+
   for (let i = 0; i < sampleCount; i++) {
     const x = domain.min + i * step
     try {
-      const y = evaluateExpression(expression, x)
-      if (isFinite(y)) {
-        points.push({ x, y })
+      const result = compiledExpr.subs({ x }).N().numericValue
+      if (result !== null && result !== undefined) {
+        const y = typeof result === 'number' ? result : Number(result)
+        if (!isNaN(y) && isFinite(y)) {
+          points.push({ x, y })
+        }
       }
     } catch {
       // Skip points where evaluation fails (e.g., log of negative number)
@@ -217,7 +196,6 @@ function formatCoefficient(n: number, precision: number): string {
   if (Math.abs(n - Math.round(n)) < 1e-10) {
     return Math.round(n).toString()
   }
-  console.log("Coefficient Ovdje")
   return n.toFixed(precision).replace(/\.?0+$/, '')
 }
 
@@ -226,13 +204,12 @@ function formatCoefficient(n: number, precision: number): string {
  */
 export function getSupportedFunctions(): string[] {
   return [
-    'sin(x), cos(x), tan(x)',
-    'asin(x), acos(x), atan(x)',
-    'sinh(x), cosh(x), tanh(x)',
-    'exp(x), e^x',
-    'log(x), ln(x), log10(x)',
-    'sqrt(x), abs(x)',
-    'ceil(x), floor(x)',
-    'x^n, x**n',
+    '\\sin(x), \\cos(x), \\tan(x)',
+    '\\arcsin(x), \\arccos(x), \\arctan(x)',
+    '\\sinh(x), \\cosh(x), \\tanh(x)',
+    '\\exp(x), e^x',
+    '\\ln(x), \\log_{10}(x)',
+    '\\sqrt{x}, |x|',
+    'x^n',
   ]
 }

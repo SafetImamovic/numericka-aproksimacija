@@ -4,6 +4,7 @@ import { useState, useCallback } from 'react'
 import { Play, AlertCircle, Info } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { MathInput } from '@/components/math/math-input'
 import {
   validateExpression,
   generatePointsFromExpression,
@@ -120,17 +121,17 @@ export function FunctionInput({
           </Button>
         </div>
 
-        <Input
+        <MathInput
           value={expression}
-          onChange={(e) => setExpression(e.target.value)}
+          onChange={setExpression}
           placeholder={translations.functionPlaceholder}
           disabled={disabled}
-          className="font-mono"
+          className="border rounded-md px-3 py-2 bg-background"
         />
 
         {showHelp && (
           <div className="p-3 bg-card border border-border rounded-lg text-sm">
-            <p className="font-medium mb-2">Supported functions:</p>
+            <p className="font-medium mb-2">Supported functions (LaTeX):</p>
             <ul className="space-y-1 text-muted-foreground">
               {supportedFunctions.map((func, i) => (
                 <li key={i} className="font-mono text-xs">
