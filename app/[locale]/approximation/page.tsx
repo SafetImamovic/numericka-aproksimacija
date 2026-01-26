@@ -9,9 +9,10 @@ import { Input } from '@/components/ui/input'
 import { InputTabs } from '@/components/data-input/input-tabs'
 import { PolynomialResult } from '@/components/results/polynomial-result'
 import { StepDisplay } from '@/components/results/step-display'
+import { FunctionPlot } from '@/components/math/function-plot'
 import { useCalculation } from '@/lib/hooks/use-calculation'
 import { useHistory } from '@/lib/hooks/use-history'
-import type { DataPoint } from '@/lib/types'
+import type { DataPoint, ApproximationResult } from '@/lib/types'
 
 type ApproximationMethod =
   | 'linear-approximation'
@@ -128,18 +129,17 @@ export default function ApproximationPage() {
   ).length
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <div className="max-w-6xl mx-auto space-y-6 pb-12">
       {/* Header */}
       <div>
         <h1 className="text-2xl sm:text-3xl font-bold">{t('approximation.title')}</h1>
         <p className="text-muted-foreground">{t('approximation.subtitle')}</p>
       </div>
 
+      {/* Tier 1: Method and Input */}
       <div className="grid gap-6 lg:grid-cols-2">
-        {/* Left column - Input */}
         <div className="space-y-6">
-          {/* Method selection */}
-          <Card>
+          <Card className="h-full">
             <CardHeader>
               <CardTitle>{t('approximation.selectMethod')}</CardTitle>
             </CardHeader>
@@ -149,11 +149,10 @@ export default function ApproximationPage() {
                   <button
                     key={method.id}
                     onClick={() => setSelectedMethod(method.id)}
-                    className={`p-3 text-left rounded-lg border transition-colors ${
-                      selectedMethod === method.id
-                        ? 'border-primary bg-primary/10 text-primary'
-                        : 'border-border hover:border-primary/50'
-                    }`}
+                    className={`p-3 text-left rounded-lg border transition-colors ${selectedMethod === method.id
+                      ? 'border-primary bg-primary/10 text-primary'
+                      : 'border-border hover:border-primary/50'
+                      }`}
                   >
                     <div className="font-medium">
                       {t(`approximation.${method.labelKey}`)}
@@ -183,9 +182,10 @@ export default function ApproximationPage() {
               )}
             </CardContent>
           </Card>
+        </div>
 
-          {/* Data input */}
-          <Card>
+        <div className="space-y-6 flex flex-col">
+          <Card className="flex-1">
             <CardContent className="pt-6">
               <InputTabs
                 points={points}
@@ -195,7 +195,6 @@ export default function ApproximationPage() {
             </CardContent>
           </Card>
 
-          {/* Calculate button */}
           <div className="flex gap-3">
             <Button
               onClick={handleCalculate}
@@ -213,7 +212,7 @@ export default function ApproximationPage() {
 
           {/* Validation errors */}
           {validation && !validation.isValid && (
-            <div className="p-4 bg-destructive/10 border border-destructive/30 rounded-lg">
+            <div className="p-4 bg-destructive/10 border border-destructive/30 rounded-lg mt-4">
               <div className="flex items-center gap-2 text-destructive mb-2">
                 <AlertCircle className="w-4 h-4" />
                 <span className="font-medium">{t('common.error')}</span>
@@ -226,60 +225,80 @@ export default function ApproximationPage() {
             </div>
           )}
         </div>
+      </div>
 
-        {/* Right column - Results */}
-        <div className="space-y-6">
-          {error && !validation?.errors.length && (
-            <Card className="border-destructive">
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-2 text-destructive">
-                  <AlertCircle className="w-5 h-5" />
-                  <span>{error}</span>
-                </div>
-              </CardContent>
-            </Card>
-          )}
+      {/* Tier 2: Full Width Graph */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            {tResults('graph')}
+            {!result && (
+              <span className="text-xs font-normal text-muted-foreground uppercase tracking-wider">
+                {t('approximation.selectMethod')}
+              </span>
+            )}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <FunctionPlot
+            dataPoints={points.filter(p => !isNaN(p.x) && !isNaN(p.y))}
+            fittedCurve={result ? (result as ApproximationResult).fittedPoints : []}
+            height={500}
+          />
+        </CardContent>
+      </Card>
 
-          {result && (
-            <>
-              <Card>
-                <CardHeader>
-                  <CardTitle>{t('results.title')}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <PolynomialResult
-                    result={result}
-                    onEvaluate={evaluate}
-                    onSaveToHistory={handleSaveToHistory}
-                    translations={resultTranslations}
-                  />
+      {/* Tier 3: Results and Steps */}
+      {result && (
+        <div className="grid gap-6 lg:grid-cols-2">
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('results.title')}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <PolynomialResult
+                result={result}
+                onEvaluate={evaluate}
+                onSaveToHistory={handleSaveToHistory}
+                translations={resultTranslations}
+              />
+            </CardContent>
+          </Card>
+
+          <div className="space-y-6">
+            {error && !validation?.errors.length && (
+              <Card className="border-destructive">
+                <CardContent className="pt-6">
+                  <div className="flex items-center gap-2 text-destructive">
+                    <AlertCircle className="w-5 h-5" />
+                    <span>{error}</span>
+                  </div>
                 </CardContent>
               </Card>
+            )}
 
-              {/* Calculation steps */}
-              {'steps' in result && result.steps && (
-                <StepDisplay
-                  steps={result.steps}
-                  title={t('results.steps')}
-                  defaultExpanded={false}
-                />
-              )}
-            </>
-          )}
-
-          {!result && !error && (
-            <Card className="border-dashed">
-              <CardContent className="py-12 text-center text-muted-foreground">
-                <Calculator className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <p>{t('approximation.selectMethod')}</p>
-                <p className="text-sm mt-1">
-                  {validPointCount} {t('input.dataPoints')}
-                </p>
-              </CardContent>
-            </Card>
-          )}
+            {'steps' in result && result.steps && (
+              <StepDisplay
+                steps={result.steps}
+                title={t('results.steps')}
+                defaultExpanded={true}
+              />
+            )}
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* Empty State when no result */}
+      {!result && error && !validation?.errors.length && (
+        <Card className="border-destructive">
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-2 text-destructive">
+              <AlertCircle className="w-5 h-5" />
+              <span>{error}</span>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   )
 }

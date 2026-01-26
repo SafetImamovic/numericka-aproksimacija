@@ -8,7 +8,7 @@ import type { DataPoint } from '@/lib/types'
 const Plot = dynamic(() => import('react-plotly.js'), {
   ssr: false,
   loading: () => (
-    <div className="w-full h-[400px] flex items-center justify-center bg-card rounded-lg border border-border">
+    <div className="w-full h-[500px] flex items-center justify-center bg-card rounded-lg border border-border">
       <div className="text-muted-foreground">Loading plot...</div>
     </div>
   ),
@@ -81,6 +81,7 @@ interface PlotConfig {
   displayModeBar: boolean
   modeBarButtonsToRemove: string[]
   displaylogo: boolean
+  scrollZoom: boolean
   toImageButtonOptions: {
     format: string
     filename: string
@@ -107,7 +108,7 @@ export function FunctionPlot({
   yLabel = 'y',
   showLegend = true,
   className = '',
-  height = 400,
+  height = 500,
 }: FunctionPlotProps) {
   const { traces, layout } = useMemo(() => {
     const traces: PlotData[] = []
@@ -164,9 +165,9 @@ export function FunctionPlot({
     const layout: Partial<PlotLayout> = {
       title: title
         ? {
-            text: title,
-            font: { color: '#e2e8f0', size: 16 },
-          }
+          text: title,
+          font: { color: '#e2e8f0', size: 16 },
+        }
         : undefined,
       paper_bgcolor: 'rgba(23, 23, 30, 1)',
       plot_bgcolor: 'rgba(23, 23, 30, 1)',
@@ -199,7 +200,7 @@ export function FunctionPlot({
       },
       margin: { t: title ? 50 : 30, r: 30, b: 50, l: 60 },
       hovermode: 'closest',
-      dragmode: 'zoom',
+      dragmode: 'pan',
     }
 
     return { traces, layout }
@@ -215,6 +216,7 @@ export function FunctionPlot({
       'toggleSpikelines',
     ],
     displaylogo: false,
+    scrollZoom: true,
     toImageButtonOptions: {
       format: 'png',
       filename: 'plot',

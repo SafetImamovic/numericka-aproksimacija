@@ -5,7 +5,6 @@ import { Copy, Save, Check } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { LatexBlock } from '@/components/math/latex-display'
-import { FunctionPlot } from '@/components/math/function-plot'
 import type { ApproximationResult, InterpolationResult } from '@/lib/types'
 
 interface PolynomialResultProps {
@@ -64,11 +63,6 @@ export function PolynomialResult({
   }, [evalX, onEvaluate])
 
   const isApproximation = 'rSquared' in result
-
-  // Get fitted points for plotting
-  const fittedPoints = isApproximation
-    ? (result as ApproximationResult).fittedPoints
-    : []
 
   return (
     <div className="space-y-6">
@@ -152,15 +146,6 @@ export function PolynomialResult({
         </div>
       )}
 
-      {/* Graph */}
-      <div className="space-y-3">
-        <h4 className="font-medium">{translations.graph}</h4>
-        <FunctionPlot
-          dataPoints={result.points}
-          fittedCurve={fittedPoints}
-          height={350}
-        />
-      </div>
 
       {/* Evaluate polynomial */}
       {onEvaluate && (
