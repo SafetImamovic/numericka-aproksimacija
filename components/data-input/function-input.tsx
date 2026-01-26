@@ -5,6 +5,7 @@ import { Play, AlertCircle, Info } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { MathInput } from '@/components/math/math-input'
+import { LatexDisplay } from '@/components/math/latex-display'
 import {
   validateExpression,
   generatePointsFromExpression,
@@ -130,15 +131,19 @@ export function FunctionInput({
         />
 
         {showHelp && (
-          <div className="p-3 bg-card border border-border rounded-lg text-sm">
-            <p className="font-medium mb-2">Supported functions (LaTeX):</p>
-            <ul className="space-y-1 text-muted-foreground">
+          <div className="p-3 bg-card border border-border rounded-lg shadow-sm">
+            <p className="font-medium mb-3 text-sm">Supported functions (LaTeX):</p>
+            <div className="grid grid-cols-2 gap-2">
               {supportedFunctions.map((func, i) => (
-                <li key={i} className="font-mono text-xs">
-                  {func}
-                </li>
+                <div key={i} className="flex items-center p-2 rounded bg-muted/50 border border-border/50">
+                  <LatexDisplay
+                    latex={func}
+                    className="text-xs"
+                    errorFallback={func}
+                  />
+                </div>
               ))}
-            </ul>
+            </div>
           </div>
         )}
       </div>

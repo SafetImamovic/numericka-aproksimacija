@@ -105,7 +105,7 @@ export function linearApproximation(points: DataPoint[]): ApproximationResult & 
   return {
     type: 'linear-approximation',
     coefficients,
-    polynomial: `P(x) = ${polynomialToLatex(coefficients)}`,
+    polynomial: polynomialToLatex(coefficients),
     rSquared: calculateRSquared(points, coefficients),
     sumSquaredError: calculateSSE(points, coefficients),
     points,
@@ -160,7 +160,7 @@ export function quadraticApproximation(points: DataPoint[]): ApproximationResult
   return {
     type: 'quadratic-approximation',
     coefficients,
-    polynomial: `P(x) = ${polynomialToLatex(coefficients)}`,
+    polynomial: polynomialToLatex(coefficients),
     rSquared: calculateRSquared(points, coefficients),
     sumSquaredError: calculateSSE(points, coefficients),
     points,
@@ -208,7 +208,7 @@ export function polynomialApproximation(
   return {
     type: 'polynomial-approximation',
     coefficients,
-    polynomial: `P(x) = ${polynomialToLatex(coefficients)}`,
+    polynomial: polynomialToLatex(coefficients),
     rSquared: calculateRSquared(points, coefficients),
     sumSquaredError: calculateSSE(points, coefficients),
     points,
@@ -291,7 +291,7 @@ export function powerApproximation(points: DataPoint[]): ApproximationResult & {
   return {
     type: 'power-approximation',
     coefficients: [a, b],
-    polynomial: `P(x) = ${formatNumber(a)} \\cdot x^{${formatNumber(b)}}`,
+    polynomial: `${formatNumber(a)} \\cdot x^{${formatNumber(b)}}`,
     rSquared,
     sumSquaredError: ssRes,
     points,
@@ -373,7 +373,7 @@ export function exponentialApproximation(points: DataPoint[]): ApproximationResu
   return {
     type: 'exponential-approximation',
     coefficients: [a, b],
-    polynomial: `P(x) = ${formatNumber(a)} \\cdot e^{${formatNumber(b)}x}`,
+    polynomial: `${formatNumber(a)} \\cdot e^{${formatNumber(b)}x}`,
     rSquared,
     sumSquaredError: ssRes,
     points,

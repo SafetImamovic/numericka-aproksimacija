@@ -139,14 +139,12 @@ export function vectorToLatex(v: Vector, precision: number = 4): string {
 /**
  * Format a number for display
  */
-export function formatNumber(n: number, precision: number = 4): string {
-  if (Math.abs(n) < 1e-10) return '0'
-  if (Math.abs(n - Math.round(n)) < 1e-10) return Math.round(n).toString()
-  console.log("FormatNumber Ovdje")
-console.log(n)
-  console.log(n.toFixed(precision).replace(/\.?0+$/, ''))
-  console.log(n.toFixed(precision))
-  return n.toFixed(precision).replace(/\.?0+$/, '')
+export function formatNumber(n: any, precision: number = 4): string {
+  const num = typeof n === 'number' ? n : Number(n)
+  if (isNaN(num) || !isFinite(num)) return '0'
+  if (Math.abs(num) < 1e-10) return '0'
+  if (Math.abs(num - Math.round(num)) < 1e-10) return Math.round(num).toString()
+  return num.toFixed(precision).replace(/\.?0+$/, '')
 }
 
 /**

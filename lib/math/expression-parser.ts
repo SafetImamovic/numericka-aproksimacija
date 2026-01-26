@@ -192,11 +192,13 @@ export function polynomialToLatex(coefficients: number[], precision: number = 4)
 /**
  * Format a coefficient for display
  */
-function formatCoefficient(n: number, precision: number): string {
-  if (Math.abs(n - Math.round(n)) < 1e-10) {
-    return Math.round(n).toString()
+function formatCoefficient(n: any, precision: number): string {
+  const num = typeof n === 'number' ? n : Number(n)
+  if (isNaN(num) || !isFinite(num)) return '0'
+  if (Math.abs(num - Math.round(num)) < 1e-10) {
+    return Math.round(num).toString()
   }
-  return n.toFixed(precision).replace(/\.?0+$/, '')
+  return num.toFixed(precision).replace(/\.?0+$/, '')
 }
 
 /**

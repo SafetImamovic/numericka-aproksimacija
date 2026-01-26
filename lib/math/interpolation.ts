@@ -58,7 +58,7 @@ export function lagrangeInterpolation(points: DataPoint[]): InterpolationResult 
 
   return {
     type: 'lagrange-interpolation',
-    polynomial: `P(x) = ${polynomialToLatex(coefficients)}`,
+    polynomial: polynomialToLatex(coefficients),
     coefficients,
     points,
     basisPolynomials,
@@ -203,7 +203,7 @@ export function newtonInterpolation(points: DataPoint[]): InterpolationResult & 
 
   return {
     type: 'newton-interpolation',
-    polynomial: `P(x) = ${polynomialToLatex(coefficients)}`,
+    polynomial: polynomialToLatex(coefficients),
     coefficients,
     points,
     dividedDifferences: divDiff,
@@ -326,7 +326,7 @@ export function directInterpolation(points: DataPoint[]): InterpolationResult & 
 
   return {
     type: 'direct-interpolation',
-    polynomial: `P(x) = ${polynomialToLatex(coefficients)}`,
+    polynomial: polynomialToLatex(coefficients),
     coefficients,
     points,
     vandermondeMatrix: V,

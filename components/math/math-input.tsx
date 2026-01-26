@@ -36,9 +36,16 @@ export function MathInput({
         mathField.value = value
         mathField.setAttribute('virtual-keyboard-mode', 'auto')
         mathField.setAttribute('math-mode-space', '\\;')
-        mathField.className = `${className} ${disabled ? 'opacity-50 pointer-events-none' : ''}`
+        mathField.className = `${className} ${disabled ? 'opacity-50 pointer-events-none' : ''} focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2 transition-all duration-200 outline-none`
         mathField.setAttribute('aria-label', placeholder || 'Mathematical expression input')
-        mathField.style.cssText = '--placeholder-color: oklch(0.5 0.03 260)'
+        mathField.style.cssText = `
+          --placeholder-color: oklch(0.5 0.03 260);
+          --caret-color: var(--primary);
+          --selection-background-color: oklch(0.9 0.05 260);
+          padding: 8px;
+          border-radius: 6px;
+          background: var(--background);
+        `
 
         // Clear container and append
         containerRef.current.innerHTML = ''

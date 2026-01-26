@@ -39,7 +39,7 @@ export function PolynomialResult({
 
   const handleCopyLatex = useCallback(async () => {
     try {
-      await navigator.clipboard.writeText(result.polynomial)
+      await navigator.clipboard.writeText(`P(x) = ${result.polynomial}`)
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     } catch (error) {
@@ -108,7 +108,7 @@ export function PolynomialResult({
           </div>
         </div>
 
-        <LatexBlock latex={result.polynomial} />
+        <LatexBlock latex={`P(x) = ${result.polynomial}`} />
       </div>
 
       {/* Coefficients */}

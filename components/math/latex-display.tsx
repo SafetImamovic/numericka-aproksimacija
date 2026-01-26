@@ -30,9 +30,6 @@ export function LatexDisplay({
         errorColor: '#ff6b6b',
         trust: true,
         strict: false,
-        macros: {
-          '\\cdot': '\\cdot ',
-        },
       })
       setError(null)
     } catch (err) {
@@ -89,6 +86,8 @@ export function LatexSteps({ steps, className = '' }: LatexStepsProps) {
   )
 }
 
+import { formatNumber } from '@/lib/math/matrix-utils'
+
 // Matrix display component
 interface MatrixDisplayProps {
   matrix: number[][]
@@ -97,15 +96,8 @@ interface MatrixDisplayProps {
 }
 
 export function MatrixDisplay({ matrix, className = '', precision = 4 }: MatrixDisplayProps) {
-  const formatNumber = (n: number): string => {
-    if (Math.abs(n) < 1e-10) return '0'
-    if (Math.abs(n - Math.round(n)) < 1e-10) return Math.round(n).toString()
-    console.log("Latex Ovdje")
-    return n.toFixed(precision).replace(/\.?0+$/, '')
-  }
-
   const rows = matrix
-    .map((row) => row.map((val) => formatNumber(val)).join(' & '))
+    .map((row) => row.map((val) => formatNumber(val, precision)).join(' & '))
     .join(' \\\\ ')
 
   const latex = `\\begin{bmatrix} ${rows} \\end{bmatrix}`
