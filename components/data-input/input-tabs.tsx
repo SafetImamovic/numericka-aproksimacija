@@ -4,8 +4,15 @@ import { useState, useCallback } from 'react'
 import { FileText, Upload, FunctionSquare } from 'lucide-react'
 import { ManualInput } from './manual-input'
 import { FileUpload } from './file-upload'
-import { FunctionInput } from './function-input'
+import { FunctionInput, type FunctionInputState } from './function-input'
 import type { DataPoint, InputMode } from '@/lib/types'
+
+const DEFAULT_FUNCTION_STATE: FunctionInputState = {
+  expression: '',
+  domainMin: '-5',
+  domainMax: '5',
+  sampleCount: '10',
+}
 
 interface InputTabsProps {
   points: DataPoint[]
@@ -39,6 +46,13 @@ interface InputTabsProps {
     domainError: string
     preview: string
     dataPoints: string
+    usePoints: string
+    cancel: string
+    help: string
+    supportedFunctions: string
+    andMore: string
+    sampleCountError: string
+    notEnoughPoints: string
   }
 }
 
@@ -50,6 +64,7 @@ export function InputTabs({
   translations,
 }: InputTabsProps) {
   const [activeTab, setActiveTab] = useState<InputMode>('manual')
+  const [functionState, setFunctionState] = useState<FunctionInputState>(DEFAULT_FUNCTION_STATE)
 
   const tabs = [
     {
@@ -147,6 +162,8 @@ export function InputTabs({
           <FunctionInput
             onPointsGenerated={handleDataLoaded}
             disabled={disabled}
+            state={functionState}
+            onStateChange={setFunctionState}
             translations={{
               functionExpression: translations.functionExpression,
               functionPlaceholder: translations.functionPlaceholder,
@@ -158,6 +175,13 @@ export function InputTabs({
               domainError: translations.domainError,
               preview: translations.preview,
               dataPoints: translations.dataPoints,
+              usePoints: translations.usePoints,
+              cancel: translations.cancel,
+              help: translations.help,
+              supportedFunctions: translations.supportedFunctions,
+              andMore: translations.andMore,
+              sampleCountError: translations.sampleCountError,
+              notEnoughPoints: translations.notEnoughPoints,
             }}
           />
         )}

@@ -1,10 +1,31 @@
 {
     "mcpServers": {
         "next-devtools": {
-            "command": "npx",
+            "command": "cmd",
             "args": [
+                "/c",
+                "npx",
                 "-y",
                 "next-devtools-mcp@latest"
+            ]
+        },
+        "ESLint": {
+            "type": "stdio",
+            "command": "cmd",
+            "args": [
+                "/c",
+                "npx",
+                "-y",
+                "@eslint/mcp@latest"
+            ]
+        },
+        "react-docs": {
+            "command": "cmd",
+            "args": [
+                "/c",
+                "npx",
+                "-y",
+                "react-docs-mcp@latest"
             ]
         }
     }

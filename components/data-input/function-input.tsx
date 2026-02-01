@@ -13,9 +13,18 @@ import {
 } from '@/lib/math/expression-parser'
 import type { DataPoint, FunctionInput as FunctionInputType } from '@/lib/types'
 
+interface FunctionInputState {
+  expression: string
+  domainMin: string
+  domainMax: string
+  sampleCount: string
+}
+
 interface FunctionInputProps {
   onPointsGenerated: (points: DataPoint[], originalCurve?: DataPoint[]) => void
   disabled?: boolean
+  state: FunctionInputState
+  onStateChange: (state: FunctionInputState) => void
   translations: {
     functionExpression: string
     functionPlaceholder: string
@@ -27,22 +36,34 @@ interface FunctionInputProps {
     domainError: string
     preview: string
     dataPoints: string
+    usePoints: string
+    cancel: string
+    help: string
+    supportedFunctions: string
+    andMore: string
+    sampleCountError: string
+    notEnoughPoints: string
   }
 }
+
+export type { FunctionInputState }
 
 export function FunctionInput({
   onPointsGenerated,
   disabled = false,
+  state,
+  onStateChange,
   translations,
 }: FunctionInputProps) {
-  const [expression, setExpression] = useState('')
-  const [domainMin, setDomainMin] = useState('-5')
-  const [domainMax, setDomainMax] = useState('5')
-  const [sampleCount, setSampleCount] = useState('10')
+  const { expression, domainMin, domainMax, sampleCount } = state
   const [error, setError] = useState<string | null>(null)
   const [preview, setPreview] = useState<DataPoint[] | null>(null)
   const [originalCurve, setOriginalCurve] = useState<DataPoint[] | null>(null)
   const [showHelp, setShowHelp] = useState(false)
+
+  const updateState = (updates: Partial<FunctionInputState>) => {
+    onStateChange({ ...state, ...updates })
+  }
 
   const handleGenerate = useCallback(() => {
     setError(null)
@@ -67,7 +88,7 @@ export function FunctionInput({
     }
 
     if (isNaN(count) || count < 2 || count > 100) {
-      setError('Sample count must be between 2 and 100')
+      setError(translations.sampleCountError)
       return
     }
 
@@ -87,7 +108,7 @@ export function FunctionInput({
       })
 
       if (points.length < 2) {
-        setError('Could not generate enough valid points')
+        setError(translations.notEnoughPoints)
         return
       }
 
@@ -129,13 +150,13 @@ export function FunctionInput({
             className="h-6 px-2 text-muted-foreground"
           >
             <Info className="h-3 w-3 mr-1" />
-            Help
+            {translations.help}
           </Button>
         </div>
 
         <MathInput
           value={expression}
-          onChange={setExpression}
+          onChange={(val) => updateState({ expression: val })}
           placeholder={translations.functionPlaceholder}
           disabled={disabled}
           className="border rounded-md px-3 py-2 bg-background"
@@ -143,7 +164,7 @@ export function FunctionInput({
 
         {showHelp && (
           <div className="p-3 bg-card border border-border rounded-lg shadow-sm">
-            <p className="font-medium mb-3 text-sm">Supported functions (LaTeX):</p>
+            <p className="font-medium mb-3 text-sm">{translations.supportedFunctions}</p>
             <div className="grid grid-cols-2 gap-2">
               {supportedFunctions.map((func, i) => (
                 <div key={i} className="flex items-center p-2 rounded bg-muted/50 border border-border/50">
@@ -168,7 +189,7 @@ export function FunctionInput({
           <Input
             type="number"
             value={domainMin}
-            onChange={(e) => setDomainMin(e.target.value)}
+            onChange={(e) => updateState({ domainMin: e.target.value })}
             disabled={disabled}
             className="font-mono"
           />
@@ -181,7 +202,7 @@ export function FunctionInput({
           <Input
             type="number"
             value={domainMax}
-            onChange={(e) => setDomainMax(e.target.value)}
+            onChange={(e) => updateState({ domainMax: e.target.value })}
             disabled={disabled}
             className="font-mono"
           />
@@ -196,7 +217,7 @@ export function FunctionInput({
             min={2}
             max={100}
             value={sampleCount}
-            onChange={(e) => setSampleCount(e.target.value)}
+            onChange={(e) => updateState({ sampleCount: e.target.value })}
             disabled={disabled}
             className="font-mono"
           />
@@ -248,7 +269,7 @@ export function FunctionInput({
                 {preview.length > 10 && (
                   <tr>
                     <td colSpan={3} className="text-muted-foreground">
-                      ... and {preview.length - 10} more
+                      {translations.andMore} {preview.length - 10}
                     </td>
                   </tr>
                 )}
@@ -258,10 +279,10 @@ export function FunctionInput({
 
           <div className="flex gap-2">
             <Button onClick={handleConfirm} className="flex-1">
-              Use Points
+              {translations.usePoints}
             </Button>
             <Button variant="outline" onClick={handleCancel}>
-              Cancel
+              {translations.cancel}
             </Button>
           </div>
         </div>

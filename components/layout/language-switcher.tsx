@@ -1,8 +1,8 @@
 'use client'
 
 import { useLocale } from 'next-intl'
-import { useRouter, usePathname } from 'next/navigation'
-import { useCallback } from 'react'
+import { useRouter, usePathname } from '@/app/i18n/navigation'
+import { useCallback, useTransition } from 'react'
 import { Globe } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import type { Locale } from '@/app/i18n/routing'
@@ -13,16 +13,16 @@ const languages: { code: Locale; label: string; flag: string }[] = [
 ]
 
 export function LanguageSwitcher() {
-  const locale = useLocale()
+  const locale = useLocale() as Locale
   const router = useRouter()
   const pathname = usePathname()
+  const [isPending, startTransition] = useTransition()
 
   const switchLanguage = useCallback(
     (newLocale: Locale) => {
-      // Remove current locale from pathname and add new one
-      const pathWithoutLocale = pathname.replace(/^\/(en|bs)/, '')
-      const newPath = `/${newLocale}${pathWithoutLocale || ''}`
-      router.push(newPath)
+      startTransition(() => {
+        router.replace(pathname, { locale: newLocale })
+      })
     },
     [pathname, router]
   )
@@ -35,6 +35,7 @@ export function LanguageSwitcher() {
       variant="ghost"
       size="sm"
       onClick={() => switchLanguage(otherLanguage.code)}
+      disabled={isPending}
       className="flex items-center gap-2"
       title={`Switch to ${otherLanguage.label}`}
     >

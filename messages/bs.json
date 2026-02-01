@@ -25,6 +25,8 @@
   "nav": {
     "home": "Početna",
     "approximation": "Aproksimacija",
+    "interpolation": "Interpolacija",
+    "history": "Historija",
     "language": "Jezik"
   },
   "home": {
@@ -67,7 +69,14 @@
     "generatePoints": "Generiši Tačke",
     "preview": "Pregled",
     "dataPoints": "Tačke Podataka",
-    "point": "Tačka"
+    "point": "Tačka",
+    "usePoints": "Koristi Tačke",
+    "cancel": "Otkaži",
+    "help": "Pomoć",
+    "supportedFunctions": "Podržane funkcije (LaTeX):",
+    "andMore": "... i još",
+    "sampleCountError": "Broj tačaka mora biti između 2 i 100",
+    "notEnoughPoints": "Nije moguće generisati dovoljno validnih tačaka"
   },
   "validation": {
     "requiredField": "Ovo polje je obavezno",

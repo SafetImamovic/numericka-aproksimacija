@@ -74,6 +74,13 @@ export default function InterpolationPage() {
       domainError: tValidation('domainError'),
       preview: tInput('preview'),
       dataPoints: tInput('dataPoints'),
+      usePoints: tInput('usePoints'),
+      cancel: tInput('cancel'),
+      help: tInput('help'),
+      supportedFunctions: tInput('supportedFunctions'),
+      andMore: tInput('andMore'),
+      sampleCountError: tInput('sampleCountError'),
+      notEnoughPoints: tInput('notEnoughPoints'),
     }),
     [tInput, tValidation]
   )

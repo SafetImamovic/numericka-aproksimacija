@@ -69,7 +69,14 @@
     "generatePoints": "Generate Points",
     "preview": "Preview",
     "dataPoints": "Data Points",
-    "point": "Point"
+    "point": "Point",
+    "usePoints": "Use Points",
+    "cancel": "Cancel",
+    "help": "Help",
+    "supportedFunctions": "Supported functions (LaTeX):",
+    "andMore": "... and more",
+    "sampleCountError": "Sample count must be between 2 and 100",
+    "notEnoughPoints": "Could not generate enough valid points"
   },
   "validation": {
     "requiredField": "This field is required",
