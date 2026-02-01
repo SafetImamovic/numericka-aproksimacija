@@ -160,7 +160,7 @@ export default function ApproximationPage() {
               <CardTitle>{t('approximation.selectMethod')}</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid gap-2 sm:grid-cols-2">
+              <div className="grid gap-2">
                 {methods.map((method) => (
                   <button
                     key={method.id}
