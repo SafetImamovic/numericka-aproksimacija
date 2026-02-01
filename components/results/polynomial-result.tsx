@@ -65,8 +65,6 @@ export function PolynomialResult({
     }
   }, [evalX, onEvaluate])
 
-  const isApproximation = 'rSquared' in result
-
   return (
     <div className="space-y-6">
       {/* Polynomial display */}

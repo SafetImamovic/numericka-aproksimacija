@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useCallback, createElement } from 'react'
+import { useEffect, useRef } from 'react'
 import type { MathfieldElement } from 'mathlive'
 
 interface MathInputProps {

@@ -1,20 +1,10 @@
 'use client'
 
 import dynamic from 'next/dynamic'
-import { useMemo } from 'react'
+import { useMemo, ComponentType } from 'react'
 import type { DataPoint } from '@/lib/types'
 
-// Dynamically import Plotly to avoid SSR issues
-const Plot = dynamic(() => import('react-plotly.js'), {
-  ssr: false,
-  loading: () => (
-    <div className="w-full h-[500px] flex items-center justify-center bg-card rounded-lg border border-border">
-      <div className="text-muted-foreground">Loading plot...</div>
-    </div>
-  ),
-})
-
-// Local type definitions for Plotly
+// Local type definitions for Plotly (must be before dynamic import)
 interface PlotData {
   x: number[]
   y: number[]
@@ -89,6 +79,31 @@ interface PlotConfig {
     scale: number
   }
 }
+
+interface PlotComponentProps {
+  data: PlotData[]
+  layout: Partial<PlotLayout>
+  config: PlotConfig
+  style?: React.CSSProperties
+  useResizeHandler?: boolean
+}
+
+// Dynamically import Plotly with minimal bundle (~3MB vs 115MB)
+const Plot = dynamic(
+  () => import('plotly.js-basic-dist').then((Plotly) => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const createPlotlyComponent = require('react-plotly.js/factory').default
+    return createPlotlyComponent(Plotly) as ComponentType<PlotComponentProps>
+  }),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-[500px] flex items-center justify-center bg-card rounded-lg border border-border">
+        <div className="text-muted-foreground">Loading plot...</div>
+      </div>
+    ),
+  }
+)
 
 interface FunctionPlotProps {
   dataPoints?: DataPoint[]
@@ -231,7 +246,7 @@ export function FunctionPlot({
     }
 
     return { traces, layout }
-  }, [dataPoints, fittedCurve, originalCurve, title, xLabel, yLabel, showLegend])
+  }, [dataPoints, fittedCurve, originalCurve, title, xLabel, yLabel, showLegend, dataPointsLabel, fittedCurveLabel, originalCurveLabel])
 
   const config: PlotConfig = {
     responsive: true,

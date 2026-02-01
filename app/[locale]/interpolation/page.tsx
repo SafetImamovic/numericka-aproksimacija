@@ -7,8 +7,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { InputTabs } from '@/components/data-input/input-tabs'
 import { PolynomialResult } from '@/components/results/polynomial-result'
-import { StepDisplay } from '@/components/results/step-display'
-import { MatrixDisplay } from '@/components/math/latex-display'
+import { LatexDisplay, MatrixDisplay } from '@/components/math/latex-display'
 import { ErrorCard } from '@/components/results/error-card'
 import { FunctionPlot } from '@/components/math/function-plot'
 import { useCalculation } from '@/lib/hooks/use-calculation'
@@ -190,26 +189,26 @@ export default function InterpolationPage() {
 
       {/* Tier 1: Method and Input */}
       <div className="grid gap-6 lg:grid-cols-12">
-        <div className="space-y-6 lg:col-span-4">
+        <div className="space-y-6 lg:col-span-3">
           <Card className="h-full">
-            <CardHeader>
-              <CardTitle>{t('interpolation.selectMethod')}</CardTitle>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">{t('interpolation.selectMethod')}</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="grid gap-2">
+            <CardContent className="pt-0">
+              <div className="grid gap-1.5">
                 {methods.map((method) => (
                   <button
                     key={method.id}
                     onClick={() => setSelectedMethod(method.id)}
-                    className={`p-3 text-left rounded-lg border transition-colors ${selectedMethod === method.id
+                    className={`p-2 text-left rounded-lg border transition-colors ${selectedMethod === method.id
                       ? 'border-primary bg-primary/10 text-primary'
                       : 'border-border hover:border-primary/50'
                       }`}
                   >
-                    <div className="font-medium">
+                    <div className="font-medium text-sm">
                       {t(`interpolation.${method.labelKey}`)}
                     </div>
-                    <div className="text-xs text-muted-foreground">
+                    <div className="text-[10px] text-muted-foreground">
                       {t(`interpolation.${method.descKey}`)}
                     </div>
                   </button>
@@ -219,7 +218,7 @@ export default function InterpolationPage() {
           </Card>
         </div>
 
-        <div className="space-y-6 flex flex-col lg:col-span-8">
+        <div className="space-y-6 flex flex-col lg:col-span-9">
           <Card className="flex-1">
             <CardContent className="pt-6">
               <InputTabs
@@ -287,122 +286,135 @@ export default function InterpolationPage() {
         </CardContent>
       </Card>
 
-      {/* Tier 3: Results and Steps */}
+      {/* Tier 3: Results - full width for LaTeX overflow */}
       {resultWithCurve && (
-        <div className="grid gap-6 lg:grid-cols-2 group">
-          {/* Left Column: Results & Mistakes */}
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>{t('results.title')}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <PolynomialResult
-                  result={resultWithCurve}
-                  onEvaluate={evaluate}
-                  onSaveToHistory={handleSaveToHistory}
-                  translations={resultTranslations}
-                />
-              </CardContent>
-            </Card>
-
-            <ErrorCard
+        <Card>
+          <CardHeader>
+            <CardTitle>{t('results.title')}</CardTitle>
+          </CardHeader>
+          <CardContent className="overflow-x-auto">
+            <PolynomialResult
               result={resultWithCurve}
+              onEvaluate={evaluate}
+              onSaveToHistory={handleSaveToHistory}
               translations={resultTranslations}
             />
-          </div>
+          </CardContent>
+        </Card>
+      )}
 
-          <div className="space-y-6">
-            {error && !validation?.errors.length && (
-              <Card className="border-destructive">
-                <CardContent className="pt-6">
-                  <div className="flex items-center gap-2 text-destructive">
-                    <AlertCircle className="w-5 h-5" />
-                    <span>{error}</span>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+      {/* Tier 4: Method-specific displays - full width */}
+      {resultWithCurve && (
+        <div className="grid gap-6 lg:grid-cols-2">
+          {/* Basis Polynomials (Lagrange) */}
+          {interpolationResult?.basisPolynomials && (
+            <Card>
+              <CardHeader className="py-3">
+                <CardTitle className="text-sm font-medium">{t('interpolation.basisPolynomials')}</CardTitle>
+              </CardHeader>
+              <CardContent className="overflow-x-auto max-h-[300px] overflow-y-auto">
+                <div className="space-y-2 font-mono text-xs">
+                  {interpolationResult.basisPolynomials.map((basis, i) => (
+                    <div key={i} className="p-2 bg-card border border-border rounded">
+                      {basis}
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
-            {/* Method-specific displays */}
-            {interpolationResult?.basisPolynomials && (
-              <Card>
-                <CardHeader className="py-3">
-                  <CardTitle className="text-sm font-medium">{t('interpolation.basisPolynomials')}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2 font-mono text-xs">
-                    {interpolationResult.basisPolynomials.map((basis, i) => (
-                      <div key={i} className="p-2 bg-card border border-border rounded">
-                        {basis}
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {interpolationResult?.dividedDifferences && (
-              <Card>
-                <CardHeader className="py-3">
-                  <CardTitle className="text-sm font-medium">{t('interpolation.dividedDifferences')}</CardTitle>
-                </CardHeader>
-                <CardContent className="overflow-x-auto">
-                  <table className="data-table text-xs">
-                    <thead>
-                      <tr>
-                        <th>x</th>
-                        <th>f[·]</th>
-                        {interpolationResult.dividedDifferences
-                          .slice(1)
-                          .map((_, i) => (
-                            <th key={i}>f[{'.'.repeat(i + 2)}]</th>
-                          ))}
+          {/* Divided Differences (Newton) */}
+          {interpolationResult?.dividedDifferences && (
+            <Card>
+              <CardHeader className="py-3">
+                <CardTitle className="text-sm font-medium">{t('interpolation.dividedDifferences')}</CardTitle>
+              </CardHeader>
+              <CardContent className="overflow-x-auto max-h-[300px] overflow-y-auto">
+                <table className="data-table text-xs">
+                  <thead>
+                    <tr>
+                      <th>x</th>
+                      <th>f[·]</th>
+                      {interpolationResult.dividedDifferences
+                        .slice(1)
+                        .map((_, i) => (
+                          <th key={i}>f[{'.'.repeat(i + 2)}]</th>
+                        ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {interpolationResult.points.map((point, rowIdx) => (
+                      <tr key={rowIdx}>
+                        <td className="font-mono">{point.x}</td>
+                        {interpolationResult.dividedDifferences!.map(
+                          (col, colIdx) =>
+                            rowIdx < col.length ? (
+                              <td key={colIdx} className="font-mono text-[10px]">
+                                {col[rowIdx].toFixed(4)}
+                              </td>
+                            ) : (
+                              <td key={colIdx} />
+                            )
+                        )}
                       </tr>
-                    </thead>
-                    <tbody>
-                      {interpolationResult.points.map((point, rowIdx) => (
-                        <tr key={rowIdx}>
-                          <td className="font-mono">{point.x}</td>
-                          {interpolationResult.dividedDifferences!.map(
-                            (col, colIdx) =>
-                              rowIdx < col.length ? (
-                                <td key={colIdx} className="font-mono text-[10px]">
-                                  {col[rowIdx].toFixed(4)}
-                                </td>
-                              ) : (
-                                <td key={colIdx} />
-                              )
-                          )}
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </CardContent>
-              </Card>
-            )}
+                    ))}
+                  </tbody>
+                </table>
+              </CardContent>
+            </Card>
+          )}
 
-            {interpolationResult?.vandermondeMatrix && (
-              <Card>
-                <CardHeader className="py-3">
-                  <CardTitle className="text-sm font-medium">{t('interpolation.vandermondeMatrix')}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <MatrixDisplay matrix={interpolationResult.vandermondeMatrix} />
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Calculation steps */}
-            {interpolationResult?.steps && (
-              <StepDisplay
-                steps={interpolationResult.steps}
-                title={t('results.steps')}
-                defaultExpanded={true}
-              />
-            )}
-          </div>
+          {/* Vandermonde Matrix (Direct) */}
+          {interpolationResult?.vandermondeMatrix && (
+            <Card>
+              <CardHeader className="py-3">
+                <CardTitle className="text-sm font-medium">{t('interpolation.vandermondeMatrix')}</CardTitle>
+              </CardHeader>
+              <CardContent className="overflow-x-auto">
+                <MatrixDisplay matrix={interpolationResult.vandermondeMatrix} />
+              </CardContent>
+            </Card>
+          )}
         </div>
+      )}
+
+      {/* Tier 5: Steps - full width for LaTeX overflow */}
+      {resultWithCurve && interpolationResult?.steps && (
+        <Card>
+          <CardHeader>
+            <CardTitle>{t('results.steps')}</CardTitle>
+          </CardHeader>
+          <CardContent className="overflow-x-auto max-h-[400px] overflow-y-auto">
+            <div className="space-y-4">
+              {interpolationResult.steps.map((step, index) => (
+                <div key={index} className="math-step">
+                  <LatexDisplay latex={step} displayMode />
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Error display */}
+      {resultWithCurve && error && !validation?.errors.length && (
+        <Card className="border-destructive">
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-2 text-destructive">
+              <AlertCircle className="w-5 h-5" />
+              <span>{error}</span>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Tier 4: Full Width Error Analysis */}
+      {resultWithCurve && (
+        <ErrorCard
+          result={resultWithCurve}
+          translations={resultTranslations}
+        />
       )}
 
       {/* Empty State / Error */}

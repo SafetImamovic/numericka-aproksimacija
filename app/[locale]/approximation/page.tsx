@@ -8,9 +8,9 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { InputTabs } from '@/components/data-input/input-tabs'
 import { PolynomialResult } from '@/components/results/polynomial-result'
-import { StepDisplay } from '@/components/results/step-display'
 import { ErrorCard } from '@/components/results/error-card'
 import { FunctionPlot } from '@/components/math/function-plot'
+import { LatexDisplay } from '@/components/math/latex-display'
 import { useCalculation } from '@/lib/hooks/use-calculation'
 import { useHistory } from '@/lib/hooks/use-history'
 import { getValidationErrorKey } from '@/lib/math/validators'
@@ -161,26 +161,26 @@ export default function ApproximationPage() {
 
       {/* Tier 1: Method and Input */}
       <div className="grid gap-6 lg:grid-cols-12">
-        <div className="space-y-6 lg:col-span-4">
+        <div className="space-y-6 lg:col-span-3">
           <Card className="h-full">
-            <CardHeader>
-              <CardTitle>{t('approximation.selectMethod')}</CardTitle>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">{t('approximation.selectMethod')}</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="grid gap-2">
+            <CardContent className="pt-0">
+              <div className="grid gap-1.5">
                 {methods.map((method) => (
                   <button
                     key={method.id}
                     onClick={() => setSelectedMethod(method.id)}
-                    className={`p-3 text-left rounded-lg border transition-colors ${selectedMethod === method.id
+                    className={`p-2 text-left rounded-lg border transition-colors ${selectedMethod === method.id
                       ? 'border-primary bg-primary/10 text-primary'
                       : 'border-border hover:border-primary/50'
                       }`}
                   >
-                    <div className="font-medium">
+                    <div className="font-medium text-sm">
                       {t(`approximation.${method.labelKey}`)}
                     </div>
-                    <div className="text-xs text-muted-foreground">
+                    <div className="text-[10px] text-muted-foreground">
                       {t(`approximation.${method.descKey}`)}
                     </div>
                   </button>
@@ -189,8 +189,8 @@ export default function ApproximationPage() {
 
               {/* Polynomial degree selector */}
               {selectedMethod === 'polynomial-approximation' && (
-                <div className="mt-4 flex items-center gap-3">
-                  <label className="text-sm font-medium">
+                <div className="mt-3 flex items-center gap-2">
+                  <label className="text-xs font-medium">
                     {t('approximation.degree')}:
                   </label>
                   <Input
@@ -199,7 +199,7 @@ export default function ApproximationPage() {
                     max={10}
                     value={polynomialDegree}
                     onChange={(e) => setPolynomialDegree(parseInt(e.target.value) || 3)}
-                    className="w-20 font-mono"
+                    className="w-16 h-8 font-mono text-sm"
                   />
                 </div>
               )}
@@ -207,7 +207,7 @@ export default function ApproximationPage() {
           </Card>
         </div>
 
-        <div className="space-y-6 flex flex-col lg:col-span-8">
+        <div className="space-y-6 flex flex-col lg:col-span-9">
           <Card className="flex-1">
             <CardContent className="pt-6">
               <InputTabs
@@ -275,53 +275,59 @@ export default function ApproximationPage() {
         </CardContent>
       </Card>
 
-      {/* Tier 3: Results and Steps */}
+      {/* Tier 3: Results - full width for LaTeX overflow */}
       {result && (
-        <div className="grid gap-6 lg:grid-cols-2">
-          {/* Left Column: Result & Errors */}
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>{t('results.title')}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <PolynomialResult
-                  result={result}
-                  onEvaluate={evaluate}
-                  onSaveToHistory={handleSaveToHistory}
-                  translations={resultTranslations}
-                />
-              </CardContent>
-            </Card>
-
-            <ErrorCard
+        <Card>
+          <CardHeader>
+            <CardTitle>{t('results.title')}</CardTitle>
+          </CardHeader>
+          <CardContent className="overflow-x-auto">
+            <PolynomialResult
               result={result}
+              onEvaluate={evaluate}
+              onSaveToHistory={handleSaveToHistory}
               translations={resultTranslations}
             />
-          </div>
+          </CardContent>
+        </Card>
+      )}
 
-          {/* Right Column: Steps & Errors/Validation */}
-          <div className="space-y-6">
-            {error && !validation?.errors.length && (
-              <Card className="border-destructive">
-                <CardContent className="pt-6">
-                  <div className="flex items-center gap-2 text-destructive">
-                    <AlertCircle className="w-5 h-5" />
-                    <span>{error}</span>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+      {/* Tier 4: Steps - full width for LaTeX overflow */}
+      {result && 'steps' in result && result.steps && (
+        <Card>
+          <CardHeader>
+            <CardTitle>{t('results.steps')}</CardTitle>
+          </CardHeader>
+          <CardContent className="overflow-x-auto max-h-[400px] overflow-y-auto">
+            <div className="space-y-4">
+              {result.steps.map((step, index) => (
+                <div key={index} className="math-step">
+                  <LatexDisplay latex={step} displayMode />
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
-            {'steps' in result && result.steps && (
-              <StepDisplay
-                steps={result.steps}
-                title={t('results.steps')}
-                defaultExpanded={true}
-              />
-            )}
-          </div>
-        </div>
+      {/* Error display */}
+      {result && error && !validation?.errors.length && (
+        <Card className="border-destructive">
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-2 text-destructive">
+              <AlertCircle className="w-5 h-5" />
+              <span>{error}</span>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Tier 4: Full Width Error Analysis */}
+      {result && (
+        <ErrorCard
+          result={result}
+          translations={resultTranslations}
+        />
       )}
 
       {/* Empty State when no result */}

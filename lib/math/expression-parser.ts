@@ -1,4 +1,3 @@
-// @ts-ignore - Importing from local ESM bundle
 import { ComputeEngine } from './compute-engine.esm.js'
 import type { DataPoint, FunctionInput } from '@/lib/types'
 
@@ -192,7 +191,7 @@ export function polynomialToLatex(coefficients: number[], precision: number = 4)
 /**
  * Format a coefficient for display
  */
-function formatCoefficient(n: any, precision: number): string {
+function formatCoefficient(n: number | string, precision: number): string {
   const num = typeof n === 'number' ? n : Number(n)
   if (isNaN(num) || !isFinite(num)) return '0'
   if (Math.abs(num - Math.round(num)) < 1e-10) {

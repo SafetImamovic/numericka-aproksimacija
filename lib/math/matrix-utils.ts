@@ -139,7 +139,7 @@ export function vectorToLatex(v: Vector, precision: number = 4): string {
 /**
  * Format a number for display
  */
-export function formatNumber(n: any, precision: number = 4): string {
+export function formatNumber(n: number | string, precision: number = 4): string {
   const num = typeof n === 'number' ? n : Number(n)
   if (isNaN(num) || !isFinite(num)) return '0'
   if (Math.abs(num) < 1e-10) return '0'

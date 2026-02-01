@@ -10,6 +10,11 @@ const compat = new FlatCompat({
 });
 
 const eslintConfig = [
+  {
+    ignores: [
+      "lib/math/compute-engine.esm.js", // Large bundled library - skip linting
+    ],
+  },
   ...compat.extends("next/core-web-vitals", "next/typescript"),
 ];
 
