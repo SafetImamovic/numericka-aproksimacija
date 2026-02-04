@@ -43,7 +43,21 @@ export function useCalculation(): UseCalculationReturn {
       const isPower = type === 'power-approximation'
       const isExponential = type === 'exponential-approximation'
 
-      const minPoints = isInterpolation ? 2 : 2
+      // Minimalan broj tačaka zavisi od metode:
+      // - linear: 2
+      // - quadratic: 3 (a + bx + cx^2)
+      // - polynomial stepena d: d+1
+      let minPoints = 2
+
+      if (isInterpolation) {
+        minPoints = 2
+      } else if (type === 'quadratic-approximation') {
+        minPoints = 3
+      } else if (type === 'polynomial-approximation') {
+        const degree = Math.max(1, options?.degree ?? 1)
+        minPoints = degree + 1
+      }
+      
       const requireUniqueX = isInterpolation
       const requirePositiveX = isPower
       const requirePositiveY = isPower || isExponential

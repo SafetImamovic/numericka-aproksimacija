@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useCallback, useMemo, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import { Calculator, AlertCircle } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
@@ -45,6 +45,16 @@ export default function ApproximationPage() {
     useState<ApproximationMethod>('linear-approximation')
   const [polynomialDegree, setPolynomialDegree] = useState(3)
   const [originalCurve, setOriginalCurve] = useState<DataPoint[]>([])
+
+  // Za N tačaka, maksimalni stepen polinoma je N-1 (da izbjegnemo singularne matrice)
+  const maxPolynomialDegree = Math.max(1, points.length - 1)
+
+  // Ako korisnik obriše tačke pa degree postane prevelik, automatski ga spusti
+  useEffect(() => {
+    if (polynomialDegree > maxPolynomialDegree) {
+      setPolynomialDegree(maxPolynomialDegree)
+    }
+  }, [maxPolynomialDegree, polynomialDegree])
 
   const methods: { id: ApproximationMethod; labelKey: string; descKey: string }[] = [
     { id: 'linear-approximation', labelKey: 'linear', descKey: 'linearDesc' },
@@ -223,9 +233,14 @@ export default function ApproximationPage() {
                   <Input
                     type="number"
                     min={1}
-                    max={10}
+                    max={maxPolynomialDegree}
                     value={polynomialDegree}
-                    onChange={(e) => setPolynomialDegree(parseInt(e.target.value) || 3)}
+                    onChange={(e) => {
+                      const raw = parseInt(e.target.value, 10)
+                      const next = Number.isFinite(raw) ? raw : 1
+                      const clamped = Math.min(Math.max(next, 1), maxPolynomialDegree)
+                      setPolynomialDegree(clamped)
+                    }}
                     className="w-16 h-8 font-mono text-sm"
                   />
                 </div>
