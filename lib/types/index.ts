@@ -84,3 +84,27 @@ export interface PlotData {
 // Matrix types for calculations
 export type Matrix = number[][]
 export type Vector = number[]
+
+// Step translations for calculation steps
+export interface StepTranslations {
+  normalEquations: string
+  solution: string
+  linearization: string
+  let: string
+  then: string
+  linearRegressionTransformed: string
+  result: string
+  vandermondeMatrix: string
+  normalEquationsVTV: string
+  expandingTerms: string
+  standardForm: string
+  lagrangeInterpolation: string
+  points: string
+  dividedDifferencesTable: string
+  newtonInterpolation: string
+  newtonPolynomial: string
+  directInterpolation: string
+  forNPoints: string
+  findPolynomialDegree: string
+  systemOfEquations: string
+}

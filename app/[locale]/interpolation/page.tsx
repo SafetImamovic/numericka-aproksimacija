@@ -25,6 +25,7 @@ export default function InterpolationPage() {
   const tInput = useTranslations('input')
   const tValidation = useTranslations('validation')
   const tResults = useTranslations('results')
+  const tSteps = useTranslations('steps')
   const { result, error, validation, isCalculating, calculate, evaluate, clear } =
     useCalculation()
   const { addEntry } = useHistory()
@@ -102,6 +103,32 @@ export default function InterpolationPage() {
     [tResults, t]
   )
 
+  const stepTranslations = useMemo(
+    () => ({
+      normalEquations: tSteps('normalEquations'),
+      solution: tSteps('solution'),
+      linearization: tSteps('linearization'),
+      let: tSteps('let'),
+      then: tSteps('then'),
+      linearRegressionTransformed: tSteps('linearRegressionTransformed'),
+      result: tSteps('result'),
+      vandermondeMatrix: tSteps('vandermondeMatrix'),
+      normalEquationsVTV: tSteps('normalEquationsVTV'),
+      expandingTerms: tSteps('expandingTerms'),
+      standardForm: tSteps('standardForm'),
+      lagrangeInterpolation: tSteps('lagrangeInterpolation'),
+      points: tSteps('points'),
+      dividedDifferencesTable: tSteps('dividedDifferencesTable'),
+      newtonInterpolation: tSteps('newtonInterpolation'),
+      newtonPolynomial: tSteps('newtonPolynomial'),
+      directInterpolation: tSteps('directInterpolation'),
+      forNPoints: tSteps('forNPoints'),
+      findPolynomialDegree: tSteps('findPolynomialDegree'),
+      systemOfEquations: tSteps('systemOfEquations'),
+    }),
+    [tSteps]
+  )
+
   const handleCalculate = useCallback(() => {
     // Filter out invalid points
     const validPoints = points.filter(
@@ -112,8 +139,8 @@ export default function InterpolationPage() {
       return
     }
 
-    calculate(validPoints, selectedMethod)
-  }, [points, selectedMethod, calculate])
+    calculate(validPoints, selectedMethod, { stepTranslations })
+  }, [points, selectedMethod, calculate, stepTranslations])
 
   const handleSaveToHistory = useCallback(() => {
     if (result) {

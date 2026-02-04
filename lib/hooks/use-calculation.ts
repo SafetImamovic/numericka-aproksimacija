@@ -7,6 +7,7 @@ import type {
   ApproximationResult,
   InterpolationResult,
   ValidationResult,
+  StepTranslations,
 } from '@/lib/types'
 import { validateDataPoints } from '@/lib/math/validators'
 import { approximate } from '@/lib/math/approximation'
@@ -20,7 +21,7 @@ interface UseCalculationReturn {
   error: string | null
   validation: ValidationResult | null
   isCalculating: boolean
-  calculate: (points: DataPoint[], type: CalculationType, options?: { degree?: number }) => void
+  calculate: (points: DataPoint[], type: CalculationType, options?: { degree?: number; stepTranslations?: StepTranslations }) => void
   evaluate: (x: number) => number | null
   clear: () => void
 }
@@ -32,7 +33,7 @@ export function useCalculation(): UseCalculationReturn {
   const [isCalculating, setIsCalculating] = useState(false)
 
   const calculate = useCallback(
-    (points: DataPoint[], type: CalculationType, options?: { degree?: number }) => {
+    (points: DataPoint[], type: CalculationType, options?: { degree?: number; stepTranslations?: StepTranslations }) => {
       setIsCalculating(true)
       setError(null)
       setResult(null)
@@ -68,9 +69,9 @@ export function useCalculation(): UseCalculationReturn {
         let calculationResult: CalculationResult
 
         if (isInterpolation) {
-          calculationResult = interpolate(points, type)
+          calculationResult = interpolate(points, type, options?.stepTranslations)
         } else {
-          calculationResult = approximate(points, type, options?.degree)
+          calculationResult = approximate(points, type, options?.degree, options?.stepTranslations)
         }
 
         setResult(calculationResult)

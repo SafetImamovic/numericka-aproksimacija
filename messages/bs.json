@@ -178,5 +178,27 @@
     "lagrange-interpolation": "Lagrangeova Interpolacija",
     "newton-interpolation": "Newtonova Interpolacija",
     "direct-interpolation": "Direktna Interpolacija"
+  },
+  "steps": {
+    "normalEquations": "Normalne jednadžbe:",
+    "solution": "Rješenje:",
+    "linearization": "Linearizacija:",
+    "let": "Neka je",
+    "then": "Tada",
+    "linearRegressionTransformed": "Linearna regresija na transformisanim podacima:",
+    "result": "Rezultat:",
+    "vandermondeMatrix": "Vandermondeova matrica",
+    "normalEquationsVTV": "Normalne jednadžbe",
+    "expandingTerms": "Razvijanje i kombinovanje članova:",
+    "standardForm": "Standardni oblik:",
+    "lagrangeInterpolation": "Lagrangeova interpolacija za",
+    "points": "tačaka",
+    "dividedDifferencesTable": "Tablica podijeljenih razlika:",
+    "newtonInterpolation": "Newtonova interpolacija sa podijeljenim razlikama",
+    "newtonPolynomial": "Newtonov polinom:",
+    "directInterpolation": "Direktna interpolacija pomoću Vandermondeove matrice",
+    "forNPoints": "Za",
+    "findPolynomialDegree": "tačaka, tražimo polinom stepena",
+    "systemOfEquations": "Sistem jednadžbi"
   }
 }

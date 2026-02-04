@@ -178,5 +178,27 @@
     "lagrange-interpolation": "Lagrange Interpolation",
     "newton-interpolation": "Newton Interpolation",
     "direct-interpolation": "Direct Interpolation"
+  },
+  "steps": {
+    "normalEquations": "Normal equations:",
+    "solution": "Solution:",
+    "linearization": "Linearization:",
+    "let": "Let",
+    "then": "Then",
+    "linearRegressionTransformed": "Linear regression on transformed data:",
+    "result": "Result:",
+    "vandermondeMatrix": "Vandermonde matrix",
+    "normalEquationsVTV": "Normal equations",
+    "expandingTerms": "Expanding and combining terms:",
+    "standardForm": "Standard form:",
+    "lagrangeInterpolation": "Lagrange Interpolation for",
+    "points": "points",
+    "dividedDifferencesTable": "Divided Differences Table:",
+    "newtonInterpolation": "Newton Interpolation with Divided Differences",
+    "newtonPolynomial": "Newton polynomial:",
+    "directInterpolation": "Direct Interpolation using Vandermonde Matrix",
+    "forNPoints": "For",
+    "findPolynomialDegree": "points, we find a polynomial of degree",
+    "systemOfEquations": "System of equations"
   }
 }

@@ -1,4 +1,4 @@
-import type { DataPoint, ApproximationResult, CalculationType } from '@/lib/types'
+import type { DataPoint, ApproximationResult, CalculationType, StepTranslations } from '@/lib/types'
 import {
   solveLinearSystem,
   vandermondeMatrix,
@@ -92,7 +92,7 @@ function calculatePointErrors(points: DataPoint[], coefficients: number[], type:
 /**
  * Linear least squares approximation: y = a + bx
  */
-export function linearApproximation(points: DataPoint[]): ApproximationResult & { steps: string[] } {
+export function linearApproximation(points: DataPoint[], t?: StepTranslations): ApproximationResult & { steps: string[] } {
   const n = points.length
   const steps: string[] = []
 
@@ -115,13 +115,13 @@ export function linearApproximation(points: DataPoint[]): ApproximationResult & 
   ]
   const b = [sumY, sumXY]
 
-  steps.push(`\\text{Normal equations:}`)
+  steps.push(`\\text{${t?.normalEquations || 'Normal equations:'}}`)
   steps.push(`${matrixToLatex(A)} ${vectorToLatex(['a', 'b'] as unknown as number[])} = ${vectorToLatex(b)}`)
 
   // Solve
   const coefficients = solveLinearSystem(A, b)
 
-  steps.push(`\\text{Solution:}`)
+  steps.push(`\\text{${t?.solution || 'Solution:'}}`)
   steps.push(`a = ${formatNumber(coefficients[0])}, \\quad b = ${formatNumber(coefficients[1])}`)
 
   // Generate fitted points for plotting
@@ -145,7 +145,7 @@ export function linearApproximation(points: DataPoint[]): ApproximationResult & 
 /**
  * Quadratic least squares approximation: y = a + bx + cx²
  */
-export function quadraticApproximation(points: DataPoint[]): ApproximationResult & { steps: string[] } {
+export function quadraticApproximation(points: DataPoint[], t?: StepTranslations): ApproximationResult & { steps: string[] } {
   const n = points.length
   const steps: string[] = []
 
@@ -171,13 +171,13 @@ export function quadraticApproximation(points: DataPoint[]): ApproximationResult
   ]
   const b = [sumY, sumXY, sumX2Y]
 
-  steps.push(`\\text{Normal equations:}`)
+  steps.push(`\\text{${t?.normalEquations || 'Normal equations:'}}`)
   steps.push(`${matrixToLatex(A)} ${vectorToLatex(['a', 'b', 'c'] as unknown as number[])} = ${vectorToLatex(b)}`)
 
   // Solve
   const coefficients = solveLinearSystem(A, b)
 
-  steps.push(`\\text{Solution:}`)
+  steps.push(`\\text{${t?.solution || 'Solution:'}}`)
   steps.push(`a = ${formatNumber(coefficients[0])}, \\quad b = ${formatNumber(coefficients[1])}, \\quad c = ${formatNumber(coefficients[2])}`)
 
   // Generate fitted points
@@ -203,7 +203,8 @@ export function quadraticApproximation(points: DataPoint[]): ApproximationResult
  */
 export function polynomialApproximation(
   points: DataPoint[],
-  degree: number
+  degree: number,
+  t?: StepTranslations
 ): ApproximationResult & { steps: string[]; normalMatrix: number[][]; normalVector: number[] } {
   const steps: string[] = []
 
@@ -211,20 +212,20 @@ export function polynomialApproximation(
   const V = vandermondeMatrix(points.map((p) => p.x), degree)
   const y = points.map((p) => p.y)
 
-  steps.push(`\\text{Vandermonde matrix } V:`)
+  steps.push(`\\text{${t?.vandermondeMatrix || 'Vandermonde matrix'} } V:`)
   steps.push(matrixToLatex(V))
 
   // Create normal equations
   const AtA = normalEquationsMatrix(V)
   const Atb = normalEquationsVector(V, y)
 
-  steps.push(`\\text{Normal equations } V^T V \\cdot \\mathbf{a} = V^T \\mathbf{y}:`)
+  steps.push(`\\text{${t?.normalEquationsVTV || 'Normal equations'} } V^T V \\cdot \\mathbf{a} = V^T \\mathbf{y}:`)
   steps.push(`${matrixToLatex(AtA)} \\mathbf{a} = ${vectorToLatex(Atb)}`)
 
   // Solve
   const coefficients = solveLinearSystem(AtA, Atb)
 
-  steps.push(`\\text{Solution:}`)
+  steps.push(`\\text{${t?.solution || 'Solution:'}}`)
   for (let i = 0; i <= degree; i++) {
     steps.push(`a_${i} = ${formatNumber(coefficients[i])}`)
   }
@@ -253,7 +254,7 @@ export function polynomialApproximation(
  * Power function approximation: y = ax^b
  * Uses linearization: ln(y) = ln(a) + b*ln(x)
  */
-export function powerApproximation(points: DataPoint[]): ApproximationResult & { steps: string[]; transformedPoints: DataPoint[] } {
+export function powerApproximation(points: DataPoint[], t?: StepTranslations): ApproximationResult & { steps: string[]; transformedPoints: DataPoint[] } {
   const steps: string[] = []
 
   // Check for positive values
@@ -270,9 +271,9 @@ export function powerApproximation(points: DataPoint[]): ApproximationResult & {
     y: Math.log(p.y),
   }))
 
-  steps.push(`\\text{Linearization: } \\ln(y) = \\ln(a) + b \\ln(x)`)
-  steps.push(`\\text{Let } X = \\ln(x), \\quad Y = \\ln(y)`)
-  steps.push(`\\text{Then } Y = \\ln(a) + b X`)
+  steps.push(`\\text{${t?.linearization || 'Linearization:'} } \\ln(y) = \\ln(a) + b \\ln(x)`)
+  steps.push(`\\text{${t?.let || 'Let'} } X = \\ln(x), \\quad Y = \\ln(y)`)
+  steps.push(`\\text{${t?.then || 'Then'} } Y = \\ln(a) + b X`)
 
   // Apply linear regression on transformed data
   const n = transformedPoints.length
@@ -292,10 +293,10 @@ export function powerApproximation(points: DataPoint[]): ApproximationResult & {
   const b = linearCoefs[1]
   const a = Math.exp(lnA)
 
-  steps.push(`\\text{Linear regression on transformed data:}`)
+  steps.push(`\\text{${t?.linearRegressionTransformed || 'Linear regression on transformed data:'}}`)
   steps.push(`\\ln(a) = ${formatNumber(lnA)}, \\quad b = ${formatNumber(b)}`)
   steps.push(`a = e^{${formatNumber(lnA)}} = ${formatNumber(a)}`)
-  steps.push(`\\text{Result: } y = ${formatNumber(a)} \\cdot x^{${formatNumber(b)}}`)
+  steps.push(`\\text{${t?.result || 'Result:'} } y = ${formatNumber(a)} \\cdot x^{${formatNumber(b)}}`)
 
   // Generate fitted points using power function
   const xMin = Math.min(...points.map((p) => p.x))
@@ -339,7 +340,7 @@ export function powerApproximation(points: DataPoint[]): ApproximationResult & {
  * Exponential approximation: y = ae^(bx)
  * Uses linearization: ln(y) = ln(a) + b*x
  */
-export function exponentialApproximation(points: DataPoint[]): ApproximationResult & { steps: string[]; transformedPoints: DataPoint[] } {
+export function exponentialApproximation(points: DataPoint[], t?: StepTranslations): ApproximationResult & { steps: string[]; transformedPoints: DataPoint[] } {
   const steps: string[] = []
 
   // Check for positive y values
@@ -353,9 +354,9 @@ export function exponentialApproximation(points: DataPoint[]): ApproximationResu
     y: Math.log(p.y),
   }))
 
-  steps.push(`\\text{Linearization: } \\ln(y) = \\ln(a) + bx`)
-  steps.push(`\\text{Let } Y = \\ln(y)`)
-  steps.push(`\\text{Then } Y = \\ln(a) + bx`)
+  steps.push(`\\text{${t?.linearization || 'Linearization:'} } \\ln(y) = \\ln(a) + bx`)
+  steps.push(`\\text{${t?.let || 'Let'} } Y = \\ln(y)`)
+  steps.push(`\\text{${t?.then || 'Then'} } Y = \\ln(a) + bx`)
 
   // Apply linear regression
   const n = transformedPoints.length
@@ -375,10 +376,10 @@ export function exponentialApproximation(points: DataPoint[]): ApproximationResu
   const b = linearCoefs[1]
   const a = Math.exp(lnA)
 
-  steps.push(`\\text{Linear regression on transformed data:}`)
+  steps.push(`\\text{${t?.linearRegressionTransformed || 'Linear regression on transformed data:'}}`)
   steps.push(`\\ln(a) = ${formatNumber(lnA)}, \\quad b = ${formatNumber(b)}`)
   steps.push(`a = e^{${formatNumber(lnA)}} = ${formatNumber(a)}`)
-  steps.push(`\\text{Result: } y = ${formatNumber(a)} \\cdot e^{${formatNumber(b)}x}`)
+  steps.push(`\\text{${t?.result || 'Result:'} } y = ${formatNumber(a)} \\cdot e^{${formatNumber(b)}x}`)
 
   // Generate fitted points
   const xMin = Math.min(...points.map((p) => p.x))
@@ -424,19 +425,20 @@ export function exponentialApproximation(points: DataPoint[]): ApproximationResu
 export function approximate(
   points: DataPoint[],
   type: CalculationType,
-  degree?: number
+  degree?: number,
+  translations?: StepTranslations
 ): ApproximationResult & { steps: string[] } {
   switch (type) {
     case 'linear-approximation':
-      return linearApproximation(points)
+      return linearApproximation(points, translations)
     case 'quadratic-approximation':
-      return quadraticApproximation(points)
+      return quadraticApproximation(points, translations)
     case 'polynomial-approximation':
-      return polynomialApproximation(points, degree || 3)
+      return polynomialApproximation(points, degree || 3, translations)
     case 'power-approximation':
-      return powerApproximation(points)
+      return powerApproximation(points, translations)
     case 'exponential-approximation':
-      return exponentialApproximation(points)
+      return exponentialApproximation(points, translations)
     default:
       throw new Error(`Unknown approximation type: ${type}`)
   }

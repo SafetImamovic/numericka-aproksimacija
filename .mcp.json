@@ -27,6 +27,25 @@
                 "-y",
                 "react-docs-mcp@latest"
             ]
+        },
+        "arxiv-latex-mcp": {
+            "command": "cmd",
+            "args": [
+                "/c",
+                "uv",
+                "run",
+                "--directory",
+                "C:\\Users\\User\\Development\\arxiv-latex-mcp",
+                "server\\main.py"
+            ]
+        },
+        "overleaf": {
+            "command": "cmd",
+            "args": [
+                "/c",
+                "node",
+                "C:\\Users\\User\\Development\\OverleafMCP\\overleaf-mcp-server.js"
+            ]
         }
     }
 }

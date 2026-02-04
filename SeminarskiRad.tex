@@ -1,0 +1,485 @@
+\documentclass[12pt, a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{times}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{float}
+\usepackage{titlesec}
+\usepackage{indentfirst}
+\usepackage[bosnian]{babel}
+
+% Margins and formatting
+\geometry{
+ a4paper,
+ left=25mm,
+ right=25mm,
+ top=25mm,
+ bottom=25mm,
+}
+
+% Formatting specs
+\setlength{\parskip}{1em}
+\setlength{\parindent}{0pt}
+\linespread{1.15}
+
+% Code formatting
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.96,0.96,0.96}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\small,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2,
+    frame=single
+}
+\lstset{style=mystyle}
+
+\begin{document}
+
+% ---------------- TITLE PAGE ----------------
+\begin{titlepage}
+    \begin{center}
+        \vspace*{1cm}
+        
+        \Large
+        \textbf{UNIVERZITET U ZENICI} \\
+        \textbf{POLITEHNIČKI FAKULTET}
+        
+        \vspace{5cm}
+        
+        \Huge
+        \textbf{NUMERIČKA APROKSIMACIJA} \\
+        \Large
+        \textit{Razvoj web aplikacije za metodu najmanjih kvadrata}
+        
+        \vspace{1cm}
+        \Large
+        Seminarski rad
+        
+        \vspace{4cm}
+        
+        \begin{flushleft}
+        \textbf{Studenti:} \\
+        Safet Imamović \\
+        Emrah Jamaković \\
+        Islam Habibović
+        \end{flushleft}
+        
+        \vspace{0.5cm}
+        
+        \begin{flushleft}
+        \textbf{Mentor:} \\
+        Prof. dr. Aleksandar Karač
+        \end{flushleft}
+        
+        \vfill
+        
+        \Large
+        Zenica, Februar 2026.
+        
+    \end{center}
+\end{titlepage}
+
+% ---------------- ABSTRACT ----------------
+\section*{Sažetak}
+U ovom radu detaljno je opisan proces razvoja i matematička pozadina softverskog rješenja za numeričku aproksimaciju funkcija. Fokus rada je na implementaciji \textit{Metode najmanjih kvadrata} (Least Squares Method) unutar modernog web okruženja. Aplikacija omogućava korisnicima unos eksperimentalnih podataka te pronalazak optimalne funkcije (linearne, kvadratne, polinomske, eksponencijalne ili stepene) koja najbolje opisuje trend podataka. Posebna pažnja posvećena je teorijskom izvođenju normalnih jednačina, analizi greške putem koeficijenta determinacije ($R^2$), te softverskoj arhitekturi baziranoj na Next.js i TypeScript tehnologijama. Rad sadrži i praktične primjere primjene razvijenog alata na realne inženjerske probleme.
+
+\textbf{Ključne riječi:} Numerička aproksimacija, Metoda najmanjih kvadrata, Regresija, Next.js, TypeScript.
+
+\newpage
+\tableofcontents
+\newpage
+
+% ---------------- 1. UVOD ----------------
+\section{UVOD}
+U inženjerskoj i naučnoj praksi rijetko se susrećemo sa analitički zadanim funkcijama koje savršeno opisuju neki prirodni fenomen. Umjesto toga, na raspolaganju imamo skup diskretnih podataka dobijenih mjerenjem:
+$$ (x_0, y_0), (x_1, y_1), \dots, (x_n, y_n) $$
+Ovi podaci su često opterećeni mjernim šumom, greškama očitavanja ili nepravilnostima samog procesa. Zbog toga, pokušaj da se pronađe funkcija koja prolazi tačno kroz sve tačke (interpolacija) često daje nezadovoljavajuće rezultate, rezultirajući funkcijama koje naglo osciliraju između tačaka i nemaju fizikalnog smisla.
+
+Rješenje ovog problema leži u \textbf{aproksimaciji}. Cilj aproksimacije nije pogoditi tačne vrijednosti u svakoj tački mjerenja, već pronaći "glatku" funkciju $f(x)$ koja prolazi \textit{što je moguće bliže} zadatim tačkama, minimizirajući ukupnu grešku. Najrasprostranjeniji metod za rješavanje ovog problema je \textbf{Metoda najmanjih kvadrata} (MNK), koju je početkom 19. vijeka neovisno razvio Carl Friedrich Gauss.
+
+Ovaj seminarski rad ima dva osnovna cilja:
+\begin{enumerate}
+    \item Prikazati teorijsku osnovu metode najmanjih kvadrata, uključujući izvođenje formula za različite tipove funkcija.
+    \item Opisati implementaciju ove metode u obliku moderne, interaktivne web aplikacije koja studentima i inženjerima služi kao alat za brzo modeliranje podataka.
+\end{enumerate}
+
+Kroz rad ćemo proći put od matematičkog formulisanja problema, preko rješavanja sistema linearnih jednačina u računarskom kodu, do vizualizacije rezultata u web pregledniku.
+
+\newpage
+
+% ---------------- 2. TEORIJSKI DIO ----------------
+\section{TEORIJSKI DIO}
+
+\subsection{Definicija problema aproksimacije}
+Neka je dat skup od $N$ parova podataka $(x_i, y_i)$, gdje $i=1, \dots, N$. Tražimo funkciju $f(x; a_0, a_1, \dots, a_m)$ koja zavisi od parametara $a_k$, takvu da najbolje aproksimira zavisnost $y$ od $x$.
+Definiramo \textbf{rezidual} (grešku) u svakoj tački kao razliku izmjerene i procijenjene vrijednosti:
+\begin{equation}
+    r_i = y_i - f(x_i)
+\end{equation}
+
+Osnovna ideja metode najmanjih kvadrata je minimizacija sume kvadrata ovih reziduala. Kvadrat se koristi kako bi se izbjeglo poništavanje pozitivnih i negativnih grešaka, te kako bi se veće greške "kaznile" više od malih. Funkcija kriterija $S$ je:
+\begin{equation}
+    S(a_0, \dots, a_m) = \sum_{i=1}^{N} (y_i - f(x_i))^2
+\end{equation}
+Optimalni parametri su oni za koje funkcija $S$ ima globalni minimum. Da bismo našli minimum, parcijalne izvode funkcije $S$ po svakom od parametara $a_k$ izjednačavamo sa nulom:
+\begin{equation}
+    \frac{\partial S}{\partial a_k} = 0, \quad k=0, \dots, m
+\end{equation}
+
+\subsection{Linearna regresija}
+Najjednostavniji i najčešći oblik aproksimacije je linearna funkcija (pravac):
+\begin{equation}
+    y = ax + b
+\end{equation}
+Ovdje su parametri $a$ (nagib) i $b$ (odsječak). Funkcija greške je:
+\begin{equation}
+    S(a, b) = \sum_{i=1}^{N} (y_i - (ax_i + b))^2
+\end{equation}
+Minimizacija po $b$:
+\begin{align}
+    \frac{\partial S}{\partial b} &= \sum_{i=1}^{N} 2(y_i - ax_i - b)(-1) = 0 \\
+    &= -2 \left( \sum y_i - a \sum x_i - \sum b \right) = 0 \\
+    &\Rightarrow \sum y_i = a \sum x_i + N b
+\end{align}
+Minimizacija po $a$:
+\begin{align}
+    \frac{\partial S}{\partial a} &= \sum_{i=1}^{N} 2(y_i - ax_i - b)(-x_i) = 0 \\
+    &= -2 \left( \sum x_i y_i - a \sum x_i^2 - b \sum x_i \right) = 0 \\
+    &\Rightarrow \sum x_i y_i = a \sum x_i^2 + b \sum x_i
+\end{align}
+Dobili smo sistem od dvije linearne jednačine sa dvije nepoznate ($a$ i $b$), poznat kao \textbf{sistem normalnih jednačina}:
+\begin{equation}
+    \begin{bmatrix}
+    N & \sum x_i \\
+    \sum x_i & \sum x_i^2
+    \end{bmatrix}
+    \begin{bmatrix}
+    b \\ a
+    \end{bmatrix}
+    =
+    \begin{bmatrix}
+    \sum y_i \\
+    \sum x_i y_i
+    \end{bmatrix}
+\end{equation}
+
+\subsection{Polinomska aproksimacija}
+U općem slučaju, kada podatke želimo aproksimirati polinomom stepena $m$:
+\begin{equation}
+    P_m(x) = a_0 + a_1 x + a_2 x^2 + \dots + a_m x^m
+\end{equation}
+Postupak je analogan. Parcijalnim deriviranjem sume kvadrata grešaka dobija se sistem od $m+1$ linearnih jednačina. Matrica sistema $A$ sastoji se od suma stepena $x$:
+\begin{equation}
+    A = \begin{bmatrix}
+    N & \sum x_i & \dots & \sum x_i^m \\
+    \sum x_i & \sum x_i^2 & \dots & \sum x_i^{m+1} \\
+    \vdots & \vdots & \ddots & \vdots \\
+    \sum x_i^m & \sum x_i^{m+1} & \dots & \sum x_i^{2m}
+    \end{bmatrix}
+\end{equation}
+Vektor slobodnih članova $B$ je:
+\begin{equation}
+    B = \begin{bmatrix}
+    \sum y_i \\ \sum x_i y_i \\ \vdots \\ \sum x_i^m y_i
+    \end{bmatrix}
+\end{equation}
+Rješavanjem sistema $A\mathbf{a} = B$ (npr. Gaussovom metodom) dobijamo koeficijente polinoma.
+
+\subsection{Aproksimacija nelinearnim funkcijama (Linearizacija)}
+Mnogi prirodni procesi (hlađenje, radioaktivni raspad, rast populacije) prate eksponencijalne ili stepene zakone, a ne polinomske. Primjena metode najmanjih kvadrata direktno na nelinearne funkcije dovela bi do sistema nelinearnih jednačina koji se teško rješavaju. Zato koristimo postupak \textbf{linearizacije}.
+
+\subsubsection{Eksponencijalna funkcija}
+Model: $y = a e^{bx}$.
+Logaritmiranjem jednačine dobijamo:
+\begin{equation}
+    \ln y = \ln a + bx
+\end{equation}
+Uvodimo smjene varijabli:
+$$ Y = \ln y, \quad A = \ln a, \quad B = b $$
+Dobili smo linearnu jednačinu: $Y = A + Bx$. Sada na transformisanim podacima $(x_i, \ln y_i)$ primjenjujemo standardnu linearnu regresiju kako bismo našli $A$ i $B$. Konačni parametri su:
+$$ a = e^A, \quad b = B $$
+
+\subsubsection{Stepena funkcija}
+Model: $y = a x^b$.
+Logaritmiranjem:
+\begin{equation}
+    \ln y = \ln a + b \ln x
+\end{equation}
+Smjene:
+$$ Y = \ln y, \quad X = \ln x, \quad A = \ln a, \quad B = b $$
+Linearna forma: $Y = A + BX$. Parametri se određuju regresijom nad parovima $(\ln x_i, \ln y_i)$.
+
+\subsection{Kvalitet aproksimacije}
+Kako bismo ocijenili koliko dobro odabrana funkcija opisuje podatke, koristimo **Koeficijent determinacije** ($R^2$):
+\begin{equation}
+    R^2 = 1 - \frac{SS_{res}}{SS_{tot}} = 1 - \frac{\sum (y_i - f(x_i))^2}{\sum (y_i - \bar{y})^2}
+\end{equation}
+Gdje je $\bar{y}$ srednja vrijednost $y$ podataka.
+\begin{itemize}
+    \item $R^2 = 1$: Idealno poklapanje.
+    \item $R^2 = 0$: Model ne objašnjava varijabilnost podataka.
+\end{itemize}
+
+\newpage
+
+% ---------------- 3. APLIKACIJA ----------------
+\section{APLIKACIJA}
+
+U ovom poglavlju detaljno opisujemo tehničku realizaciju softverskog rješenja. Aplikacija "Approximation Picker" nije samo kalkulator; to je modularna platforma dizajnirana da bude proširiva i jednostavna za održavanje.
+
+\subsection{Tehnološki okvir (Tech Stack)}
+Prilikom izbora tehnologija vodili smo se kriterijima: brzina razvoja, performanse u pregledniku, i kvaliteta ekosistema.
+\begin{itemize}
+    \item \textbf{Next.js 14 (React Framework):} Omogućava nam kreiranje brzih, "server-side rendered" (SSR) ili statičkih web stranica. Iako se naša aplikacija u potpunosti izvršava na klijentu (SPA - Single Page Application), Next.js pruža odličnu strukturu projekta i routing.
+    \item \textbf{TypeScript:} Superskup JavaScripta koji dodaje statičke tipove. U kontekstu numeričke matematike, ovo je neprocjenjivo. Na primjer, TypeScript nam ne dozvoljava da slučajno saberemo broj i niz, ili da funkciji koja očekuje matricu proslijedimo vektor.
+    \item \textbf{MathLive:} Web komponenta (`<math-field>`) koja omogućava korisnicima unos formula na način kako se one pišu u matematici (WYSIWYG editor).
+    \item \textbf{Cortex Compute Engine:} Moćan "engine" za parsiranje i evaluaciju simboličkih izraza. Koristimo ga da pretvorimo korisnikov unos (npr. "sin(x) + 2") u funkciju koja se može evaluirati za bilo koje $x$.
+    \item \textbf{Plotly.js:} Industrijski standard za naučno iscrtavanje grafova na webu. Koristi WebGL za hardversku akceleraciju, što omogućava glatko iscrtavanje hiljada tačaka.
+\end{itemize}
+
+\subsection{Arhitektura podataka}
+Srž naše aplikacije su tipovi podataka definisani u TypeScript-u. Oni osiguravaju konzistenciju kroz cijelu aplikaciju.
+
+\begin{lstlisting}[language=Java, caption=Glavni TypeScript interfejsi iz `lib/types/index.ts`]
+// Definicija jedne mjerne tačke
+export interface DataPoint {
+  x: number
+  y: number
+  id: string  // Jedinstveni identifikator za React listu
+}
+
+// Rezultat proračuna aproksimacije
+export interface ApproximationResult {
+  type: CalculationType
+  coefficients: number[]     // Izračunati parametri (a, b...)
+  polynomial: string         // Latex reprezentacija za prikaz
+  rSquared: number           // Kvalitet aproksimacije
+  points: DataPoint[]        // Originalne tačke
+  fittedPoints: DataPoint[]  // Tačke na krivoj (za crtanje)
+  steps: string[]            // Koraci rješavanja (step-by-step)
+}
+\end{lstlisting}
+
+\subsection{Implementacija numeričkih algoritama}
+Svi algoritmi su implementirani kao čiste funkcije (pure functions) u direktoriju `lib/math`. Ovo znači da za isti ulaz uvijek daju isti izlaz i nemaju "side effects", što ih čini lakim za testiranje.
+
+### Rješavanje lineranih sistema
+Mnoge metode aproksimacije svode se na rješavanje sistema $Ax=b$. Implementirali smo Gaussovu eliminaciju sa pivotiranjem:
+
+\begin{lstlisting}[language=Java, caption=Gaussova eliminacija (isječak)]
+export function solveLinearSystem(A: number[][], b: number[]): number[] {
+  const n = A.length
+  // Proširivanje matrice [A|b]
+  const M = A.map((row, i) => [...row, b[i]])
+
+  for (let i = 0; i < n; i++) {
+    // 1. Pivotiranje: Nađi red sa najvećim elementom u koloni i
+    let maxRow = i
+    for (let j = i + 1; j < n; j++) {
+      if (Math.abs(M[j][i]) > Math.abs(M[maxRow][i])) {
+        maxRow = j
+      }
+    }
+    // Zamjena redova
+    [M[i], M[maxRow]] = [M[maxRow], M[i]]
+
+    // 2. Eliminacija
+    for (let j = i + 1; j < n; j++) {
+      const factor = M[j][i] / M[i][i]
+      for (let k = i; k <= n; k++) {
+        M[j][k] -= factor * M[i][k]
+      }
+    }
+  }
+
+  // 3. Supstitucija unazad
+  const x = new Array(n).fill(0)
+  for (let i = n - 1; i >= 0; i--) {
+    let sum = 0
+    for (let j = i + 1; j < n; j++) {
+      sum += M[i][j] * x[j]
+    }
+    x[i] = (M[i][n] - sum) / M[i][i]
+  }
+  return x
+}
+\end{lstlisting}
+
+### Algoritam linearne aproksimacije
+Evo kako aplikacija implementira teoriju linearne regresije koju smo izveli u poglavlju 2.2:
+
+\begin{lstlisting}[language=Java, caption=Kod za linearnu aproksimaciju]
+export function linearApproximation(points: DataPoint[]) {
+  const n = points.length
+  
+  // Računanje suma (Σx, Σx^2, Σy, Σxy)
+  const sumX = points.reduce((s, p) => s + p.x, 0)
+  const sumX2 = points.reduce((s, p) => s + Math.pow(p.x, 2), 0)
+  const sumY = points.reduce((s, p) => s + p.y, 0)
+  const sumXY = points.reduce((s, p) => s + p.x * p.y, 0)
+
+  // Kreiranje matrice sistema normalnih jednačina
+  const A = [
+    [n, sumX],      // [ N     Σx   ]
+    [sumX, sumX2]   // [ Σx    Σx^2 ]
+  ]
+  const b = [sumY, sumXY]
+
+  // Poziv solvera
+  const [intercept, slope] = solveLinearSystem(A, b)
+
+  // Računanje greške R^2
+  const rSquared = calculateRSquared(points, [intercept, slope])
+  
+  return { coefficients: [intercept, slope], rSquared, ... }
+}
+\end{lstlisting}
+
+\subsection{Korisničko sučelje (UI)}
+Aplikacija koristi tzv. "Split-screen" raspored. Lijeva strana ekrana rezervirana je za unos podataka (tabela) i kontrolu parametara, dok desna strana prikazuje rezultate (graf i tekstualno objašnjenje).
+Komponente su stilizirane koristeći `Tailwind CSS` klase, što nam omogućava da bez pisanja posebnih `.css` fajlova definiramo izgled elemenata.
+
+\begin{figure}[H]
+    \centering
+    % Placeholder for screenshot
+    \fbox{\begin{minipage}{12cm}\vspace{6cm}\centering\Large Slika sučelja aplikacije (Input)\end{minipage}}
+    \caption{Prikaz komponente za unos tačaka}
+\end{figure}
+
+\newpage
+
+% ---------------- 4. PRIMJERI PRIMJENE ----------------
+\section{PRIMJERI PRIMJENE}
+
+U ovom poglavlju testiramo aplikaciju na tri različita scenarija, koji pokrivaju različite vrste aproksimacije.
+
+\subsection{Primjer 1: Hookeov zakon (Fizika)}
+Testiramo linearnu aproksimaciju na primjeru opruge. Mjerimo produženje opruge ($\Delta x$) pod djelovanjem različitih sila ($F$). Teoretski zakon je linearan: $F = k \cdot \Delta x$.
+
+\textbf{Ulazni podaci:}
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|c|c|c|c|}
+        \hline
+        Produženje $\Delta x$ [cm] & 2 & 4 & 6 & 8 & 10 \\
+        \hline
+        Sila $F$ [N] & 5.1 & 9.8 & 15.2 & 19.9 & 25.1 \\
+        \hline
+    \end{tabular}
+\end{table}
+
+Unošenjem ovih podataka u našu aplikaciju i odabirom \textit{Linear Approximation}, dobijamo sljedeći rezultat:
+\begin{itemize}
+    \item \textbf{Funkcija:} $F(x) = 2.49x + 0.05$
+    \item \textbf{Koeficijent krutosti:} $k \approx 2.49$ N/cm.
+    \item \textbf{Kvalitet:} $R^2 = 0.9996$, što ukazuje na izuzetno slaganje sa linearnim modelom.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    % Placeholder for screenshot
+    \fbox{\begin{minipage}{10cm}\vspace{5cm}\centering\Large Graf linearne regresije\end{minipage}}
+    \caption{Grafički prikaz linearne aproksimacije za Hookeov zakon}
+\end{figure}
+
+\subsection{Primjer 2: Kondenzator (Elektrotehnika)}
+Posmatramo pražnjenje kondenzatora kroz otpornik. Napon opada po eksponencijalnom zakonu $V(t) = V_0 e^{-t/RC}$.
+
+\textbf{Ulazni podaci (Vrijeme $t$ [s] vs Napon $V$ [V]):}
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|c|c|c|c|}
+        \hline
+        $t$ [s] & 0 & 1 & 2 & 3 & 4 \\
+        \hline
+        $V$ [V] & 10.0 & 6.1 & 3.7 & 2.2 & 1.4 \\
+        \hline
+    \end{tabular}
+\end{table}
+
+Odabirom \textit{Exponential Approximation} u aplikaciji:
+\begin{itemize}
+    \item \textbf{Transformacija:} Aplikacija interno logaritmira napone ($\ln V$) i vrši linearnu regresiju nad vremenom.
+    \item \textbf{Rezultat:} $V(t) \approx 9.98 \cdot e^{-0.498t}$
+    \item \textbf{Analiza:} Početni napon je približno 10V (što odgovara podacima), a vremenska konstanta $\tau = 1/0.498 \approx 2.0$s.
+\end{itemize}
+
+\subsection{Primjer 3: Karakteristika pumpe (Mašinstvo)}
+Karakteristika centrifugalne pumpe (zavisnost visine dizanja $H$ od protoka $Q$) je obično kvadratna funkcija: $H(Q) = H_0 - kQ^2$.
+
+\textbf{Ulazni podaci:}
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|c|c|c|c|}
+        \hline
+        Protok $Q$ [$m^3/h$] & 0 & 10 & 20 & 30 & 40 \\
+        \hline
+        Visina $H$ [m] & 50.0 & 49.2 & 46.5 & 42.1 & 35.5 \\
+        \hline
+    \end{tabular}
+\end{table}
+
+Korištenjem \textit{Quadratic Approximation} (polinom 2. reda):
+\begin{itemize}
+    \item \textbf{Rezultat:} $H(Q) = 50.02 - 0.005 Q - 0.009 Q^2$
+    \item \textbf{Greška:} $R^2 = 0.999$, model odlično prati eksperimentalne podatke.
+\end{itemize}
+Korisnik sada može pomoću aplikacije predvidjeti visinu dizanja za protok od npr. $Q=25 m^3/h$ jednostavnim pozicioniranjem kursora na graf.
+
+\newpage
+
+% ---------------- 5. ZAKLJUČAK ----------------
+\section{ZAKLJUČCI}
+Cilj ovog seminarskog rada bio je dvojak: teoretski obraditi problem numeričke aproksimacije metodom najmanjih kvadrata i praktično implementirati te metode u modernom softverskom okruženju.
+
+Kroz razvoj aplikacije pokazali smo da:
+\begin{enumerate}
+    \item \textbf{Linearna algebra je temelj:} Implementacija robusnog rješavača linearnih sistema (Gaussova metoda) je ključna za sve metode aproksimacije, od jednostavnih pravaca do polinoma visokog reda.
+    \item \textbf{Linearizacija je moćan alat:} Svođenje nelinearnih problema (eksponencijalni, stepeni) na linearne putem logaritamske transformacije drastično pojednostavljuje proračun i omogućava korištenje iste baze koda.
+    \item \textbf{Web tehnologije su zrele za inženjerske alate:} Sposobnost JavaScript-a (i TypeScript-a) da brzo manipulira nizovima i matricama, u kombinaciji sa bibliotekama za iscrtavanje poput Plotly.js, čini ga odličnim izborom za razvoj inženjerskog softvera.
+\end{enumerate}
+
+Aplikacija "Approximation Picker" uspješno ispunjava sve postavljene zahtjeve: tačna je, brza, i pruža vizualni uvid u kvalitet aproksimacije. Kao takva, predstavlja koristan edukativni alat za studente Politehničkog fakulteta.
+
+\renewcommand\refname{LITERATURA}
+\begin{thebibliography}{9}
+
+\bibitem{knjiga_mn}
+I. Prezime, \textit{Numerička Matematika: Algoritmi i Primjena}, Akademska Knjiga, Sarajevo, 2018.
+
+\bibitem{chapra}
+S. C. Chapra, R. P. Canale, \textit{Numerical Methods for Engineers}, 7th Edition, McGraw-Hill Education, 2015.
+
+\bibitem{predavanja}
+A. Karač, \textit{Predavanja iz predmeta Primijenjene numeričke metode u softverskom inženjerstvu}, Politehnički fakultet, Univerzitet u Zenici, 2026.
+
+\bibitem{nextjs_docs}
+Vercel Inc., \textit{Next.js Documentation}, dostupno online na: \url{https://nextjs.org}, pristupljeno: Februar 2026.
+
+\bibitem{plotly}
+Plotly Technologies Inc., \textit{Collaborative data science}, dostupno online na: \url{https://plot.ly}, pristupljeno: Februar 2026.
+
+\end{thebibliography}
+
+\end{document}

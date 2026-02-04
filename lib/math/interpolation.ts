@@ -1,4 +1,4 @@
-import type { DataPoint, InterpolationResult, CalculationType } from '@/lib/types'
+import type { DataPoint, InterpolationResult, CalculationType, StepTranslations } from '@/lib/types'
 import {
   solveLinearSystem,
   vandermondeMatrix,
@@ -24,12 +24,12 @@ function calculatePointErrors(points: DataPoint[], result: InterpolationResult):
  * Lagrange interpolation
  * P(x) = Σ yₖ·Lₖ(x) where Lₖ(x) = Π(i≠k) (x - xᵢ)/(xₖ - xᵢ)
  */
-export function lagrangeInterpolation(points: DataPoint[]): InterpolationResult & { steps: string[] } {
+export function lagrangeInterpolation(points: DataPoint[], t?: StepTranslations): InterpolationResult & { steps: string[] } {
   const n = points.length
   const steps: string[] = []
   const basisPolynomials: string[] = []
 
-  steps.push(`\\text{Lagrange Interpolation for } n = ${n} \\text{ points}`)
+  steps.push(`\\text{${t?.lagrangeInterpolation || 'Lagrange Interpolation for'} } n = ${n} \\text{ ${t?.points || 'points'}}`)
   steps.push(`P(x) = \\sum_{k=0}^{${n - 1}} y_k \\cdot L_k(x)`)
   steps.push(`L_k(x) = \\prod_{i \\neq k} \\frac{x - x_i}{x_k - x_i}`)
 
@@ -65,7 +65,7 @@ export function lagrangeInterpolation(points: DataPoint[]): InterpolationResult 
   // Compute the coefficients by expanding
   const coefficients = computeLagrangeCoefficients(points)
 
-  steps.push(`\\text{Expanding and combining terms:}`)
+  steps.push(`\\text{${t?.expandingTerms || 'Expanding and combining terms:'}}`)
   steps.push(`P(x) = ${polynomialToLatex(coefficients)}`)
 
   const result: InterpolationResult & { steps: string[] } = {
@@ -138,11 +138,11 @@ function computeBasisPolynomialCoefficients(points: DataPoint[], k: number): num
  * Newton interpolation with divided differences
  * P(x) = f[x₀] + f[x₀,x₁](x-x₀) + f[x₀,x₁,x₂](x-x₀)(x-x₁) + ...
  */
-export function newtonInterpolation(points: DataPoint[]): InterpolationResult & { steps: string[] } {
+export function newtonInterpolation(points: DataPoint[], t?: StepTranslations): InterpolationResult & { steps: string[] } {
   const n = points.length
   const steps: string[] = []
 
-  steps.push(`\\text{Newton Interpolation with Divided Differences}`)
+  steps.push(`\\text{${t?.newtonInterpolation || 'Newton Interpolation with Divided Differences'}}`)
   steps.push(`P(x) = f[x_0] + \\sum_{k=1}^{${n - 1}} f[x_0, ..., x_k] \\prod_{i=0}^{k-1}(x - x_i)`)
 
   // Build divided differences table
@@ -151,7 +151,7 @@ export function newtonInterpolation(points: DataPoint[]): InterpolationResult & 
   // First column is y values
   divDiff[0] = points.map((p) => p.y)
 
-  steps.push(`\\text{Divided Differences Table:}`)
+  steps.push(`\\text{${t?.dividedDifferencesTable || 'Divided Differences Table:'}}`)
 
   // Compute higher order differences
   for (let j = 1; j < n; j++) {
@@ -185,7 +185,7 @@ export function newtonInterpolation(points: DataPoint[]): InterpolationResult & 
   steps.push(tableStr)
 
   // Build Newton polynomial
-  steps.push(`\\text{Newton polynomial:}`)
+  steps.push(`\\text{${t?.newtonPolynomial || 'Newton polynomial:'}}`)
 
   let newtonStr = `P(x) = ${formatNumber(divDiff[0][0])}`
   for (let k = 1; k < n; k++) {
@@ -213,7 +213,7 @@ export function newtonInterpolation(points: DataPoint[]): InterpolationResult & 
   // Convert to standard polynomial form
   const coefficients = computeNewtonCoefficients(points, divDiff)
 
-  steps.push(`\\text{Standard form:}`)
+  steps.push(`\\text{${t?.standardForm || 'Standard form:'}}`)
   steps.push(`P(x) = ${polynomialToLatex(coefficients)}`)
 
   const result: InterpolationResult & { steps: string[] } = {
@@ -313,33 +313,33 @@ function multiplyPolynomials(a: number[], b: number[]): number[] {
 /**
  * Direct method using Vandermonde matrix
  */
-export function directInterpolation(points: DataPoint[]): InterpolationResult & { steps: string[] } {
+export function directInterpolation(points: DataPoint[], t?: StepTranslations): InterpolationResult & { steps: string[] } {
   const n = points.length
   const steps: string[] = []
   const degree = n - 1
 
-  steps.push(`\\text{Direct Interpolation using Vandermonde Matrix}`)
-  steps.push(`\\text{For } n = ${n} \\text{ points, we find a polynomial of degree } ${degree}`)
+  steps.push(`\\text{${t?.directInterpolation || 'Direct Interpolation using Vandermonde Matrix'}}`)
+  steps.push(`\\text{${t?.forNPoints || 'For'} } n = ${n} \\text{ ${t?.findPolynomialDegree || 'points, we find a polynomial of degree'} } ${degree}`)
 
   // Create Vandermonde matrix
   const V = vandermondeMatrix(points.map((p) => p.x), degree)
   const y = points.map((p) => p.y)
 
-  steps.push(`\\text{Vandermonde matrix } V:`)
+  steps.push(`\\text{${t?.vandermondeMatrix || 'Vandermonde matrix'} } V:`)
   steps.push(matrixToLatex(V))
 
-  steps.push(`\\text{System of equations } V \\cdot \\mathbf{a} = \\mathbf{y}:`)
+  steps.push(`\\text{${t?.systemOfEquations || 'System of equations'} } V \\cdot \\mathbf{a} = \\mathbf{y}:`)
   steps.push(`${matrixToLatex(V)} ${vectorToLatex(['a_0', 'a_1', '...', `a_{${degree}}`] as unknown as number[])} = ${vectorToLatex(y)}`)
 
   // Solve the system
   const coefficients = solveLinearSystem(V, y)
 
-  steps.push(`\\text{Solution:}`)
+  steps.push(`\\text{${t?.solution || 'Solution:'}}`)
   for (let i = 0; i <= degree; i++) {
     steps.push(`a_${i} = ${formatNumber(coefficients[i])}`)
   }
 
-  steps.push(`\\text{Result:}`)
+  steps.push(`\\text{${t?.result || 'Result:'}}`)
   steps.push(`P(x) = ${polynomialToLatex(coefficients)}`)
 
   const result: InterpolationResult & { steps: string[] } = {
@@ -360,7 +360,8 @@ export function directInterpolation(points: DataPoint[]): InterpolationResult & 
  */
 export function interpolate(
   points: DataPoint[],
-  type: CalculationType
+  type: CalculationType,
+  translations?: StepTranslations
 ): InterpolationResult & { steps: string[] } {
   // Check for unique x values
   const xValues = points.map((p) => p.x)
@@ -371,11 +372,11 @@ export function interpolate(
 
   switch (type) {
     case 'lagrange-interpolation':
-      return lagrangeInterpolation(points)
+      return lagrangeInterpolation(points, translations)
     case 'newton-interpolation':
-      return newtonInterpolation(points)
+      return newtonInterpolation(points, translations)
     case 'direct-interpolation':
-      return directInterpolation(points)
+      return directInterpolation(points, translations)
     default:
       throw new Error(`Unknown interpolation type: ${type}`)
   }

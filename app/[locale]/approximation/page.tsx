@@ -29,6 +29,7 @@ export default function ApproximationPage() {
   const tValidation = useTranslations('validation')
   const tResults = useTranslations('results')
   const tApproximation = useTranslations('approximation')
+  const tSteps = useTranslations('steps')
   const { result, error, validation, isCalculating, calculate, evaluate, clear } =
     useCalculation()
   const { addEntry } = useHistory()
@@ -112,6 +113,32 @@ export default function ApproximationPage() {
     [tResults, tApproximation]
   )
 
+  const stepTranslations = useMemo(
+    () => ({
+      normalEquations: tSteps('normalEquations'),
+      solution: tSteps('solution'),
+      linearization: tSteps('linearization'),
+      let: tSteps('let'),
+      then: tSteps('then'),
+      linearRegressionTransformed: tSteps('linearRegressionTransformed'),
+      result: tSteps('result'),
+      vandermondeMatrix: tSteps('vandermondeMatrix'),
+      normalEquationsVTV: tSteps('normalEquationsVTV'),
+      expandingTerms: tSteps('expandingTerms'),
+      standardForm: tSteps('standardForm'),
+      lagrangeInterpolation: tSteps('lagrangeInterpolation'),
+      points: tSteps('points'),
+      dividedDifferencesTable: tSteps('dividedDifferencesTable'),
+      newtonInterpolation: tSteps('newtonInterpolation'),
+      newtonPolynomial: tSteps('newtonPolynomial'),
+      directInterpolation: tSteps('directInterpolation'),
+      forNPoints: tSteps('forNPoints'),
+      findPolynomialDegree: tSteps('findPolynomialDegree'),
+      systemOfEquations: tSteps('systemOfEquations'),
+    }),
+    [tSteps]
+  )
+
   const handleCalculate = useCallback(() => {
     // Filter out invalid points
     const validPoints = points.filter(
@@ -122,8 +149,8 @@ export default function ApproximationPage() {
       return
     }
 
-    calculate(validPoints, selectedMethod, { degree: polynomialDegree })
-  }, [points, selectedMethod, polynomialDegree, calculate])
+    calculate(validPoints, selectedMethod, { degree: polynomialDegree, stepTranslations })
+  }, [points, selectedMethod, polynomialDegree, calculate, stepTranslations])
 
   const handleSaveToHistory = useCallback(() => {
     if (result) {
