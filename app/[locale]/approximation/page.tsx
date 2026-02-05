@@ -14,7 +14,8 @@ import { LatexDisplay } from '@/components/math/latex-display'
 import { useCalculation } from '@/lib/hooks/use-calculation'
 import { useHistory } from '@/lib/hooks/use-history'
 import { getValidationErrorKey } from '@/lib/math/validators'
-import type { DataPoint, ApproximationResult } from '@/lib/types'
+import type { DataPoint, ApproximationResult, PrecisionLevel } from '@/lib/types'
+import { PRECISION_OPTIONS } from '@/lib/types'
 
 type ApproximationMethod =
   | 'linear-approximation'
@@ -44,6 +45,7 @@ export default function ApproximationPage() {
   const [selectedMethod, setSelectedMethod] =
     useState<ApproximationMethod>('linear-approximation')
   const [polynomialDegree, setPolynomialDegree] = useState(3)
+  const [precision, setPrecision] = useState<PrecisionLevel>(4)
   const [originalCurve, setOriginalCurve] = useState<DataPoint[]>([])
 
   const methods: { id: ApproximationMethod; labelKey: string; descKey: string }[] = [
@@ -149,8 +151,8 @@ export default function ApproximationPage() {
       return
     }
 
-    calculate(validPoints, selectedMethod, { degree: polynomialDegree, stepTranslations })
-  }, [points, selectedMethod, polynomialDegree, calculate, stepTranslations])
+    calculate(validPoints, selectedMethod, { degree: polynomialDegree, stepTranslations, precision })
+  }, [points, selectedMethod, polynomialDegree, calculate, stepTranslations, precision])
 
   const handleSaveToHistory = useCallback(() => {
     if (result) {
@@ -230,6 +232,28 @@ export default function ApproximationPage() {
                   />
                 </div>
               )}
+
+              {/* Precision selector */}
+              <div className="mt-4 pt-4 border-t border-border">
+                <label className="text-xs font-medium block mb-2">
+                  {t('approximation.precision')}:
+                </label>
+                <div className="flex flex-wrap gap-1">
+                  {PRECISION_OPTIONS.map((opt) => (
+                    <button
+                      key={opt.value}
+                      onClick={() => setPrecision(opt.value)}
+                      className={`px-2 py-1 text-xs rounded border transition-colors ${
+                        precision === opt.value
+                          ? 'border-primary bg-primary/10 text-primary font-medium'
+                          : 'border-border hover:border-primary/50'
+                      }`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -313,6 +337,7 @@ export default function ApproximationPage() {
               result={result}
               onEvaluate={evaluate}
               onSaveToHistory={handleSaveToHistory}
+              precision={precision}
               translations={resultTranslations}
             />
           </CardContent>

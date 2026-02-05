@@ -8,6 +8,7 @@ import type {
   InterpolationResult,
   ValidationResult,
   StepTranslations,
+  PrecisionLevel,
 } from '@/lib/types'
 import { validateDataPoints } from '@/lib/math/validators'
 import { approximate } from '@/lib/math/approximation'
@@ -16,13 +17,19 @@ import { evaluatePolynomial } from '@/lib/math/expression-parser'
 
 type CalculationResult = (ApproximationResult | InterpolationResult) & { steps: string[] }
 
+interface CalculationOptions {
+  degree?: number
+  stepTranslations?: StepTranslations
+  precision?: PrecisionLevel
+}
+
 interface UseCalculationReturn {
   result: CalculationResult | null
   error: string | null
   validation: ValidationResult | null
   isCalculating: boolean
-  calculate: (points: DataPoint[], type: CalculationType, options?: { degree?: number; stepTranslations?: StepTranslations }) => void
-  evaluate: (x: number) => number | null
+  calculate: (points: DataPoint[], type: CalculationType, options?: CalculationOptions) => void
+  evaluate: (x: number, precision?: PrecisionLevel) => number | null
   clear: () => void
 }
 
@@ -33,7 +40,7 @@ export function useCalculation(): UseCalculationReturn {
   const [isCalculating, setIsCalculating] = useState(false)
 
   const calculate = useCallback(
-    (points: DataPoint[], type: CalculationType, options?: { degree?: number; stepTranslations?: StepTranslations }) => {
+    (points: DataPoint[], type: CalculationType, options?: CalculationOptions) => {
       setIsCalculating(true)
       setError(null)
       setResult(null)
@@ -65,13 +72,15 @@ export function useCalculation(): UseCalculationReturn {
         return
       }
 
+      const precision = options?.precision ?? 4
+
       try {
         let calculationResult: CalculationResult
 
         if (isInterpolation) {
-          calculationResult = interpolate(points, type, options?.stepTranslations)
+          calculationResult = interpolate(points, type, options?.stepTranslations, precision)
         } else {
-          calculationResult = approximate(points, type, options?.degree, options?.stepTranslations)
+          calculationResult = approximate(points, type, options?.degree, options?.stepTranslations, precision)
         }
 
         setResult(calculationResult)

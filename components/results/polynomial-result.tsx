@@ -5,12 +5,13 @@ import { Copy, Save, Check } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { LatexBlock } from '@/components/math/latex-display'
-import type { ApproximationResult, InterpolationResult } from '@/lib/types'
+import type { ApproximationResult, InterpolationResult, PrecisionLevel } from '@/lib/types'
 
 interface PolynomialResultProps {
   result: ApproximationResult | InterpolationResult
   onEvaluate?: (x: number) => number | null
   onSaveToHistory?: () => void
+  precision?: PrecisionLevel
   translations: {
     polynomial: string
     graph: string
@@ -32,6 +33,7 @@ export function PolynomialResult({
   result,
   onEvaluate,
   onSaveToHistory,
+  precision = 6,
   translations,
 }: PolynomialResultProps) {
   const [evalX, setEvalX] = useState('')
@@ -115,7 +117,7 @@ export function PolynomialResult({
               key={i}
               className="px-3 py-1 bg-card border border-border rounded-md text-sm font-mono"
             >
-              a<sub>{i}</sub> = {coef.toFixed(6)}
+              a<sub>{i}</sub> = {coef.toFixed(precision)}
             </div>
           ))}
         </div>
@@ -148,7 +150,7 @@ export function PolynomialResult({
           {evalResult && (
             <div className="p-3 bg-primary/10 border border-primary/30 rounded-lg">
               <LatexBlock
-                latex={`P(${evalResult.x}) = ${evalResult.y.toFixed(6)}`}
+                latex={`P(${evalResult.x}) = ${evalResult.y.toFixed(precision)}`}
               />
             </div>
           )}
