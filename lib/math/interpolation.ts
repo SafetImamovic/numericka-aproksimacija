@@ -24,7 +24,7 @@ function calculatePointErrors(points: DataPoint[], result: InterpolationResult):
  * Lagrange interpolation
  * P(x) = Σ yₖ·Lₖ(x) where Lₖ(x) = Π(i≠k) (x - xᵢ)/(xₖ - xᵢ)
  */
-export function lagrangeInterpolation(points: DataPoint[], t?: StepTranslations): InterpolationResult & { steps: string[] } {
+export function lagrangeInterpolation(points: DataPoint[], t?: StepTranslations, precision: number = 4): InterpolationResult & { steps: string[] } {
   const n = points.length
   const steps: string[] = []
   const basisPolynomials: string[] = []
@@ -46,17 +46,17 @@ export function lagrangeInterpolation(points: DataPoint[], t?: StepTranslations)
 
         // Build symbolic terms
         if (xi >= 0) {
-          numeratorTerms.push(`(x - ${formatNumber(xi)})`)
+          numeratorTerms.push(`(x - ${formatNumber(xi, precision)})`)
         } else {
-          numeratorTerms.push(`(x + ${formatNumber(-xi)})`)
+          numeratorTerms.push(`(x + ${formatNumber(-xi, precision)})`)
         }
 
         denominator *= xk - xi
-        denominatorTerms.push(`(${formatNumber(xk)} - ${formatNumber(xi)})`)
+        denominatorTerms.push(`(${formatNumber(xk, precision)} - ${formatNumber(xi, precision)})`)
       }
     }
 
-    const basisStr = `L_{${k}}(x) = \\frac{${numeratorTerms.join(' \\cdot ')}}{${formatNumber(denominator)}}`
+    const basisStr = `L_{${k}}(x) = \\frac{${numeratorTerms.join(' \\cdot ')}}{${formatNumber(denominator, precision)}}`
     basisPolynomials.push(basisStr)
 
     steps.push(`${basisStr}`)
@@ -66,11 +66,11 @@ export function lagrangeInterpolation(points: DataPoint[], t?: StepTranslations)
   const coefficients = computeLagrangeCoefficients(points)
 
   steps.push(`\\text{${t?.expandingTerms || 'Expanding and combining terms:'}}`)
-  steps.push(`P(x) = ${polynomialToLatex(coefficients)}`)
+  steps.push(`P(x) = ${polynomialToLatex(coefficients, precision)}`)
 
   const result: InterpolationResult & { steps: string[] } = {
     type: 'lagrange-interpolation',
-    polynomial: polynomialToLatex(coefficients),
+    polynomial: polynomialToLatex(coefficients, precision),
     coefficients,
     points,
     basisPolynomials,
@@ -138,7 +138,7 @@ function computeBasisPolynomialCoefficients(points: DataPoint[], k: number): num
  * Newton interpolation with divided differences
  * P(x) = f[x₀] + f[x₀,x₁](x-x₀) + f[x₀,x₁,x₂](x-x₀)(x-x₁) + ...
  */
-export function newtonInterpolation(points: DataPoint[], t?: StepTranslations): InterpolationResult & { steps: string[] } {
+export function newtonInterpolation(points: DataPoint[], t?: StepTranslations, precision: number = 4): InterpolationResult & { steps: string[] } {
   const n = points.length
   const steps: string[] = []
 
@@ -172,9 +172,9 @@ export function newtonInterpolation(points: DataPoint[], t?: StepTranslations): 
   tableStr += ' \\\\ \\hline'
 
   for (let i = 0; i < n; i++) {
-    tableStr += ` ${formatNumber(points[i].x)}`
+    tableStr += ` ${formatNumber(points[i].x, precision)}`
     for (let j = 0; j < n - i; j++) {
-      tableStr += ` & ${formatNumber(divDiff[j][i])}`
+      tableStr += ` & ${formatNumber(divDiff[j][i], precision)}`
     }
     for (let j = n - i; j < n; j++) {
       tableStr += ' &'
@@ -187,7 +187,7 @@ export function newtonInterpolation(points: DataPoint[], t?: StepTranslations): 
   // Build Newton polynomial
   steps.push(`\\text{${t?.newtonPolynomial || 'Newton polynomial:'}}`)
 
-  let newtonStr = `P(x) = ${formatNumber(divDiff[0][0])}`
+  let newtonStr = `P(x) = ${formatNumber(divDiff[0][0], precision)}`
   for (let k = 1; k < n; k++) {
     const coef = divDiff[k][0]
     if (Math.abs(coef) < 1e-10) continue
@@ -196,16 +196,16 @@ export function newtonInterpolation(points: DataPoint[], t?: StepTranslations): 
     for (let i = 0; i < k; i++) {
       const xi = points[i].x
       if (xi >= 0) {
-        term += `(x - ${formatNumber(xi)})`
+        term += `(x - ${formatNumber(xi, precision)})`
       } else {
-        term += `(x + ${formatNumber(-xi)})`
+        term += `(x + ${formatNumber(-xi, precision)})`
       }
     }
 
     if (coef >= 0) {
-      newtonStr += ` + ${formatNumber(coef)}${term}`
+      newtonStr += ` + ${formatNumber(coef, precision)}${term}`
     } else {
-      newtonStr += ` - ${formatNumber(-coef)}${term}`
+      newtonStr += ` - ${formatNumber(-coef, precision)}${term}`
     }
   }
   steps.push(newtonStr)
@@ -214,11 +214,11 @@ export function newtonInterpolation(points: DataPoint[], t?: StepTranslations): 
   const coefficients = computeNewtonCoefficients(points, divDiff)
 
   steps.push(`\\text{${t?.standardForm || 'Standard form:'}}`)
-  steps.push(`P(x) = ${polynomialToLatex(coefficients)}`)
+  steps.push(`P(x) = ${polynomialToLatex(coefficients, precision)}`)
 
   const result: InterpolationResult & { steps: string[] } = {
     type: 'newton-interpolation',
-    polynomial: polynomialToLatex(coefficients),
+    polynomial: polynomialToLatex(coefficients, precision),
     coefficients,
     points,
     dividedDifferences: divDiff,
@@ -313,7 +313,7 @@ function multiplyPolynomials(a: number[], b: number[]): number[] {
 /**
  * Direct method using Vandermonde matrix
  */
-export function directInterpolation(points: DataPoint[], t?: StepTranslations): InterpolationResult & { steps: string[] } {
+export function directInterpolation(points: DataPoint[], t?: StepTranslations, precision: number = 4): InterpolationResult & { steps: string[] } {
   const n = points.length
   const steps: string[] = []
   const degree = n - 1
@@ -326,25 +326,25 @@ export function directInterpolation(points: DataPoint[], t?: StepTranslations): 
   const y = points.map((p) => p.y)
 
   steps.push(`\\text{${t?.vandermondeMatrix || 'Vandermonde matrix'} } V:`)
-  steps.push(matrixToLatex(V))
+  steps.push(matrixToLatex(V, precision))
 
   steps.push(`\\text{${t?.systemOfEquations || 'System of equations'} } V \\cdot \\mathbf{a} = \\mathbf{y}:`)
-  steps.push(`${matrixToLatex(V)} ${vectorToLatex(['a_0', 'a_1', '...', `a_{${degree}}`] as unknown as number[])} = ${vectorToLatex(y)}`)
+  steps.push(`${matrixToLatex(V, precision)} ${vectorToLatex(['a_0', 'a_1', '...', `a_{${degree}}`] as unknown as number[])} = ${vectorToLatex(y, precision)}`)
 
   // Solve the system
   const coefficients = solveLinearSystem(V, y)
 
   steps.push(`\\text{${t?.solution || 'Solution:'}}`)
   for (let i = 0; i <= degree; i++) {
-    steps.push(`a_${i} = ${formatNumber(coefficients[i])}`)
+    steps.push(`a_${i} = ${formatNumber(coefficients[i], precision)}`)
   }
 
   steps.push(`\\text{${t?.result || 'Result:'}}`)
-  steps.push(`P(x) = ${polynomialToLatex(coefficients)}`)
+  steps.push(`P(x) = ${polynomialToLatex(coefficients, precision)}`)
 
   const result: InterpolationResult & { steps: string[] } = {
     type: 'direct-interpolation',
-    polynomial: polynomialToLatex(coefficients),
+    polynomial: polynomialToLatex(coefficients, precision),
     coefficients,
     points,
     vandermondeMatrix: V,
@@ -361,7 +361,8 @@ export function directInterpolation(points: DataPoint[], t?: StepTranslations): 
 export function interpolate(
   points: DataPoint[],
   type: CalculationType,
-  translations?: StepTranslations
+  translations?: StepTranslations,
+  precision: number = 4
 ): InterpolationResult & { steps: string[] } {
   // Check for unique x values
   const xValues = points.map((p) => p.x)
@@ -372,11 +373,11 @@ export function interpolate(
 
   switch (type) {
     case 'lagrange-interpolation':
-      return lagrangeInterpolation(points, translations)
+      return lagrangeInterpolation(points, translations, precision)
     case 'newton-interpolation':
-      return newtonInterpolation(points, translations)
+      return newtonInterpolation(points, translations, precision)
     case 'direct-interpolation':
-      return directInterpolation(points, translations)
+      return directInterpolation(points, translations, precision)
     default:
       throw new Error(`Unknown interpolation type: ${type}`)
   }

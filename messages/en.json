@@ -106,6 +106,8 @@
     "exponential": "Exponential",
     "exponentialDesc": "y = ae^(bx)",
     "degree": "Polynomial Degree",
+    "precision": "Precision",
+    "precisionDesc": "Decimal places for results",
     "normalEquations": "Normal Equations",
     "solution": "Solution",
     "coefficients": "Coefficients",
