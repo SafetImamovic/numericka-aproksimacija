@@ -106,6 +106,8 @@
     "exponential": "Eksponencijalna",
     "exponentialDesc": "y = ae^(bx)",
     "degree": "Stepen Polinoma",
+    "precision": "Preciznost",
+    "precisionDesc": "Decimalna mjesta za rezultate",
     "normalEquations": "Normalne Jednadžbe",
     "solution": "Rješenje",
     "coefficients": "Koeficijenti",

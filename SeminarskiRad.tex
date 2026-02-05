@@ -10,22 +10,42 @@
 \usepackage{hyperref}
 \usepackage{float}
 \usepackage{titlesec}
-\usepackage{indentfirst}
 \usepackage[bosnian]{babel}
+\usepackage{fancyhdr}
+\usepackage{chngcntr}
 
 % Margins and formatting
 \geometry{
  a4paper,
  left=25mm,
  right=25mm,
- top=25mm,
+ top=30mm,
  bottom=25mm,
+ headheight=15pt,
 }
 
 % Formatting specs
 \setlength{\parskip}{1em}
 \setlength{\parindent}{0pt}
 \linespread{1.15}
+
+% Figure numbering by section
+\counterwithin{figure}{section}
+\counterwithin{table}{section}
+\counterwithin{equation}{section}
+
+% Header and footer setup
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{Numerička aproksimacija}
+\fancyfoot[L]{Imamović, Jamaković, Habibović}
+\fancyfoot[R]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% Bosnian captions
+\renewcommand{\figurename}{Slika}
+\renewcommand{\tablename}{Tabela}
 
 % Code formatting
 \definecolor{codegreen}{rgb}{0,0.6,0}
@@ -58,50 +78,47 @@
 
 % ---------------- TITLE PAGE ----------------
 \begin{titlepage}
+    \thispagestyle{empty}
+
+    \textbf{UNIVERZITET U ZENICI} \\
+    \textbf{POLITEHNIČKI FAKULTET}
+
+    \vspace{6cm}
+
     \begin{center}
-        \vspace*{1cm}
-        
         \Large
-        \textbf{UNIVERZITET U ZENICI} \\
-        \textbf{POLITEHNIČKI FAKULTET}
-        
-        \vspace{5cm}
-        
-        \Huge
-        \textbf{NUMERIČKA APROKSIMACIJA} \\
-        \Large
-        \textit{Razvoj web aplikacije za metodu najmanjih kvadrata}
-        
-        \vspace{1cm}
-        \Large
-        Seminarski rad
-        
-        \vspace{4cm}
-        
-        \begin{flushleft}
-        \textbf{Studenti:} \\
+        \textbf{NUMERIČKA APROKSIMACIJA} \\[0.3cm]
+        \normalsize
+        -SEMINARSKI RAD-
+    \end{center}
+
+    \vspace{5cm}
+
+    \noindent
+    \begin{minipage}[t]{0.45\textwidth}
+        \textbf{STUDENTI} \\[0.3cm]
         Safet Imamović \\
         Emrah Jamaković \\
         Islam Habibović
-        \end{flushleft}
-        
-        \vspace{0.5cm}
-        
-        \begin{flushleft}
-        \textbf{Mentor:} \\
-        Prof. dr. Aleksandar Karač
-        \end{flushleft}
-        
-        \vfill
-        
-        \Large
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.45\textwidth}
+        \raggedleft
+        \textbf{PREDMETNI NASTAVNIK} \\[0.3cm]
+        r. prof. dr. Aleksandar Karač
+    \end{minipage}
+
+    \vfill
+
+    \begin{center}
         Zenica, Februar 2026.
-        
     \end{center}
+
 \end{titlepage}
 
 % ---------------- ABSTRACT ----------------
-\section*{Sažetak}
+\pagenumbering{arabic}
+\section*{Abstrakt}
 U ovom radu detaljno je opisan proces razvoja i matematička pozadina softverskog rješenja za numeričku aproksimaciju funkcija. Fokus rada je na implementaciji \textit{Metode najmanjih kvadrata} (Least Squares Method) unutar modernog web okruženja. Aplikacija omogućava korisnicima unos eksperimentalnih podataka te pronalazak optimalne funkcije (linearne, kvadratne, polinomske, eksponencijalne ili stepene) koja najbolje opisuje trend podataka. Posebna pažnja posvećena je teorijskom izvođenju normalnih jednačina, analizi greške putem koeficijenta determinacije ($R^2$), te softverskoj arhitekturi baziranoj na Next.js i TypeScript tehnologijama. Rad sadrži i praktične primjere primjene razvijenog alata na realne inženjerske probleme.
 
 \textbf{Ključne riječi:} Numerička aproksimacija, Metoda najmanjih kvadrata, Regresija, Next.js, TypeScript.
@@ -125,8 +142,6 @@ Ovaj seminarski rad ima dva osnovna cilja:
 \end{enumerate}
 
 Kroz rad ćemo proći put od matematičkog formulisanja problema, preko rješavanja sistema linearnih jednačina u računarskom kodu, do vizualizacije rezultata u web pregledniku.
-
-\newpage
 
 % ---------------- 2. TEORIJSKI DIO ----------------
 \section{TEORIJSKI DIO}
@@ -231,7 +246,7 @@ $$ Y = \ln y, \quad X = \ln x, \quad A = \ln a, \quad B = b $$
 Linearna forma: $Y = A + BX$. Parametri se određuju regresijom nad parovima $(\ln x_i, \ln y_i)$.
 
 \subsection{Kvalitet aproksimacije}
-Kako bismo ocijenili koliko dobro odabrana funkcija opisuje podatke, koristimo **Koeficijent determinacije** ($R^2$):
+Kako bismo ocijenili koliko dobro odabrana funkcija opisuje podatke, koristimo \textbf{Koeficijent determinacije} ($R^2$):
 \begin{equation}
     R^2 = 1 - \frac{SS_{res}}{SS_{tot}} = 1 - \frac{\sum (y_i - f(x_i))^2}{\sum (y_i - \bar{y})^2}
 \end{equation}
@@ -241,8 +256,6 @@ Gdje je $\bar{y}$ srednja vrijednost $y$ podataka.
     \item $R^2 = 0$: Model ne objašnjava varijabilnost podataka.
 \end{itemize}
 
-\newpage
-
 % ---------------- 3. APLIKACIJA ----------------
 \section{APLIKACIJA}
 
@@ -251,7 +264,7 @@ U ovom poglavlju detaljno opisujemo tehničku realizaciju softverskog rješenja.
 \subsection{Tehnološki okvir (Tech Stack)}
 Prilikom izbora tehnologija vodili smo se kriterijima: brzina razvoja, performanse u pregledniku, i kvaliteta ekosistema.
 \begin{itemize}
-    \item \textbf{Next.js 14 (React Framework):} Omogućava nam kreiranje brzih, "server-side rendered" (SSR) ili statičkih web stranica. Iako se naša aplikacija u potpunosti izvršava na klijentu (SPA - Single Page Application), Next.js pruža odličnu strukturu projekta i routing.
+    \item \textbf{Next.js 15 (React Framework):} Omogućava nam kreiranje brzih, "server-side rendered" (SSR) ili statičkih web stranica. Iako se naša aplikacija u potpunosti izvršava na klijentu (SPA - Single Page Application), Next.js pruža odličnu strukturu projekta i routing.
     \item \textbf{TypeScript:} Superskup JavaScripta koji dodaje statičke tipove. U kontekstu numeričke matematike, ovo je neprocjenjivo. Na primjer, TypeScript nam ne dozvoljava da slučajno saberemo broj i niz, ili da funkciji koja očekuje matricu proslijedimo vektor.
     \item \textbf{MathLive:} Web komponenta (`<math-field>`) koja omogućava korisnicima unos formula na način kako se one pišu u matematici (WYSIWYG editor).
     \item \textbf{Cortex Compute Engine:} Moćan "engine" za parsiranje i evaluaciju simboličkih izraza. Koristimo ga da pretvorimo korisnikov unos (npr. "sin(x) + 2") u funkciju koja se može evaluirati za bilo koje $x$.
@@ -284,7 +297,7 @@ export interface ApproximationResult {
 \subsection{Implementacija numeričkih algoritama}
 Svi algoritmi su implementirani kao čiste funkcije (pure functions) u direktoriju `lib/math`. Ovo znači da za isti ulaz uvijek daju isti izlaz i nemaju "side effects", što ih čini lakim za testiranje.
 
-### Rješavanje lineranih sistema
+\subsubsection{Rješavanje linearnih sistema}
 Mnoge metode aproksimacije svode se na rješavanje sistema $Ax=b$. Implementirali smo Gaussovu eliminaciju sa pivotiranjem:
 
 \begin{lstlisting}[language=Java, caption=Gaussova eliminacija (isječak)]
@@ -326,7 +339,7 @@ export function solveLinearSystem(A: number[][], b: number[]): number[] {
 }
 \end{lstlisting}
 
-### Algoritam linearne aproksimacije
+\subsubsection{Algoritam linearne aproksimacije}
 Evo kako aplikacija implementira teoriju linearne regresije koju smo izveli u poglavlju 2.2:
 
 \begin{lstlisting}[language=Java, caption=Kod za linearnu aproksimaciju]
@@ -356,18 +369,50 @@ export function linearApproximation(points: DataPoint[]) {
 }
 \end{lstlisting}
 
+\subsection{Validacija ulaza i numerička stabilnost}
+
+Jedan od ključnih izazova u implementaciji numeričkih metoda u softveru
+jeste osiguravanje numeričke stabilnosti i sprječavanje neispravnih
+kombinacija ulaznih podataka. Iako matematički modeli mogu biti jasno
+definisani, korisnik u praktičnoj aplikaciji može unijeti podatke koji
+ne zadovoljavaju teorijske pretpostavke metode.
+
+Posebna pažnja posvećena je aproksimaciji polinomima višeg stepena.
+Polinom stepena $m$ ima $m+1$ nepoznatih koeficijenata, te je za rješavanje
+sistema normalnih jednačina neophodno imati najmanje $m+1$ nezavisnih
+tačaka. U suprotnom, sistem postaje singularan i nema jedinstveno rješenje.
+
+Zbog toga aplikacija automatski ograničava maksimalni stepen polinoma
+na osnovu broja unesenih tačaka:
+\[
+m_{\text{max}} = N - 1
+\]
+gdje je $N$ broj dostupnih podataka. Ova provjera implementirana je
+na dva nivoa:
+\begin{itemize}
+    \item \textbf{Korisničko sučelje (UI):} Stepen polinoma se automatski
+    prilagođava prilikom dodavanja ili uklanjanja tačaka, čime se korisniku
+    onemogućava izbor nevalidnih konfiguracija.
+    \item \textbf{Logika izračuna:} Prije samog proračuna provjerava se da li
+    postoji dovoljan broj tačaka za izabranu metodu, čime se sprječava
+    numerička nestabilnost i pad aplikacije.
+\end{itemize}
+
+Slične validacije primijenjene su i kod kvadratne aproksimacije, gdje je
+minimalan broj tačaka tri, kao i kod nelinearnih modela (eksponencijalni i
+stepeni), gdje se dodatno provjerava domen funkcija (pozitivne vrijednosti
+za logaritamsku transformaciju).
+
 \subsection{Korisničko sučelje (UI)}
-Aplikacija koristi tzv. "Split-screen" raspored. Lijeva strana ekrana rezervirana je za unos podataka (tabela) i kontrolu parametara, dok desna strana prikazuje rezultate (graf i tekstualno objašnjenje).
+Aplikacija koristi tzv. "Split-screen" raspored. Gornja polovica ekrana rezervirana je za unos podataka (tabela) i kontrolu parametara, dok donja polovica prikazuje rezultate (graf i tekstualno objašnjenje).
 Komponente su stilizirane koristeći `Tailwind CSS` klase, što nam omogućava da bez pisanja posebnih `.css` fajlova definiramo izgled elemenata.
 
 \begin{figure}[H]
     \centering
-    % Placeholder for screenshot
-    \fbox{\begin{minipage}{12cm}\vspace{6cm}\centering\Large Slika sučelja aplikacije (Input)\end{minipage}}
-    \caption{Prikaz komponente za unos tačaka}
+    \includegraphics[width=0.9\textwidth]{Sucelje.png}
+    \caption{Korisničko sučelje aplikacije za polinomsku aproksimaciju}
+    \label{fig:ui-polynomial}
 \end{figure}
-
-\newpage
 
 % ---------------- 4. PRIMJERI PRIMJENE ----------------
 \section{PRIMJERI PRIMJENE}
@@ -398,8 +443,7 @@ Unošenjem ovih podataka u našu aplikaciju i odabirom \textit{Linear Approximat
 
 \begin{figure}[H]
     \centering
-    % Placeholder for screenshot
-    \fbox{\begin{minipage}{10cm}\vspace{5cm}\centering\Large Graf linearne regresije\end{minipage}}
+    \includegraphics[width=0.9\textwidth]{Primjer1.png}
     \caption{Grafički prikaz linearne aproksimacije za Hookeov zakon}
 \end{figure}
 
@@ -425,6 +469,13 @@ Odabirom \textit{Exponential Approximation} u aplikaciji:
     \item \textbf{Analiza:} Početni napon je približno 10V (što odgovara podacima), a vremenska konstanta $\tau = 1/0.498 \approx 2.0$s.
 \end{itemize}
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Primjer2.png}
+    \caption{Grafički prikaz eksponencijalne aproksimacije pražnjenja kondenzatora}
+    \label{fig:exp-capacitor}
+\end{figure}
+
 \subsection{Primjer 3: Karakteristika pumpe (Mašinstvo)}
 Karakteristika centrifugalne pumpe (zavisnost visine dizanja $H$ od protoka $Q$) je obično kvadratna funkcija: $H(Q) = H_0 - kQ^2$.
 
@@ -447,7 +498,12 @@ Korištenjem \textit{Quadratic Approximation} (polinom 2. reda):
 \end{itemize}
 Korisnik sada može pomoću aplikacije predvidjeti visinu dizanja za protok od npr. $Q=25 m^3/h$ jednostavnim pozicioniranjem kursora na graf.
 
-\newpage
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Primjer3.png}
+    \caption{Grafički prikaz kvadratne aproksimacije karakteristike pumpe}
+    \label{fig:pump-quadratic}
+\end{figure}
 
 % ---------------- 5. ZAKLJUČAK ----------------
 \section{ZAKLJUČCI}
@@ -462,24 +518,15 @@ Kroz razvoj aplikacije pokazali smo da:
 
 Aplikacija "Approximation Picker" uspješno ispunjava sve postavljene zahtjeve: tačna je, brza, i pruža vizualni uvid u kvalitet aproksimacije. Kao takva, predstavlja koristan edukativni alat za studente Politehničkog fakulteta.
 
-\renewcommand\refname{LITERATURA}
-\begin{thebibliography}{9}
+\section*{LITERATURA}
+\addcontentsline{toc}{section}{LITERATURA}
 
-\bibitem{knjiga_mn}
-I. Prezime, \textit{Numerička Matematika: Algoritmi i Primjena}, Akademska Knjiga, Sarajevo, 2018.
-
-\bibitem{chapra}
-S. C. Chapra, R. P. Canale, \textit{Numerical Methods for Engineers}, 7th Edition, McGraw-Hill Education, 2015.
-
-\bibitem{predavanja}
-A. Karač, \textit{Predavanja iz predmeta Primijenjene numeričke metode u softverskom inženjerstvu}, Politehnički fakultet, Univerzitet u Zenici, 2026.
-
-\bibitem{nextjs_docs}
-Vercel Inc., \textit{Next.js Documentation}, dostupno online na: \url{https://nextjs.org}, pristupljeno: Februar 2026.
-
-\bibitem{plotly}
-Plotly Technologies Inc., \textit{Collaborative data science}, dostupno online na: \url{https://plot.ly}, pristupljeno: Februar 2026.
-
-\end{thebibliography}
+\begin{enumerate}
+    \item[{[1]}] S. C. Chapra, R. P. Canale, \textit{Numerical Methods for Engineers}, 7th Edition, McGraw-Hill Education, 2015.
+    \item[{[2]}] A. Karač, \textit{Predavanja iz predmeta Primijenjene numeričke metode u softverskom inženjerstvu}, Politehnički fakultet, Univerzitet u Zenici, 2026.
+    \item[{[3]}] Vercel Inc., \textit{Next.js Documentation}, \url{https://nextjs.org}, pristupljeno: Februar 2026.
+    \item[{[4]}] Plotly Technologies Inc., \textit{Plotly JavaScript Open Source Graphing Library}, \url{https://plotly.com/javascript/}, pristupljeno: Februar 2026.
+    \item[{[5]}] MathLive, \textit{A Web Component for Math Input}, \url{https://cortexjs.io/mathlive/}, pristupljeno: Februar 2026.
+\end{enumerate}
 
 \end{document}
