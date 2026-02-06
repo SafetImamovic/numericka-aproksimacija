@@ -59,6 +59,7 @@ interface PlotLayout {
   margin: { t: number; r: number; b: number; l: number }
   hovermode: string
   barmode?: string
+  dragmode?: string
 }
 
 interface PlotConfig {
