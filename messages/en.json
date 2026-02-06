@@ -79,7 +79,23 @@
     "supportedFunctions": "Supported functions (LaTeX):",
     "andMore": "... and more",
     "sampleCountError": "Sample count must be between 2 and 100",
-    "notEnoughPoints": "Could not generate enough valid points"
+    "notEnoughPoints": "Could not generate enough valid points",
+    "exampleDatasets": "Load Example",
+    "selectDataset": "Select a dataset...",
+    "datasets": {
+      "temperatureAltitude": "Temperature vs Altitude",
+      "projectileMotion": "Projectile Motion",
+      "seasonalSales": "Seasonal Sales",
+      "areaScaling": "Area vs Side Length",
+      "bacterialGrowth": "Bacterial Growth",
+      "studyScores": "Study Hours vs Scores",
+      "textbookBasic": "Textbook Basic",
+      "sineSampling": "Sine Sampling",
+      "pressureVolume": "Pressure vs Volume",
+      "squareRootData": "Square Root Pattern",
+      "rungeExample": "Runge Function",
+      "populationData": "World Population"
+    }
   },
   "validation": {
     "requiredField": "This field is required",

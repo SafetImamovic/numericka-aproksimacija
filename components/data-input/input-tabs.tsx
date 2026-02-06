@@ -5,6 +5,8 @@ import { FileText, Upload, FunctionSquare } from 'lucide-react'
 import { ManualInput } from './manual-input'
 import { FileUpload } from './file-upload'
 import { FunctionInput, type FunctionInputState } from './function-input'
+import { DatasetSelector } from './dataset-selector'
+import type { ExampleDataset } from '@/lib/data/example-datasets'
 import type { DataPoint, InputMode } from '@/lib/types'
 
 const DEFAULT_FUNCTION_STATE: FunctionInputState = {
@@ -19,6 +21,12 @@ interface InputTabsProps {
   onPointsChange: (points: DataPoint[], originalCurve?: DataPoint[]) => void
   errors?: Map<number, { x?: string; y?: string }>
   disabled?: boolean
+  datasets?: ExampleDataset[]
+  datasetTranslations?: {
+    exampleDatasets: string
+    selectDataset: string
+    datasetNames: Record<string, string>
+  }
   translations: {
     title: string
     manualTab: string
@@ -61,6 +69,8 @@ export function InputTabs({
   onPointsChange,
   errors,
   disabled = false,
+  datasets,
+  datasetTranslations,
   translations,
 }: InputTabsProps) {
   const [activeTab, setActiveTab] = useState<InputMode>('manual')
@@ -95,6 +105,16 @@ export function InputTabs({
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-semibold">{translations.title}</h3>
+
+      {/* Dataset selector */}
+      {datasets && datasetTranslations && (
+        <DatasetSelector
+          datasets={datasets}
+          onSelect={handleDataLoaded}
+          disabled={disabled}
+          translations={datasetTranslations}
+        />
+      )}
 
       {/* Tab buttons */}
       <div className="flex border-b border-border">

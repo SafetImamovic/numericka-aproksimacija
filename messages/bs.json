@@ -79,7 +79,23 @@
     "supportedFunctions": "Podržane funkcije (LaTeX):",
     "andMore": "... i još",
     "sampleCountError": "Broj tačaka mora biti između 2 i 100",
-    "notEnoughPoints": "Nije moguće generisati dovoljno validnih tačaka"
+    "notEnoughPoints": "Nije moguće generisati dovoljno validnih tačaka",
+    "exampleDatasets": "Učitaj Primjer",
+    "selectDataset": "Odaberi dataset...",
+    "datasets": {
+      "temperatureAltitude": "Temperatura i Nadmorska Visina",
+      "projectileMotion": "Kretanje Projektila",
+      "seasonalSales": "Sezonska Prodaja",
+      "areaScaling": "Površina i Dužina Stranice",
+      "bacterialGrowth": "Rast Bakterija",
+      "studyScores": "Sati Učenja i Ocjene",
+      "textbookBasic": "Osnovni Udžbenički",
+      "sineSampling": "Uzorkovanje Sinusa",
+      "pressureVolume": "Pritisak i Zapremina",
+      "squareRootData": "Kvadratni Korijen",
+      "rungeExample": "Rungeova Funkcija",
+      "populationData": "Svjetska Populacija"
+    }
   },
   "validation": {
     "requiredField": "Ovo polje je obavezno",

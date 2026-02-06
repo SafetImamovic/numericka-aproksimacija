@@ -10,7 +10,9 @@
       "Bash(dir:*)",
       "Bash(npm uninstall:*)",
       "Bash(wc:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(git stash:*)",
+      "Bash(del \"C:\\\\Users\\\\User\\\\Development\\\\PNMUSI_PROJEKAT\\\\nul\")"
     ]
   },
   "enableAllProjectMcpServers": true,
