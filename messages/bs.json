@@ -43,7 +43,10 @@
     "historyCard": {
       "title": "Historija Izračuna",
       "description": "Pregledajte i vratite prethodne izračune sačuvane u vašem pregledniku."
-    }
+    },
+    "quickReference": "Brza Referenca",
+    "leastSquares": "Najmanji Kvadrati",
+    "lagrangeBasis": "Lagrangeova Baza"
   },
   "input": {
     "title": "Unos Podataka",

@@ -78,18 +78,18 @@ export default function HomePage() {
       {/* Quick formulas preview */}
       <Card>
         <CardHeader>
-          <CardTitle>Quick Reference</CardTitle>
+          <CardTitle>{t('quickReference')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="p-4 bg-background rounded-lg border border-border">
-              <h4 className="font-medium mb-2 text-green-400">Least Squares</h4>
+              <h4 className="font-medium mb-2 text-green-400">{t('leastSquares')}</h4>
               <code className="text-xs text-muted-foreground block">
                 minimize: S = &Sigma;(y&#x2C7;&#x2D9; - P(x&#x2C7;&#x2D9;))&sup2;
               </code>
             </div>
             <div className="p-4 bg-background rounded-lg border border-border">
-              <h4 className="font-medium mb-2 text-blue-400">Lagrange Basis</h4>
+              <h4 className="font-medium mb-2 text-blue-400">{t('lagrangeBasis')}</h4>
               <code className="text-xs text-muted-foreground block">
                 L&#x2096;(x) = &Pi;(i&ne;k) (x-x&#x1D62;)/(x&#x2096;-x&#x1D62;)
               </code>

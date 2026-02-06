@@ -43,7 +43,10 @@
     "historyCard": {
       "title": "Calculation History",
       "description": "View and restore previous calculations stored in your browser."
-    }
+    },
+    "quickReference": "Quick Reference",
+    "leastSquares": "Least Squares",
+    "lagrangeBasis": "Lagrange Basis"
   },
   "input": {
     "title": "Data Input",

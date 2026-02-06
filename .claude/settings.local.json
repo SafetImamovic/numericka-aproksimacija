@@ -8,7 +8,9 @@
       "Bash(npm run lint)",
       "Bash(npx tsc:*)",
       "Bash(dir:*)",
-      "Bash(npm uninstall:*)"
+      "Bash(npm uninstall:*)",
+      "Bash(wc:*)",
+      "Bash(find:*)"
     ]
   },
   "enableAllProjectMcpServers": true,
