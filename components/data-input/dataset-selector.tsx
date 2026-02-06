@@ -49,11 +49,11 @@ export function DatasetSelector({
         defaultValue=""
         className="border-input dark:bg-input/30 h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
       >
-        <option value="" disabled>
+        <option value="" disabled className="text-neutral-600">
           {translations.selectDataset}
         </option>
         {datasets.map((dataset) => (
-          <option key={dataset.id} value={dataset.id}>
+          <option key={dataset.id} value={dataset.id} className="text-neutral-900">
             {translations.datasetNames[dataset.id] ?? dataset.id} ({dataset.points.length} pts)
           </option>
         ))}
