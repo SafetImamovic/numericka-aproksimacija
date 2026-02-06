@@ -10,6 +10,7 @@ import {
   CardDescription,
   CardContent,
 } from '@/components/ui/card'
+import { LatexDisplay } from '@/components/math/latex-display'
 
 export default function HomePage() {
   const t = useTranslations('home')
@@ -84,15 +85,15 @@ export default function HomePage() {
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="p-4 bg-background rounded-lg border border-border">
               <h4 className="font-medium mb-2 text-green-400">{t('leastSquares')}</h4>
-              <code className="text-xs text-muted-foreground block">
-                minimize: S = &Sigma;(y&#x2C7;&#x2D9; - P(x&#x2C7;&#x2D9;))&sup2;
-              </code>
+              <div className="overflow-x-auto">
+                <LatexDisplay latex="S = \sum_{i=1}^{n} \left( y_i - P(x_i) \right)^2 \to \min" displayMode />
+              </div>
             </div>
             <div className="p-4 bg-background rounded-lg border border-border">
               <h4 className="font-medium mb-2 text-blue-400">{t('lagrangeBasis')}</h4>
-              <code className="text-xs text-muted-foreground block">
-                L&#x2096;(x) = &Pi;(i&ne;k) (x-x&#x1D62;)/(x&#x2096;-x&#x1D62;)
-              </code>
+              <div className="overflow-x-auto">
+                <LatexDisplay latex="L_k(x) = \prod_{\substack{i=0 \\ i \neq k}}^{n} \frac{x - x_i}{x_k - x_i}" displayMode />
+              </div>
             </div>
           </div>
         </CardContent>
