@@ -260,7 +260,7 @@ export default function InterpolationPage() {
                           : 'border-border hover:border-primary/50'
                       }`}
                     >
-                      {opt.label}
+                      <LatexDisplay latex={opt.latex} />
                     </button>
                   ))}
                 </div>

@@ -59,16 +59,18 @@ export interface HistoryEntry {
 export type InputMode = 'manual' | 'file' | 'function'
 
 // Precision options for calculation results
-export type PrecisionLevel = 2 | 3 | 4 | 5 | 6 | 8 | 10
+export type PrecisionLevel = 1 | 2 | 3 | 4 | 5 | 6 | 8 | 10 | 12
 
-export const PRECISION_OPTIONS: { value: PrecisionLevel; label: string }[] = [
-  { value: 2, label: '10⁻²' },
-  { value: 3, label: '10⁻³' },
-  { value: 4, label: '10⁻⁴' },
-  { value: 5, label: '10⁻⁵' },
-  { value: 6, label: '10⁻⁶' },
-  { value: 8, label: '10⁻⁸' },
-  { value: 10, label: '10⁻¹⁰' },
+export const PRECISION_OPTIONS: { value: PrecisionLevel; latex: string }[] = [
+  { value: 1, latex: '10^{-1}' },
+  { value: 2, latex: '10^{-2}' },
+  { value: 3, latex: '10^{-3}' },
+  { value: 4, latex: '10^{-4}' },
+  { value: 5, latex: '10^{-5}' },
+  { value: 6, latex: '10^{-6}' },
+  { value: 8, latex: '10^{-8}' },
+  { value: 10, latex: '10^{-10}' },
+  { value: 12, latex: '10^{-12}' },
 ]
 
 // Function expression input

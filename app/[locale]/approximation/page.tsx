@@ -264,7 +264,7 @@ export default function ApproximationPage() {
                           : 'border-border hover:border-primary/50'
                       }`}
                     >
-                      {opt.label}
+                      <LatexDisplay latex={opt.latex} />
                     </button>
                   ))}
                 </div>
