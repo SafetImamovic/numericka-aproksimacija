@@ -81,20 +81,25 @@
     "sampleCountError": "Broj tačaka mora biti između 2 i 100",
     "notEnoughPoints": "Nije moguće generisati dovoljno validnih tačaka",
     "exampleDatasets": "Učitaj Primjer",
-    "selectDataset": "Odaberi dataset...",
+    "selectDataset": "Primjeri Skupova Podataka...",
     "datasets": {
-      "temperatureAltitude": "Temperatura i Nadmorska Visina",
-      "projectileMotion": "Kretanje Projektila",
-      "seasonalSales": "Sezonska Prodaja",
-      "areaScaling": "Površina i Dužina Stranice",
-      "bacterialGrowth": "Rast Bakterija",
+      "hookovZakon": "Hookeov Zakon (Fizika)",
+      "kondenzator": "Kondenzator (Elektrotehnika)",
+      "pump": "Karakteristika Pumpe (Mašinstvo)",
+      "proj": "Balistička Putanja Projektila (Fizika)",
+      "fluid": "Otpor Fluida u Zavisnosti od Brzine (Mehanika Fluida)",
       "studyScores": "Sati Učenja i Ocjene",
+      "cpLowTemp": "Specifična Toplota Cp (Niske Temp.) — PNMuSI",
+      "cpHighTemp": "Specifična Toplota Cp (Visoke Temp.) — PNMuSI",
+      "expDoubling": "Eksponencijalno Udvostručenje y=ae^bx — PNMuSI",
       "textbookBasic": "Osnovni Udžbenički",
       "sineSampling": "Uzorkovanje Sinusa",
       "pressureVolume": "Pritisak i Zapremina",
       "squareRootData": "Kvadratni Korijen",
       "rungeExample": "Rungeova Funkcija",
-      "populationData": "Svjetska Populacija"
+      "populationData": "Svjetska Populacija",
+      "reciprocalSmall": "f(x)=1/x (4 tač.) — PNMuSI",
+      "reciprocalLarge": "f(x)=1/x (9 tač.) — PNMuSI"
     }
   },
   "validation": {

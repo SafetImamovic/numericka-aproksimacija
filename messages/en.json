@@ -81,20 +81,25 @@
     "sampleCountError": "Sample count must be between 2 and 100",
     "notEnoughPoints": "Could not generate enough valid points",
     "exampleDatasets": "Load Example",
-    "selectDataset": "Select a dataset...",
+    "selectDataset": "Dataset Examples...",
     "datasets": {
-      "temperatureAltitude": "Temperature vs Altitude",
-      "projectileMotion": "Projectile Motion",
-      "seasonalSales": "Seasonal Sales",
-      "areaScaling": "Area vs Side Length",
-      "bacterialGrowth": "Bacterial Growth",
+      "hookovZakon": "Hooks Law (Physics)",
+      "kondenzator": "Capacitor (Electrotechnics)",
+      "pump": "Pump Characteristics (Mechanical Engineering)",
+      "proj": "Ballistic Projectile Path (Physics)",
+      "fluid": "Fluid Resistance with Comparison to Velocity (Fluid Mechanics)",
       "studyScores": "Study Hours vs Scores",
+      "cpLowTemp": "Specific Heat Cp (Low Temp) — PNMuSI",
+      "cpHighTemp": "Specific Heat Cp (High Temp) — PNMuSI",
+      "expDoubling": "Exponential Doubling y=ae^bx — PNMuSI",
       "textbookBasic": "Textbook Basic",
       "sineSampling": "Sine Sampling",
       "pressureVolume": "Pressure vs Volume",
       "squareRootData": "Square Root Pattern",
       "rungeExample": "Runge Function",
-      "populationData": "World Population"
+      "populationData": "World Population",
+      "reciprocalSmall": "f(x)=1/x (4 pts) — PNMuSI",
+      "reciprocalLarge": "f(x)=1/x (9 pts) — PNMuSI"
     }
   },
   "validation": {
