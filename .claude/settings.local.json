@@ -8,7 +8,11 @@
       "Bash(npm run lint)",
       "Bash(npx tsc:*)",
       "Bash(dir:*)",
-      "Bash(npm uninstall:*)"
+      "Bash(npm uninstall:*)",
+      "Bash(wc:*)",
+      "Bash(find:*)",
+      "Bash(git stash:*)",
+      "Bash(del \"C:\\\\Users\\\\User\\\\Development\\\\PNMUSI_PROJEKAT\\\\nul\")"
     ]
   },
   "enableAllProjectMcpServers": true,

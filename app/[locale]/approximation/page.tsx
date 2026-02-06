@@ -13,6 +13,7 @@ import { FunctionPlot } from '@/components/math/function-plot'
 import { LatexDisplay } from '@/components/math/latex-display'
 import { useCalculation } from '@/lib/hooks/use-calculation'
 import { useHistory } from '@/lib/hooks/use-history'
+import { approximationDatasets } from '@/lib/data/example-datasets'
 import { getValidationErrorKey } from '@/lib/math/validators'
 import type { DataPoint, ApproximationResult, PrecisionLevel } from '@/lib/types'
 import { PRECISION_OPTIONS } from '@/lib/types'
@@ -65,6 +66,17 @@ export default function ApproximationPage() {
     { id: 'power-approximation', labelKey: 'power', descKey: 'powerDesc' },
     { id: 'exponential-approximation', labelKey: 'exponential', descKey: 'exponentialDesc' },
   ]
+
+  const datasetTranslations = useMemo(
+    () => ({
+      exampleDatasets: tInput('exampleDatasets'),
+      selectDataset: tInput('selectDataset'),
+      datasetNames: Object.fromEntries(
+        approximationDatasets.map((d) => [d.id, tInput(`datasets.${d.id}`)])
+      ),
+    }),
+    [tInput]
+  )
 
   const inputTranslations = useMemo(
     () => ({
@@ -264,7 +276,7 @@ export default function ApproximationPage() {
                           : 'border-border hover:border-primary/50'
                       }`}
                     >
-                      {opt.label}
+                      <LatexDisplay latex={opt.latex} />
                     </button>
                   ))}
                 </div>
@@ -279,6 +291,8 @@ export default function ApproximationPage() {
               <InputTabs
                 points={points}
                 onPointsChange={handlePointsChange}
+                datasets={approximationDatasets}
+                datasetTranslations={datasetTranslations}
                 translations={inputTranslations}
               />
             </CardContent>

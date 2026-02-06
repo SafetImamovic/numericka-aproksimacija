@@ -12,6 +12,7 @@ import { ErrorCard } from '@/components/results/error-card'
 import { FunctionPlot } from '@/components/math/function-plot'
 import { useCalculation } from '@/lib/hooks/use-calculation'
 import { useHistory } from '@/lib/hooks/use-history'
+import { interpolationDatasets } from '@/lib/data/example-datasets'
 import { getValidationErrorKey } from '@/lib/math/validators'
 import type { DataPoint, InterpolationResult, PrecisionLevel } from '@/lib/types'
 import { PRECISION_OPTIONS } from '@/lib/types'
@@ -47,6 +48,17 @@ export default function InterpolationPage() {
     { id: 'newton-interpolation', labelKey: 'newton', descKey: 'newtonDesc' },
     { id: 'direct-interpolation', labelKey: 'direct', descKey: 'directDesc' },
   ]
+
+  const datasetTranslations = useMemo(
+    () => ({
+      exampleDatasets: tInput('exampleDatasets'),
+      selectDataset: tInput('selectDataset'),
+      datasetNames: Object.fromEntries(
+        interpolationDatasets.map((d) => [d.id, tInput(`datasets.${d.id}`)])
+      ),
+    }),
+    [tInput]
+  )
 
   const inputTranslations = useMemo(
     () => ({
@@ -260,7 +272,7 @@ export default function InterpolationPage() {
                           : 'border-border hover:border-primary/50'
                       }`}
                     >
-                      {opt.label}
+                      <LatexDisplay latex={opt.latex} />
                     </button>
                   ))}
                 </div>
@@ -275,6 +287,8 @@ export default function InterpolationPage() {
               <InputTabs
                 points={points}
                 onPointsChange={handlePointsChange}
+                datasets={interpolationDatasets}
+                datasetTranslations={datasetTranslations}
                 translations={inputTranslations}
               />
             </CardContent>

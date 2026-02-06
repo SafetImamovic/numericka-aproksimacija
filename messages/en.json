@@ -43,7 +43,10 @@
     "historyCard": {
       "title": "Calculation History",
       "description": "View and restore previous calculations stored in your browser."
-    }
+    },
+    "quickReference": "Quick Reference",
+    "leastSquares": "Least Squares",
+    "lagrangeBasis": "Lagrange Basis"
   },
   "input": {
     "title": "Data Input",
@@ -76,7 +79,28 @@
     "supportedFunctions": "Supported functions (LaTeX):",
     "andMore": "... and more",
     "sampleCountError": "Sample count must be between 2 and 100",
-    "notEnoughPoints": "Could not generate enough valid points"
+    "notEnoughPoints": "Could not generate enough valid points",
+    "exampleDatasets": "Load Example",
+    "selectDataset": "Dataset Examples...",
+    "datasets": {
+      "hookovZakon": "Hooks Law (Physics)",
+      "kondenzator": "Capacitor (Electrotechnics)",
+      "pump": "Pump Characteristics (Mechanical Engineering)",
+      "proj": "Ballistic Projectile Path (Physics)",
+      "fluid": "Fluid Resistance with Comparison to Velocity (Fluid Mechanics)",
+      "studyScores": "Study Hours vs Scores",
+      "cpLowTemp": "Specific Heat Cp (Low Temp) — PNMuSI",
+      "cpHighTemp": "Specific Heat Cp (High Temp) — PNMuSI",
+      "expDoubling": "Exponential Doubling y=ae^bx — PNMuSI",
+      "textbookBasic": "Textbook Basic",
+      "sineSampling": "Sine Sampling",
+      "pressureVolume": "Pressure vs Volume",
+      "squareRootData": "Square Root Pattern",
+      "rungeExample": "Runge Function",
+      "populationData": "World Population",
+      "reciprocalSmall": "f(x)=1/x (4 pts) — PNMuSI",
+      "reciprocalLarge": "f(x)=1/x (9 pts) — PNMuSI"
+    }
   },
   "validation": {
     "requiredField": "This field is required",
