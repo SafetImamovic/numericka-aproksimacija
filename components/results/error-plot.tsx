@@ -64,7 +64,14 @@ interface PlotLayout {
 interface PlotConfig {
   responsive: boolean
   displayModeBar: boolean
+  modeBarButtonsToRemove: string[]
   displaylogo: boolean
+  scrollZoom: boolean
+  toImageButtonOptions: {
+    format: string
+    filename: string
+    scale: number
+  }
 }
 
 interface PlotComponentProps {
@@ -165,6 +172,7 @@ export function ErrorPlot({ points, errors, height = 300, translations }: ErrorP
       },
       margin: { t: 40, r: 60, b: 50, l: 60 },
       hovermode: 'x unified',
+      dragmode: 'pan',
     }
 
     return { traces, layout }
@@ -172,8 +180,20 @@ export function ErrorPlot({ points, errors, height = 300, translations }: ErrorP
 
   const config: PlotConfig = {
     responsive: true,
-    displayModeBar: false,
+    displayModeBar: true,
+    modeBarButtonsToRemove: [
+      'select2d',
+      'lasso2d',
+      'autoScale2d',
+      'toggleSpikelines',
+    ],
     displaylogo: false,
+    scrollZoom: true,
+    toImageButtonOptions: {
+      format: 'png',
+      filename: 'error-plot',
+      scale: 2,
+    },
   }
 
   if (errors.length === 0) return null
