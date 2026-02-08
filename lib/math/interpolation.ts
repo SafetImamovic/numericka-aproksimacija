@@ -1,11 +1,13 @@
-import type { DataPoint, InterpolationResult, CalculationType, StepTranslations } from '@/lib/types'
+import type { DataPoint, InterpolationResult, CalculationType, StepTranslations, MetodaRjesavanja } from '@/lib/types'
 import {
-  solveLinearSystem,
-  vandermondeMatrix,
-  matrixToLatex,
-  vectorToLatex,
-  formatNumber,
-} from './matrix-utils'
+  vandermondeMatrica,
+  matricaULatex,
+  vektorULatex,
+  formatirajBroj,
+  gaussSaKoracima,
+  gaussJordanSaKoracima,
+  luDoolittleSaKoracima,
+} from './matrica-utils'
 import { polynomialToLatex, evaluatePolynomial } from './expression-parser'
 
 /**
@@ -46,17 +48,17 @@ export function lagrangeInterpolation(points: DataPoint[], t?: StepTranslations,
 
         // Build symbolic terms
         if (xi >= 0) {
-          numeratorTerms.push(`(x - ${formatNumber(xi, precision)})`)
+          numeratorTerms.push(`(x - ${formatirajBroj(xi, precision)})`)
         } else {
-          numeratorTerms.push(`(x + ${formatNumber(-xi, precision)})`)
+          numeratorTerms.push(`(x + ${formatirajBroj(-xi, precision)})`)
         }
 
         denominator *= xk - xi
-        denominatorTerms.push(`(${formatNumber(xk, precision)} - ${formatNumber(xi, precision)})`)
+        denominatorTerms.push(`(${formatirajBroj(xk, precision)} - ${formatirajBroj(xi, precision)})`)
       }
     }
 
-    const basisStr = `L_{${k}}(x) = \\frac{${numeratorTerms.join(' \\cdot ')}}{${formatNumber(denominator, precision)}}`
+    const basisStr = `L_{${k}}(x) = \\frac{${numeratorTerms.join(' \\cdot ')}}{${formatirajBroj(denominator, precision)}}`
     basisPolynomials.push(basisStr)
 
     steps.push(`${basisStr}`)
@@ -172,9 +174,9 @@ export function newtonInterpolation(points: DataPoint[], t?: StepTranslations, p
   tableStr += ' \\\\ \\hline'
 
   for (let i = 0; i < n; i++) {
-    tableStr += ` ${formatNumber(points[i].x, precision)}`
+    tableStr += ` ${formatirajBroj(points[i].x, precision)}`
     for (let j = 0; j < n - i; j++) {
-      tableStr += ` & ${formatNumber(divDiff[j][i], precision)}`
+      tableStr += ` & ${formatirajBroj(divDiff[j][i], precision)}`
     }
     for (let j = n - i; j < n; j++) {
       tableStr += ' &'
@@ -187,7 +189,7 @@ export function newtonInterpolation(points: DataPoint[], t?: StepTranslations, p
   // Build Newton polynomial
   steps.push(`\\text{${t?.newtonPolynomial || 'Newton polynomial:'}}`)
 
-  let newtonStr = `P(x) = ${formatNumber(divDiff[0][0], precision)}`
+  let newtonStr = `P(x) = ${formatirajBroj(divDiff[0][0], precision)}`
   for (let k = 1; k < n; k++) {
     const coef = divDiff[k][0]
     if (Math.abs(coef) < 1e-10) continue
@@ -196,16 +198,16 @@ export function newtonInterpolation(points: DataPoint[], t?: StepTranslations, p
     for (let i = 0; i < k; i++) {
       const xi = points[i].x
       if (xi >= 0) {
-        term += `(x - ${formatNumber(xi, precision)})`
+        term += `(x - ${formatirajBroj(xi, precision)})`
       } else {
-        term += `(x + ${formatNumber(-xi, precision)})`
+        term += `(x + ${formatirajBroj(-xi, precision)})`
       }
     }
 
     if (coef >= 0) {
-      newtonStr += ` + ${formatNumber(coef, precision)}${term}`
+      newtonStr += ` + ${formatirajBroj(coef, precision)}${term}`
     } else {
-      newtonStr += ` - ${formatNumber(-coef, precision)}${term}`
+      newtonStr += ` - ${formatirajBroj(-coef, precision)}${term}`
     }
   }
   steps.push(newtonStr)
@@ -313,7 +315,7 @@ function multiplyPolynomials(a: number[], b: number[]): number[] {
 /**
  * Direct method using Vandermonde matrix
  */
-export function directInterpolation(points: DataPoint[], t?: StepTranslations, precision: number = 4): InterpolationResult & { steps: string[] } {
+export function directInterpolation(points: DataPoint[], t?: StepTranslations, precision: number = 4, metodaRjesavanja: MetodaRjesavanja = 'gauss'): InterpolationResult & { steps: string[] } {
   const n = points.length
   const steps: string[] = []
   const degree = n - 1
@@ -321,22 +323,47 @@ export function directInterpolation(points: DataPoint[], t?: StepTranslations, p
   steps.push(`\\text{${t?.directInterpolation || 'Direct Interpolation using Vandermonde Matrix'}}`)
   steps.push(`\\text{${t?.forNPoints || 'For'} } n = ${n} \\text{ ${t?.findPolynomialDegree || 'points, we find a polynomial of degree'} } ${degree}`)
 
-  // Create Vandermonde matrix
-  const V = vandermondeMatrix(points.map((p) => p.x), degree)
+  // Create coefficient matrix
+  const V = vandermondeMatrica(points.map((p) => p.x), degree)
   const y = points.map((p) => p.y)
 
-  steps.push(`\\text{${t?.vandermondeMatrix || 'Vandermonde matrix'} } V:`)
-  steps.push(matrixToLatex(V, precision))
+  steps.push(`\\text{${t?.coefficientMatrix || 'Coefficient matrix'} } A:`)
+  steps.push(matricaULatex(V, precision))
 
-  steps.push(`\\text{${t?.systemOfEquations || 'System of equations'} } V \\cdot \\mathbf{a} = \\mathbf{y}:`)
-  steps.push(`${matrixToLatex(V, precision)} ${vectorToLatex(['a_0', 'a_1', '...', `a_{${degree}}`] as unknown as number[])} = ${vectorToLatex(y, precision)}`)
+  steps.push(`\\text{${t?.systemOfEquations || 'System of equations'} } A \\cdot \\mathbf{a} = \\mathbf{y}:`)
+  steps.push(`${matricaULatex(V, precision)} ${vektorULatex(['a_0', 'a_1', '...', `a_{${degree}}`] as unknown as number[])} = ${vektorULatex(y, precision)}`)
 
-  // Solve the system
-  const coefficients = solveLinearSystem(V, y)
+  // Solve the system using selected method
+  let coefficients: number[]
+  let solverSteps: string[] = []
+
+  switch (metodaRjesavanja) {
+    case 'gauss-jordan': {
+      const r = gaussJordanSaKoracima(V, y, precision, t)
+      coefficients = r.rjesenje
+      solverSteps = r.koraci
+      break
+    }
+    case 'lu-doolittle': {
+      const r = luDoolittleSaKoracima(V, y, precision, t)
+      coefficients = r.rjesenje
+      solverSteps = r.koraci
+      break
+    }
+    case 'gauss':
+    default: {
+      const r = gaussSaKoracima(V, y, precision, t)
+      coefficients = r.rjesenje
+      solverSteps = r.koraci
+      break
+    }
+  }
+
+  steps.push(...solverSteps)
 
   steps.push(`\\text{${t?.solution || 'Solution:'}}`)
   for (let i = 0; i <= degree; i++) {
-    steps.push(`a_${i} = ${formatNumber(coefficients[i], precision)}`)
+    steps.push(`a_${i} = ${formatirajBroj(coefficients[i], precision)}`)
   }
 
   steps.push(`\\text{${t?.result || 'Result:'}}`)
@@ -348,6 +375,7 @@ export function directInterpolation(points: DataPoint[], t?: StepTranslations, p
     coefficients,
     points,
     vandermondeMatrix: V,
+    metodaRjesavanja,
     steps,
   }
 
@@ -362,7 +390,8 @@ export function interpolate(
   points: DataPoint[],
   type: CalculationType,
   translations?: StepTranslations,
-  precision: number = 4
+  precision: number = 4,
+  metodaRjesavanja?: MetodaRjesavanja
 ): InterpolationResult & { steps: string[] } {
   // Check for unique x values
   const xValues = points.map((p) => p.x)
@@ -377,7 +406,7 @@ export function interpolate(
     case 'newton-interpolation':
       return newtonInterpolation(points, translations, precision)
     case 'direct-interpolation':
-      return directInterpolation(points, translations, precision)
+      return directInterpolation(points, translations, precision, metodaRjesavanja)
     default:
       throw new Error(`Unknown interpolation type: ${type}`)
   }

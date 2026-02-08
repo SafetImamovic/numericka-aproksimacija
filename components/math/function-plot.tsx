@@ -4,6 +4,10 @@ import dynamic from 'next/dynamic'
 import { useMemo, ComponentType } from 'react'
 import type { DataPoint } from '@/lib/types'
 
+// Above this count, data points render as a line instead of individual markers
+// SVG markers lag at high counts; lines handle thousands smoothly
+const LARGE_DATASET = 150
+
 // Local type definitions for Plotly (must be before dynamic import)
 interface PlotData {
   x: number[]
@@ -136,23 +140,29 @@ export function FunctionPlot({
 }: FunctionPlotProps) {
   const { traces, layout } = useMemo(() => {
     const traces: PlotData[] = []
+    const isLarge = dataPoints.length > LARGE_DATASET
 
-    // Add data points as scatter plot
+    // For large datasets: render as a line with small markers at each point
+    // Lines are GPU-friendly in Plotly SVG; thousands of standalone markers are not
     if (dataPoints.length > 0) {
       traces.push({
         x: dataPoints.map((p) => p.x),
         y: dataPoints.map((p) => p.y),
-        mode: 'markers',
+        mode: isLarge ? 'lines+markers' : 'markers',
         type: 'scatter',
         name: dataPointsLabel,
         marker: {
           color: '#8b5cf6', // Purple
-          size: 10,
-          line: {
+          size: isLarge ? 3 : 10,
+          line: isLarge ? undefined : {
             color: '#a78bfa',
             width: 2,
           },
         },
+        line: isLarge ? {
+          color: '#8b5cf6',
+          width: 1,
+        } : undefined,
         hovertemplate: '(%{x:.4f}, %{y:.4f})<extra></extra>',
       })
     }

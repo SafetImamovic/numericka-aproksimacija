@@ -86,7 +86,7 @@ export function LatexSteps({ steps, className = '' }: LatexStepsProps) {
   )
 }
 
-import { formatNumber } from '@/lib/math/matrix-utils'
+import { formatirajBroj } from '@/lib/math/matrica-utils'
 
 // Matrix display component
 interface MatrixDisplayProps {
@@ -97,7 +97,7 @@ interface MatrixDisplayProps {
 
 export function MatrixDisplay({ matrix, className = '', precision = 4 }: MatrixDisplayProps) {
   const rows = matrix
-    .map((row) => row.map((val) => formatNumber(val, precision)).join(' & '))
+    .map((row) => row.map((val) => formatirajBroj(val, precision)).join(' & '))
     .join(' \\\\ ')
 
   const latex = `\\begin{bmatrix} ${rows} \\end{bmatrix}`
