@@ -63,7 +63,7 @@
     "dragDrop": "Drag and drop CSV or JSON file here",
     "or": "or",
     "browseFiles": "Browse Files",
-    "supportedFormats": "Supported formats: CSV (x,y or x;y), JSON",
+    "supportedFormats": "Supported formats: CSV (x,y or x;y), DAT (x\\ty), JSON",
     "functionExpression": "Function Expression f(x)",
     "functionPlaceholder": "e.g., x^2 + 2*x + 1, sin(x), e^x",
     "domainMin": "Domain Min",

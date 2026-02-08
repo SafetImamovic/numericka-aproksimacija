@@ -136,7 +136,7 @@ export function FileUpload({
         <input
           ref={fileInputRef}
           type="file"
-          accept=".csv,.json,.txt"
+          accept=".csv,.json,.txt,.dat"
           onChange={handleFileSelect}
           className="hidden"
           disabled={disabled}

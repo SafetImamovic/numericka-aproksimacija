@@ -12,7 +12,8 @@
       "Bash(wc:*)",
       "Bash(find:*)",
       "Bash(git stash:*)",
-      "Bash(del \"C:\\\\Users\\\\User\\\\Development\\\\PNMUSI_PROJEKAT\\\\nul\")"
+      "Bash(del \"C:\\\\Users\\\\User\\\\Development\\\\PNMUSI_PROJEKAT\\\\nul\")",
+      "Bash(powershell:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

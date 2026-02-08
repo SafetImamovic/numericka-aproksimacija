@@ -128,10 +128,13 @@ export function parseCSV(content: string): DataPoint[] {
     const trimmed = line.trim()
     if (!trimmed || trimmed.startsWith('#')) continue
 
-    // Try comma first, then semicolon
+    // Try comma first, then semicolon, then tab
     let parts = trimmed.split(',')
     if (parts.length !== 2) {
       parts = trimmed.split(';')
+    }
+    if (parts.length !== 2) {
+      parts = trimmed.split('\t')
     }
 
     if (parts.length === 2) {
@@ -181,7 +184,7 @@ export function parseFile(content: string, filename: string): DataPoint[] {
     return parseJSON(content)
   }
 
-  // Default to CSV parsing
+  // CSV, DAT, TXT and any other text format
   return parseCSV(content)
 }
 

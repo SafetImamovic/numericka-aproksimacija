@@ -63,7 +63,7 @@
     "dragDrop": "Prevucite i ispustite CSV ili JSON fajl ovdje",
     "or": "ili",
     "browseFiles": "Pregledaj Fajlove",
-    "supportedFormats": "Podržani formati: CSV (x,y ili x;y), JSON",
+    "supportedFormats": "Podržani formati: CSV (x,y ili x;y), DAT (x\\ty), JSON",
     "functionExpression": "Izraz Funkcije f(x)",
     "functionPlaceholder": "npr., x^2 + 2*x + 1, sin(x), e^x",
     "domainMin": "Domena Min",
