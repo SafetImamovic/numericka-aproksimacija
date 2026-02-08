@@ -50,6 +50,23 @@ export default function ApproximationPage() {
   const [precision, setPrecision] = useState<PrecisionLevel>(4)
   const [originalCurve, setOriginalCurve] = useState<DataPoint[]>([])
 
+  // Restore from history (sessionStorage)
+  useEffect(() => {
+    try {
+      const stored = sessionStorage.getItem('restore-calculation')
+      if (stored) {
+        sessionStorage.removeItem('restore-calculation')
+        const data = JSON.parse(stored)
+        if (data.points?.length > 0) {
+          setPoints(data.points)
+        }
+        if (data.type?.includes('approximation')) {
+          setSelectedMethod(data.type as ApproximationMethod)
+        }
+      }
+    } catch { /* ignore */ }
+  }, [])
+
   // Za N tačaka, maksimalni stepen polinoma je N-1 (da izbjegnemo singularne matrice)
   const maxPolynomialDegree = Math.max(1, points.length - 1)
 

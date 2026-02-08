@@ -1,15 +1,20 @@
 'use client'
 
 import { useState } from 'react'
-import { useTranslations } from 'next-intl'
-import { Trash2, Clock } from 'lucide-react'
+import { useTranslations, useLocale } from 'next-intl'
+import { useRouter } from 'next/navigation'
+import { Trash2, Clock, RotateCcw } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { LatexBlock } from '@/components/math/latex-display'
 import { useHistory } from '@/lib/hooks/use-history'
 
+const RESTORE_KEY = 'restore-calculation'
+
 export default function HistoryPage() {
   const t = useTranslations()
+  const locale = useLocale()
+  const router = useRouter()
   const { history, isLoading, removeEntry, clearHistory } = useHistory()
   const [showConfirmClear, setShowConfirmClear] = useState(false)
 
@@ -22,6 +27,17 @@ export default function HistoryPage() {
 
   const getMethodName = (type: string) => {
     return t(`methods.${type}`)
+  }
+
+  const isApproximation = (type: string) => type.includes('approximation')
+
+  const handleRestore = (entry: typeof history[number]) => {
+    sessionStorage.setItem(RESTORE_KEY, JSON.stringify({
+      points: entry.points,
+      type: entry.type,
+    }))
+    const page = isApproximation(entry.type) ? 'approximation' : 'interpolation'
+    router.push(`/${locale}/${page}`)
   }
 
   if (isLoading) {
@@ -106,16 +122,30 @@ export default function HistoryPage() {
                   <CardDescription className="flex items-center gap-2 mt-1">
                     <Clock className="w-3 h-3" />
                     {t('history.savedAt')}: {formatDate(entry.timestamp)}
+                    <span className="mx-1">·</span>
+                    {t('history.points', { count: entry.points.length })}
                   </CardDescription>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => removeEntry(entry.id)}
-                  className="text-muted-foreground hover:text-destructive"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
+                <div className="flex items-center gap-1">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleRestore(entry)}
+                    className="text-muted-foreground hover:text-primary"
+                    title={t('history.restore')}
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => removeEntry(entry.id)}
+                    className="text-muted-foreground hover:text-destructive"
+                    title={t('history.delete')}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
               </div>
             </CardHeader>
 
@@ -130,13 +160,6 @@ export default function HistoryPage() {
 
               {/* Data summary */}
               <div className="flex flex-wrap gap-4 text-sm">
-                <div className="flex items-center gap-2">
-                  <span className="text-muted-foreground">{t('history.points')}:</span>
-                  <span className="font-mono">
-                    {t('history.points', { count: entry.points.length })}
-                  </span>
-                </div>
-
                 {'rSquared' in entry.result &&
                   entry.result.rSquared !== undefined && (
                     <div className="flex items-center gap-2">

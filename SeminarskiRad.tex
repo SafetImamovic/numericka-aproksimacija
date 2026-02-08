@@ -5,7 +5,6 @@
 \usepackage{geometry}
 \usepackage{graphicx}
 \usepackage{amsmath, amssymb, amsthm}
-\usepackage{listings}
 \usepackage{xcolor}
 \usepackage{hyperref}
 \usepackage{float}
@@ -13,6 +12,10 @@
 \usepackage[bosnian]{babel}
 \usepackage{fancyhdr}
 \usepackage{chngcntr}
+\usepackage{footnote}
+\usepackage{threeparttable}
+
+\makesavenoteenv{figure}  % allows normal footnotes inside figure captions
 
 % Margins and formatting
 \geometry{
@@ -47,41 +50,16 @@
 \renewcommand{\figurename}{Slika}
 \renewcommand{\tablename}{Tabela}
 
-% Code formatting
-\definecolor{codegreen}{rgb}{0,0.6,0}
-\definecolor{codegray}{rgb}{0.5,0.5,0.5}
-\definecolor{codepurple}{rgb}{0.58,0,0.82}
-\definecolor{backcolour}{rgb}{0.96,0.96,0.96}
-
-\lstdefinestyle{mystyle}{
-    backgroundcolor=\color{backcolour},   
-    commentstyle=\color{codegreen},
-    keywordstyle=\color{magenta},
-    numberstyle=\tiny\color{codegray},
-    stringstyle=\color{codepurple},
-    basicstyle=\ttfamily\small,
-    breakatwhitespace=false,         
-    breaklines=true,                 
-    captionpos=b,                    
-    keepspaces=true,                 
-    numbers=left,                    
-    numbersep=5pt,                  
-    showspaces=false,                
-    showstringspaces=false,
-    showtabs=false,                  
-    tabsize=2,
-    frame=single
-}
-\lstset{style=mystyle}
 
 \begin{document}
 
 % ---------------- TITLE PAGE ----------------
 \begin{titlepage}
     \thispagestyle{empty}
-
+    \begin{center}
     \textbf{UNIVERZITET U ZENICI} \\
     \textbf{POLITEHNIČKI FAKULTET}
+    \end{center}
 
     \vspace{6cm}
 
@@ -89,10 +67,10 @@
         \Large
         \textbf{NUMERIČKA APROKSIMACIJA} \\[0.3cm]
         \normalsize
-        -SEMINARSKI RAD-
+        SEMINARSKI RAD
     \end{center}
 
-    \vspace{5cm}
+    \vspace{8cm}
 
     \noindent
     \begin{minipage}[t]{0.45\textwidth}
@@ -111,7 +89,7 @@
     \vfill
 
     \begin{center}
-        Zenica, Februar 2026.
+        Zenica 2025/2026.
     \end{center}
 
 \end{titlepage}
@@ -144,6 +122,9 @@ Ovaj seminarski rad ima dva osnovna cilja:
 Kroz rad ćemo proći put od matematičkog formulisanja problema, preko rješavanja sistema linearnih jednačina u računarskom kodu, do vizualizacije rezultata u web pregledniku.
 
 % ---------------- 2. TEORIJSKI DIO ----------------
+
+\newpage
+
 \section{TEORIJSKI DIO}
 
 \subsection{Definicija problema aproksimacije}
@@ -257,9 +238,12 @@ Gdje je $\bar{y}$ srednja vrijednost $y$ podataka.
 \end{itemize}
 
 % ---------------- 3. APLIKACIJA ----------------
+
+\newpage
+
 \section{APLIKACIJA}
 
-U ovom poglavlju detaljno opisujemo tehničku realizaciju softverskog rješenja. Aplikacija "Approximation Picker" nije samo kalkulator; to je modularna platforma dizajnirana da bude proširiva i jednostavna za održavanje.
+U ovom poglavlju opisujemo tehničku realizaciju softverskog rješenja. Aplikacija je modularna platforma dizajnirana da bude proširiva i jednostavna za održavanje.
 
 \subsection{Tehnološki okvir (Tech Stack)}
 Prilikom izbora tehnologija vodili smo se kriterijima: brzina razvoja, performanse u pregledniku, i kvaliteta ekosistema.
@@ -271,103 +255,123 @@ Prilikom izbora tehnologija vodili smo se kriterijima: brzina razvoja, performan
     \item \textbf{Plotly.js:} Industrijski standard za naučno iscrtavanje grafova na webu. Koristi WebGL za hardversku akceleraciju, što omogućava glatko iscrtavanje hiljada tačaka.
 \end{itemize}
 
-\subsection{Arhitektura podataka}
-Srž naše aplikacije su tipovi podataka definisani u TypeScript-u. Oni osiguravaju konzistenciju kroz cijelu aplikaciju.
+\subsection{Internacionalizacija (i18n)}
 
-\begin{lstlisting}[language=Java, caption=Glavni TypeScript interfejsi iz `lib/types/index.ts`]
-// Definicija jedne mjerne tačke
-export interface DataPoint {
-  x: number
-  y: number
-  id: string  // Jedinstveni identifikator za React listu
-}
+Aplikacija implementira internacionalizaciju (\textit{i18n}) kako bi bila
+pristupačna korisnicima na više jezika. Trenutno su podržana dva jezika:
+bosanski (\texttt{/bs}) i engleski (\texttt{/en}), pri čemu svaki jezik ima
+svoju zasebnu rutu unutar aplikacije.
 
-// Rezultat proračuna aproksimacije
-export interface ApproximationResult {
-  type: CalculationType
-  coefficients: number[]     // Izračunati parametri (a, b...)
-  polynomial: string         // Latex reprezentacija za prikaz
-  rSquared: number           // Kvalitet aproksimacije
-  points: DataPoint[]        // Originalne tačke
-  fittedPoints: DataPoint[]  // Tačke na krivoj (za crtanje)
-  steps: string[]            // Koraci rješavanja (step-by-step)
-}
-\end{lstlisting}
+\subsection{Pokretanje aplikacije}
 
-\subsection{Implementacija numeričkih algoritama}
-Svi algoritmi su implementirani kao čiste funkcije (pure functions) u direktoriju `lib/math`. Ovo znači da za isti ulaz uvijek daju isti izlaz i nemaju "side effects", što ih čini lakim za testiranje.
+Za lokalno pokretanje aplikacije potrebno je imati instaliran
+\textbf{Node.js} (verzija 18 ili novija) i \textbf{npm} (dolazi uz Node.js).
+Nakon kloniranja repozitorija, postupak je sljedeći:
 
-\subsubsection{Rješavanje linearnih sistema}
-Mnoge metode aproksimacije svode se na rješavanje sistema $Ax=b$. Implementirali smo Gaussovu eliminaciju sa pivotiranjem:
+\begin{enumerate}
+    \item Instalacija zavisnosti: \texttt{npm install}
+    \item Pokretanje razvojnog servera: \texttt{npm run dev}
+    \item Aplikacija je dostupna na \texttt{http://localhost:3000}
+\end{enumerate}
 
-\begin{lstlisting}[language=Java, caption=Gaussova eliminacija (isječak)]
-export function solveLinearSystem(A: number[][], b: number[]): number[] {
-  const n = A.length
-  // Proširivanje matrice [A|b]
-  const M = A.map((row, i) => [...row, b[i]])
+Za produkcijski build koriste se komande \texttt{npm run build} i
+\texttt{npm run start}. Aplikacija je također postavljena na
+\href{https://aproksimacija.safet.dev}{\texttt{https://aproksimacija.safet.dev}}.
 
-  for (let i = 0; i < n; i++) {
-    // 1. Pivotiranje: Nađi red sa najvećim elementom u koloni i
-    let maxRow = i
-    for (let j = i + 1; j < n; j++) {
-      if (Math.abs(M[j][i]) > Math.abs(M[maxRow][i])) {
-        maxRow = j
-      }
-    }
-    // Zamjena redova
-    [M[i], M[maxRow]] = [M[maxRow], M[i]]
+\subsection{Struktura izvornog koda}
 
-    // 2. Eliminacija
-    for (let j = i + 1; j < n; j++) {
-      const factor = M[j][i] / M[i][i]
-      for (let k = i; k <= n; k++) {
-        M[j][k] -= factor * M[i][k]
-      }
-    }
-  }
+Svi numerički algoritmi implementirani su kao čiste funkcije (\textit{pure functions})
+u direktoriju \texttt{lib/math/}. Čiste funkcije za isti ulaz uvijek daju isti
+izlaz i nemaju sporednih efekata, što ih čini pogodnim za verifikaciju i
+testiranje. Ključni fajlovi su:
 
-  // 3. Supstitucija unazad
-  const x = new Array(n).fill(0)
-  for (let i = n - 1; i >= 0; i--) {
-    let sum = 0
-    for (let j = i + 1; j < n; j++) {
-      sum += M[i][j] * x[j]
-    }
-    x[i] = (M[i][n] - sum) / M[i][i]
-  }
-  return x
-}
-\end{lstlisting}
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|l|p{9cm}|}
+        \hline
+        \textbf{Fajl} & \textbf{Sadržaj} \\
+        \hline
+        \texttt{lib/types/index.ts} & Definicije tipova podataka (\texttt{DataPoint}, \texttt{ApproximationResult}, \texttt{InterpolationResult}, \texttt{MetodaRjesavanja}) \\
+        \hline
+        \texttt{lib/math/aproksimacija.ts} & Pet metoda aproksimacije: linearna, kvadratna, polinomna, stepena i eksponencijalna \\
+        \hline
+        \texttt{lib/math/interpolation.ts} & Tri metode interpolacije: Lagrangeova, Newtonova i direktna \\
+        \hline
+        \texttt{lib/math/matrica-utils.ts} & Operacije linearne algebre: Gaussova eliminacija, Gauss-Jordan (RREF), LU faktorizacija (Doolittle), te formatiranje u LaTeX \\
+        \hline
+        \texttt{lib/math/expression-parser.ts} & Parsiranje i evaluacija matematičkih izraza (omotač oko Cortex Compute Engine) \\
+        \hline
+        \texttt{lib/math/validators.ts} & Validacija ulaznih podataka \\
+        \hline
+    \end{tabular}
+    \caption{Ključni fajlovi sa numeričkim algoritmima}
+\end{table}
 
-\subsubsection{Algoritam linearne aproksimacije}
-Evo kako aplikacija implementira teoriju linearne regresije koju smo izveli u poglavlju 2.2:
+\subsection{Rješavanje sistema linearnih jednačina}
 
-\begin{lstlisting}[language=Java, caption=Kod za linearnu aproksimaciju]
-export function linearApproximation(points: DataPoint[]) {
-  const n = points.length
-  
-  // Računanje suma (Σx, Σx^2, Σy, Σxy)
-  const sumX = points.reduce((s, p) => s + p.x, 0)
-  const sumX2 = points.reduce((s, p) => s + Math.pow(p.x, 2), 0)
-  const sumY = points.reduce((s, p) => s + p.y, 0)
-  const sumXY = points.reduce((s, p) => s + p.x * p.y, 0)
+Sve metode aproksimacije i direktna interpolacija svode se na
+rješavanje sistema oblika $A\mathbf{x} = \mathbf{b}$. Aplikacija
+nudi korisniku izbor između tri metode rješavanja, implementirane
+u fajlu \texttt{lib/math/matrica-utils.ts}:
 
-  // Kreiranje matrice sistema normalnih jednačina
-  const A = [
-    [n, sumX],      // [ N     Σx   ]
-    [sumX, sumX2]   // [ Σx    Σx^2 ]
-  ]
-  const b = [sumY, sumXY]
+\begin{enumerate}
+    \item \textbf{Gaussova eliminacija} --- parcijalno pivotiranje,
+    direktna eliminacija do gornje-trougaonog oblika, povratna supstitucija.
+    \item \textbf{Gauss-Jordan eliminacija} --- proširuje Gaussovu metodu
+    normalizacijom pivot reda i eliminacijom iznad pivota, čime se dobija
+    reducirani redni ešalonski oblik (RREF). Rješenje se čita direktno
+    iz posljednje kolone.
+    \item \textbf{LU faktorizacija (Doolittle)} --- dekompozicija matrice
+    $A = L \cdot U$ na donje-trougaonu ($L$) i gornje-trougaonu ($U$)
+    matricu, nakon čega se rješavaju dva trougaona sistema:
+    $L\mathbf{y'} = \mathbf{b}$ i $U\mathbf{x} = \mathbf{y'}$.
+\end{enumerate}
 
-  // Poziv solvera
-  const [intercept, slope] = solveLinearSystem(A, b)
+Svaka metoda generira detaljan prikaz koraka rješavanja u LaTeX formatu,
+koji se prikazuje korisniku u sekciji ``Koraci izračuna''.
 
-  // Računanje greške R^2
-  const rSquared = calculateRSquared(points, [intercept, slope])
-  
-  return { coefficients: [intercept, slope], rSquared, ... }
-}
-\end{lstlisting}
+\subsection{Implementacija aproksimacije}
+
+Metode aproksimacije nalaze se u fajlu \texttt{lib/math/aproksimacija.ts}.
+Svaka metoda izračunava potrebne sume ($\sum x_i^k$, $\sum x_i^k y_i$),
+formira sistem normalnih jednačina, te ga prosljeđuje odabranom solveru.
+
+Za \textbf{polinomnu aproksimaciju} stepena $m$, normalne jednačine se
+formiraju direktno iz suma, u skladu sa formulama iz poglavlja 2.3:
+\[
+    \begin{bmatrix}
+    N & \sum x_i & \cdots & \sum x_i^m \\
+    \sum x_i & \sum x_i^2 & \cdots & \sum x_i^{m+1} \\
+    \vdots & \vdots & \ddots & \vdots \\
+    \sum x_i^m & \sum x_i^{m+1} & \cdots & \sum x_i^{2m}
+    \end{bmatrix}
+    \begin{bmatrix} a_0 \\ a_1 \\ \vdots \\ a_m \end{bmatrix}
+    =
+    \begin{bmatrix}
+    \sum Y_i \\ \sum x_i Y_i \\ \vdots \\ \sum x_i^m Y_i
+    \end{bmatrix}
+\]
+
+Za \textbf{nelinearne modele} (stepena i eksponencijalna funkcija)
+koristi se linearizacija logaritmovanjem, nakon čega se problem
+svodi na linearnu regresiju nad transformisanim podacima.
+
+\subsection{Implementacija interpolacije}
+
+Metode interpolacije nalaze se u fajlu \texttt{lib/math/interpolation.ts}:
+
+\begin{itemize}
+    \item \textbf{Lagrangeova interpolacija} --- izračunava bazne polinome
+    $L_k(x)$ i razvija ih u standardnu formu.
+    \item \textbf{Newtonova interpolacija} --- gradi tablicu podijeljenih
+    razlika i konstruira polinom u Newtonovoj formi, koji se potom
+    pretvara u standardni oblik.
+    \item \textbf{Direktna interpolacija} --- formira sistem jednačina
+    koristeći matricu koeficijenata i rješava ga odabranom metodom
+    (Gauss, Gauss-Jordan ili LU).
+\end{itemize}
+
+Sve tri metode za iste ulazne podatke daju isti interpolacijski polinom.
 
 \subsection{Validacija ulaza i numerička stabilnost}
 
@@ -403,21 +407,80 @@ minimalan broj tačaka tri, kao i kod nelinearnih modela (eksponencijalni i
 stepeni), gdje se dodatno provjerava domen funkcija (pozitivne vrijednosti
 za logaritamsku transformaciju).
 
+\subsection{Načini unosa podataka}
+
+Aplikacija podržava tri načina unosa podatkovnih tačaka:
+
+\begin{enumerate}
+    \item \textbf{Ručni unos} --- korisnik direktno upisuje parove $(x_i, y_i)$
+    u tabelu. Redovi se mogu dodavati i uklanjati po potrebi. Ovo je
+    najjednostavniji način za manji broj tačaka.
+
+    \item \textbf{Učitavanje fajla} --- korisnik može učitati podatke iz
+    eksternog fajla metodom \textit{drag-and-drop} ili odabirom fajla.
+    Podržani formati su:
+    \begin{itemize}
+        \item \textbf{CSV} --- vrijednosti razdvojene zarezom (\texttt{x,y})
+        ili tačka-zarezom (\texttt{x;y}),
+        \item \textbf{DAT} --- vrijednosti razdvojene tabulatorom (\texttt{x\textbackslash ty}),
+        \item \textbf{JSON} --- niz objekata oblika \texttt{[\{x, y\}, ...]}.
+    \end{itemize}
+
+    \item \textbf{Funkcijski unos} --- korisnik unosi matematički izraz
+    $f(x)$ putem \textit{MathLive} editora, koji omogućava LaTeX-stilski
+    unos formula (npr.\ $\sin(x) + x^2$). Nakon definisanja domene
+    $[x_{\min}, x_{\max}]$ i broja uzoraka, aplikacija automatski generira
+    tačke evaluacijom izraza. Ovaj način je posebno koristan za testiranje
+    metoda na poznatim funkcijama.
+\end{enumerate}
+
+Pored toga, dostupni su i unaprijed pripremljeni primjeri skupova podataka
+iz različitih inženjerskih oblasti (Hookeov zakon, pražnjenje kondenzatora,
+karakteristika pumpe i dr.), koje korisnik može učitati jednim klikom.
+
+\newpage
+
 \subsection{Korisničko sučelje (UI)}
+
+Aplikacija je dostupna na
+\href{https://aproksimacija.safet.dev/bs}{\texttt{https://aproksimacija.safet.dev/bs}},
+ili lokalno na \texttt{http://localhost:3000/bs} nakon pokretanja
+razvojnog servera. Implementirane su metode aproksimacije i interpolacije,
+sa planom proširenja na diferenciranje i integriranje.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{landing_page.png}
+    \caption{Početna stranica aplikacije za Numeričku Aproksimaciju.}
+    \label{fig:ui-polynomial}
+\end{figure}
+
+
 Aplikacija koristi tzv. "Split-screen" raspored. Gornja polovica ekrana rezervirana je za unos podataka (tabela) i kontrolu parametara, dok donja polovica prikazuje rezultate (graf i tekstualno objašnjenje).
 Komponente su stilizirane koristeći `Tailwind CSS` klase, što nam omogućava da bez pisanja posebnih `.css` fajlova definiramo izgled elemenata.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\textwidth]{Sucelje.png}
+    \includegraphics[width=0.8\textwidth]{Sucelje.png}
     \caption{Korisničko sučelje aplikacije za polinomsku aproksimaciju}
     \label{fig:ui-polynomial}
 \end{figure}
 
 % ---------------- 4. PRIMJERI PRIMJENE ----------------
+\newpage
+
 \section{PRIMJERI PRIMJENE}
 
-U ovom poglavlju testiramo aplikaciju na tri različita scenarija, koji pokrivaju različite vrste aproksimacije.
+U ovom poglavlju testiramo aplikaciju na nekoliko različitih scenarija, koji pokrivaju različite vrste aproksimacije.
+
+Postoje primjeri skupova podataka koje korisnik može odabrati.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{primjeri_podaci.png}
+    \caption{Primjeri Podataka.}
+    \label{fig:ui-polynomial}
+\end{figure}
 
 \subsection{Primjer 1: Hookeov zakon (Fizika)}
 Testiramo linearnu aproksimaciju na primjeru opruge. Mjerimo produženje opruge ($\Delta x$) pod djelovanjem različitih sila ($F$). Teoretski zakon je linearan: $F = k \cdot \Delta x$.
@@ -434,10 +497,20 @@ Testiramo linearnu aproksimaciju na primjeru opruge. Mjerimo produženje opruge 
     \end{tabular}
 \end{table}
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{Unos1.png}
+    \caption{Prikaz unesenih podataka u aplikaciju}
+\end{figure}
+
+
+
+
+
 Unošenjem ovih podataka u našu aplikaciju i odabirom \textit{Linear Approximation}, dobijamo sljedeći rezultat:
 \begin{itemize}
-    \item \textbf{Funkcija:} $F(x) = 2.49x + 0.05$
-    \item \textbf{Koeficijent krutosti:} $k \approx 2.49$ N/cm.
+    \item \textbf{Funkcija:} $F(x) = 2.505x + 0.01$
+    \item \textbf{Koeficijent krutosti:} $k \approx 2.505$ N/cm.
     \item \textbf{Kvalitet:} $R^2 = 0.9996$, što ukazuje na izuzetno slaganje sa linearnim modelom.
 \end{itemize}
 
@@ -446,6 +519,21 @@ Unošenjem ovih podataka u našu aplikaciju i odabirom \textit{Linear Approximat
     \includegraphics[width=0.9\textwidth]{Primjer1.png}
     \caption{Grafički prikaz linearne aproksimacije za Hookeov zakon}
 \end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{lin_koraci.png}
+    \caption{Grafički prikaz rezultata i koraka linearne aproksimacije za Hookeov zakon}
+    \label{fig:exp-capacitor}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{line_reg.png}
+    \caption{Validacija linearne aproksimacije za Hookeov zakon putem stats blue Stats Suite\textsuperscript{\cite{statsblue}}.}
+\end{figure}
+
+
 
 \subsection{Primjer 2: Kondenzator (Elektrotehnika)}
 Posmatramo pražnjenje kondenzatora kroz otpornik. Napon opada po eksponencijalnom zakonu $V(t) = V_0 e^{-t/RC}$.
@@ -462,19 +550,40 @@ Posmatramo pražnjenje kondenzatora kroz otpornik. Napon opada po eksponencijaln
     \end{tabular}
 \end{table}
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{Unos2.png}
+    \caption{Prikaz unesenih podataka u aplikaciju}
+\end{figure}
+
 Odabirom \textit{Exponential Approximation} u aplikaciji:
 \begin{itemize}
     \item \textbf{Transformacija:} Aplikacija interno logaritmira napone ($\ln V$) i vrši linearnu regresiju nad vremenom.
-    \item \textbf{Rezultat:} $V(t) \approx 9.98 \cdot e^{-0.498t}$
+    \item \textbf{Rezultat:} $V(t) \approx 9.9665918088 \cdot e^{−0.4952057124t}$
     \item \textbf{Analiza:} Početni napon je približno 10V (što odgovara podacima), a vremenska konstanta $\tau = 1/0.498 \approx 2.0$s.
 \end{itemize}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{Primjer2.png}
+    \includegraphics[width=0.7\textwidth]{Primjer2.png}
     \caption{Grafički prikaz eksponencijalne aproksimacije pražnjenja kondenzatora}
     \label{fig:exp-capacitor}
 \end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{exp_koraci.png}
+    \caption{Grafički prikaz rezultata i koraka rješenja eksponencijalne aproksimacije pražnjenja kondenzatora}
+    \label{fig:exp-capacitor}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{exp.png}
+    \caption{Validacija eksponencijalne aproksimacije pražnjenja kondenzatora putem stats blue Stats Suite\textsuperscript{\cite{statsblue}}.}
+\end{figure}
+
+\newpage
 
 \subsection{Primjer 3: Karakteristika pumpe (Mašinstvo)}
 Karakteristika centrifugalne pumpe (zavisnost visine dizanja $H$ od protoka $Q$) je obično kvadratna funkcija: $H(Q) = H_0 - kQ^2$.
@@ -491,9 +600,17 @@ Karakteristika centrifugalne pumpe (zavisnost visine dizanja $H$ od protoka $Q$)
     \end{tabular}
 \end{table}
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{Unos3.png}
+    \caption{Prikaz unesenih podataka u aplikaciju}
+\end{figure}
+
+
+
 Korištenjem \textit{Quadratic Approximation} (polinom 2. reda):
 \begin{itemize}
-    \item \textbf{Rezultat:} $H(Q) = 50.02 - 0.005 Q - 0.009 Q^2$
+    \item \textbf{Rezultat:} $H(Q) = 49.98 + 0.019 Q - 0.0095 Q^2$
     \item \textbf{Greška:} $R^2 = 0.999$, model odlično prati eksperimentalne podatke.
 \end{itemize}
 Korisnik sada može pomoću aplikacije predvidjeti visinu dizanja za protok od npr. $Q=25 m^3/h$ jednostavnim pozicioniranjem kursora na graf.
@@ -505,28 +622,174 @@ Korisnik sada može pomoću aplikacije predvidjeti visinu dizanja za protok od n
     \label{fig:pump-quadratic}
 \end{figure}
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Result3.png}
+    \caption{Grafički prikaz rezultata i koraka rješenja kvadratne aproksimacije karakteristike pumpe}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{3_red_2.png}
+    \caption{Validacija kvadratne aproksimacije karakteristike pumpe putem stats blue Stats Suite\textsuperscript{\cite{statsblue}}.}
+\end{figure}
+
+\newpage
+
+\subsection{Primjer 4: Balistička putanja projektila (Fizika)}
+
+Razmatramo horizontalno ispaljen projektil, gdje se mjeri zavisnost
+visine projektila $y$ od horizontalne udaljenosti $x$.
+Zbog djelovanja gravitacije, putanja projektila ima paraboličan oblik.
+
+\textbf{Ulazni podaci:}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|c|c|c|c|}
+        \hline
+        Horizontalna udaljenost $x$ [m] & 0 & 10 & 20 & 30 & 40 \\
+        \hline
+        Visina $y$ [m] & 5.0 & 7.8 & 8.9 & 8.2 & 5.7 \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{Unos4.png}
+    \caption{Prikaz unesenih podataka u aplikaciju}
+\end{figure}
+
+Korištenjem \textit{Polynomial Approximation} u aplikaciji (polinom
+drugog stepena) dobijamo aproksimacioni model:
+
+\begin{itemize}
+    \item \textbf{Rezultat:}
+    \[
+    y(x) \approx 4.9885714286 + 0.3722857143x - 0.0088571429x^2
+    \]
+    \item \textbf{Analiza:} Negativan koeficijent uz $x^2$ odgovara
+    fizičkom očekivanju opadanja visine pod uticajem gravitacije.
+    \item \textbf{Greška:} $R^2 = 0.997$, što ukazuje na vrlo dobro
+    slaganje modela sa eksperimentalnim podacima.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Primjer4.png}
+    \caption{Grafički prikaz polinomne aproksimacije putanje projektila}
+    \label{fig:pump-quadratic}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Result4_.png}
+    \caption{Grafički prikaz rezultata i koraka rješenja polinomne aproksimacije putanje projektila}
+    \label{fig:pump-quadratic}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{polinom.png}
+    \caption{Validacija polinomne aproksimacije putanje projektila putem stats blue Stats Suite\textsuperscript{\cite{statsblue}}.}
+\end{figure}
+
+Polinomska aproksimacija omogućava jednostavno modeliranje putanje
+projektila i predviđanje maksimalne visine ili dometa.
+
+\subsection{Primjer 5: Otpor fluida u zavisnosti od brzine (Mehanika fluida)}
+
+Kod kretanja tijela kroz fluid (zrak ili tečnost), sila otpora
+zavisi od brzine kretanja. U mnogim praktičnim slučajevima,
+ova zavisnost se opisuje stepenim zakonom:
+\[
+F = a v^b
+\]
+
+\textbf{Ulazni podaci:}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|c|c|c|c|}
+        \hline
+        Brzina $v$ [m/s] & 1 & 2 & 3 & 4 & 5 \\
+        \hline
+        Sila otpora $F$ [N] & 0.5 & 2.1 & 4.8 & 8.9 & 14.2 \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{Unos5.png}
+    \caption{Prikaz unesenih podataka u aplikaciju}
+\end{figure}
+
+U aplikaciji se bira \textit{Power Approximation}, pri čemu se vrši
+logaritamska transformacija podataka i primjenjuje metoda najmanjih
+kvadrata.
+
+\begin{itemize}
+    \item \textbf{Rezultat:}
+    \[
+    F(v) \approx 0.4976907413 \cdot v^{2.0774095997}
+    \]
+    \item \textbf{Analiza:} Eksponent $b \approx 1.92$ blizak je
+    kvadratnoj zavisnosti, što odgovara teoriji otpora fluida
+    pri većim brzinama.
+    \item \textbf{Greška:} $R^2 = 0.998$, što potvrđuje vrlo dobar
+    kvalitet aproksimacije.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Primjer5.png}
+    \caption{Grafički prikaz stepene aproksimacije otpora fluida}
+    \label{fig:pump-quadratic}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\textwidth]{Result5.png}
+    \caption{Grafički prikaz rezultata i koraka rješenja stepene aproksimacije otpora fluida}
+    \label{fig:pump-quadratic}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.32\textwidth]{power_koraci.png}
+    \caption{Validacija kvadratne aproksimacije karakteristike pumpe putem Statology\textsuperscript{\cite{statology}}.}
+\end{figure}
+
+Stepena aproksimacija omogućava jednostavno modeliranje sile otpora
+i predviđanje ponašanja sistema pri različitim brzinama kretanja.
+\newpage
+
 % ---------------- 5. ZAKLJUČAK ----------------
 \section{ZAKLJUČCI}
 Cilj ovog seminarskog rada bio je dvojak: teoretski obraditi problem numeričke aproksimacije metodom najmanjih kvadrata i praktično implementirati te metode u modernom softverskom okruženju.
 
 Kroz razvoj aplikacije pokazali smo da:
 \begin{enumerate}
-    \item \textbf{Linearna algebra je temelj:} Implementacija robusnog rješavača linearnih sistema (Gaussova metoda) je ključna za sve metode aproksimacije, od jednostavnih pravaca do polinoma visokog reda.
+    \item \textbf{Linearna algebra je temelj:} Implementacija robusnih rješavača linearnih sistema (Gaussova eliminacija, Gauss-Jordan, LU faktorizacija) je ključna za sve metode aproksimacije i interpolacije.
     \item \textbf{Linearizacija je moćan alat:} Svođenje nelinearnih problema (eksponencijalni, stepeni) na linearne putem logaritamske transformacije drastično pojednostavljuje proračun i omogućava korištenje iste baze koda.
     \item \textbf{Web tehnologije su zrele za inženjerske alate:} Sposobnost JavaScript-a (i TypeScript-a) da brzo manipulira nizovima i matricama, u kombinaciji sa bibliotekama za iscrtavanje poput Plotly.js, čini ga odličnim izborom za razvoj inženjerskog softvera.
 \end{enumerate}
 
-Aplikacija "Approximation Picker" uspješno ispunjava sve postavljene zahtjeve: tačna je, brza, i pruža vizualni uvid u kvalitet aproksimacije. Kao takva, predstavlja koristan edukativni alat za studente Politehničkog fakulteta.
+Aplikacija uspješno ispunjava sve postavljene zahtjeve: tačna je, brza, i pruža vizualni uvid u kvalitet aproksimacije i interpolacije. Korisnik može birati metodu rješavanja linearnog sistema, pratiti svaki korak postupka u LaTeX formatu, te pregledavati historiju izračuna. Kao takva, predstavlja koristan edukativni alat za studente Politehničkog fakulteta.
 
-\section*{LITERATURA}
-\addcontentsline{toc}{section}{LITERATURA}
+\newpage
 
-\begin{enumerate}
-    \item[{[1]}] S. C. Chapra, R. P. Canale, \textit{Numerical Methods for Engineers}, 7th Edition, McGraw-Hill Education, 2015.
-    \item[{[2]}] A. Karač, \textit{Predavanja iz predmeta Primijenjene numeričke metode u softverskom inženjerstvu}, Politehnički fakultet, Univerzitet u Zenici, 2026.
-    \item[{[3]}] Vercel Inc., \textit{Next.js Documentation}, \url{https://nextjs.org}, pristupljeno: Februar 2026.
-    \item[{[4]}] Plotly Technologies Inc., \textit{Plotly JavaScript Open Source Graphing Library}, \url{https://plotly.com/javascript/}, pristupljeno: Februar 2026.
-    \item[{[5]}] MathLive, \textit{A Web Component for Math Input}, \url{https://cortexjs.io/mathlive/}, pristupljeno: Februar 2026.
-\end{enumerate}
+\begin{thebibliography}{9}  % the number here is the widest label
+\bibitem{chapra2015} S. C. Chapra, R. P. Canale, \textit{Numerical Methods for Engineers}, 7th Edition, McGraw-Hill Education, 2015.
+\bibitem{karac2026} A. Karač, \textit{Predavanja iz predmeta Primijenjene numeričke metode u softverskom inženjerstvu}, Politehnički fakultet, Univerzitet u Zenici, 2026.
+\bibitem{vercel} Vercel Inc., \textit{Next.js Documentation}, \url{https://nextjs.org}, pristupljeno: Februar 2026.
+\bibitem{plotly} Plotly Technologies Inc., \textit{Plotly JavaScript Open Source Graphing Library}, \url{https://plotly.com/javascript/}, pristupljeno: Februar 2026.
+\bibitem{mathlive} MathLive, \textit{A Web Component for Math Input}, \url{https://cortexjs.io/mathlive/}, pristupljeno: Februar 2026.
+\bibitem{statsblue} Stats Blue, \textit{Stats Suite}, \url{https://stats.blue/}, pristupljeno: Februar 2026.
+\bibitem{statology} Zach Bobbitt, \textit{Power Regression Calculator}, \url{https://www.statology.org/power-regression-calculator/}, pristupljeno: Februar 2026.
+
+\end{thebibliography}
 
 \end{document}

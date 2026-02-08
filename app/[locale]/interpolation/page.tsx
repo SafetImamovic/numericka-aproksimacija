@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useCallback, useMemo, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import { Calculator, AlertCircle } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
@@ -43,6 +43,23 @@ export default function InterpolationPage() {
   const [metodaRjesavanja, setMetodaRjesavanja] = useState<MetodaRjesavanja>('gauss')
   const [precision, setPrecision] = useState<PrecisionLevel>(4)
   const [originalCurve, setOriginalCurve] = useState<DataPoint[]>([])
+
+  // Restore from history (sessionStorage)
+  useEffect(() => {
+    try {
+      const stored = sessionStorage.getItem('restore-calculation')
+      if (stored) {
+        sessionStorage.removeItem('restore-calculation')
+        const data = JSON.parse(stored)
+        if (data.points?.length > 0) {
+          setPoints(data.points)
+        }
+        if (data.type?.includes('interpolation')) {
+          setSelectedMethod(data.type as InterpolationMethod)
+        }
+      }
+    } catch { /* ignore */ }
+  }, [])
 
   const validPointCount = points.filter(
     (p) => !isNaN(p.x) && !isNaN(p.y) && isFinite(p.x) && isFinite(p.y)
