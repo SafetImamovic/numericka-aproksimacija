@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useCallback, useMemo, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import { Calculator, AlertCircle } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
@@ -14,7 +14,7 @@ import { useCalculation } from '@/lib/hooks/use-calculation'
 import { useHistory } from '@/lib/hooks/use-history'
 import { interpolationDatasets } from '@/lib/data/example-datasets'
 import { getValidationErrorKey } from '@/lib/math/validators'
-import type { DataPoint, InterpolationResult, PrecisionLevel } from '@/lib/types'
+import type { DataPoint, InterpolationResult, PrecisionLevel, MetodaRjesavanja } from '@/lib/types'
 import { PRECISION_OPTIONS } from '@/lib/types'
 
 type InterpolationMethod =
@@ -40,8 +40,36 @@ export default function InterpolationPage() {
   ])
   const [selectedMethod, setSelectedMethod] =
     useState<InterpolationMethod>('lagrange-interpolation')
+  const [metodaRjesavanja, setMetodaRjesavanja] = useState<MetodaRjesavanja>('gauss')
   const [precision, setPrecision] = useState<PrecisionLevel>(4)
   const [originalCurve, setOriginalCurve] = useState<DataPoint[]>([])
+
+  // Restore from history (sessionStorage)
+  useEffect(() => {
+    try {
+      const stored = sessionStorage.getItem('restore-calculation')
+      if (stored) {
+        sessionStorage.removeItem('restore-calculation')
+        const data = JSON.parse(stored)
+        if (data.points?.length > 0) {
+          setPoints(data.points)
+        }
+        if (data.type?.includes('interpolation')) {
+          setSelectedMethod(data.type as InterpolationMethod)
+        }
+      }
+    } catch { /* ignore */ }
+  }, [])
+
+  const validPointCount = points.filter(
+    (p) => !isNaN(p.x) && !isNaN(p.y) && isFinite(p.x) && isFinite(p.y)
+  ).length
+
+  const solverMethods: { id: MetodaRjesavanja; labelKey: string; descKey: string }[] = [
+    { id: 'gauss', labelKey: 'gaussElimination', descKey: 'gaussDesc' },
+    { id: 'gauss-jordan', labelKey: 'gaussJordan', descKey: 'gaussJordanDesc' },
+    { id: 'lu-doolittle', labelKey: 'luFactorization', descKey: 'luDesc' },
+  ]
 
   const methods: { id: InterpolationMethod; labelKey: string; descKey: string }[] = [
     { id: 'lagrange-interpolation', labelKey: 'lagrange', descKey: 'lagrangeDesc' },
@@ -126,8 +154,7 @@ export default function InterpolationPage() {
       then: tSteps('then'),
       linearRegressionTransformed: tSteps('linearRegressionTransformed'),
       result: tSteps('result'),
-      vandermondeMatrix: tSteps('vandermondeMatrix'),
-      normalEquationsVTV: tSteps('normalEquationsVTV'),
+      coefficientMatrix: tSteps('coefficientMatrix'),
       expandingTerms: tSteps('expandingTerms'),
       standardForm: tSteps('standardForm'),
       lagrangeInterpolation: tSteps('lagrangeInterpolation'),
@@ -139,6 +166,25 @@ export default function InterpolationPage() {
       forNPoints: tSteps('forNPoints'),
       findPolynomialDegree: tSteps('findPolynomialDegree'),
       systemOfEquations: tSteps('systemOfEquations'),
+      gaussElimination: tSteps('gaussElimination'),
+      augmentedMatrix: tSteps('augmentedMatrix'),
+      pivoting: tSteps('pivoting'),
+      rowSwap: tSteps('rowSwap'),
+      eliminationStep: tSteps('eliminationStep'),
+      backSubstitution: tSteps('backSubstitution'),
+      upperTriangularForm: tSteps('upperTriangularForm'),
+      gaussJordan: tSteps('gaussJordan'),
+      reducedRowEchelonForm: tSteps('reducedRowEchelonForm'),
+      normalizeRow: tSteps('normalizeRow'),
+      eliminateAbove: tSteps('eliminateAbove'),
+      luFactorization: tSteps('luFactorization'),
+      lMatrix: tSteps('lMatrix'),
+      uMatrix: tSteps('uMatrix'),
+      forwardSubstitution: tSteps('forwardSubstitution'),
+      backwardSubstitution: tSteps('backwardSubstitution'),
+      luDecomposition: tSteps('luDecomposition'),
+      solvingLy: tSteps('solvingLy'),
+      solvingUx: tSteps('solvingUx'),
     }),
     [tSteps]
   )
@@ -153,8 +199,8 @@ export default function InterpolationPage() {
       return
     }
 
-    calculate(validPoints, selectedMethod, { stepTranslations, precision })
-  }, [points, selectedMethod, calculate, stepTranslations, precision])
+    calculate(validPoints, selectedMethod, { stepTranslations, precision, metodaRjesavanja: selectedMethod === 'direct-interpolation' ? metodaRjesavanja : undefined })
+  }, [points, selectedMethod, calculate, stepTranslations, precision, metodaRjesavanja])
 
   const handleSaveToHistory = useCallback(() => {
     if (result) {
@@ -177,10 +223,6 @@ export default function InterpolationPage() {
       setOriginalCurve([])
     }
   }, [])
-
-  const validPointCount = points.filter(
-    (p) => !isNaN(p.x) && !isNaN(p.y) && isFinite(p.x) && isFinite(p.y)
-  ).length
 
   // Get interpolation-specific data
   const interpolationResult = result as (InterpolationResult & { steps: string[] }) | null
@@ -255,6 +297,35 @@ export default function InterpolationPage() {
                   </button>
                 ))}
               </div>
+
+              {/* Solver method selector (only for Direct) */}
+              {selectedMethod === 'direct-interpolation' && (
+                <div className="mt-4 pt-4 border-t border-border">
+                  <label className="text-xs font-medium block mb-2">
+                    {t('interpolation.solverMethod')}:
+                  </label>
+                  <div className="grid gap-1.5">
+                    {solverMethods.map((solver) => (
+                      <button
+                        key={solver.id}
+                        onClick={() => setMetodaRjesavanja(solver.id)}
+                        className={`p-2 text-left rounded-lg border transition-colors ${
+                          metodaRjesavanja === solver.id
+                            ? 'border-primary bg-primary/10 text-primary'
+                            : 'border-border hover:border-primary/50'
+                        }`}
+                      >
+                        <div className="font-medium text-xs">
+                          {t(`interpolation.${solver.labelKey}`)}
+                        </div>
+                        <div className="text-[10px] text-muted-foreground">
+                          {t(`interpolation.${solver.descKey}`)}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Precision selector */}
               <div className="mt-4 pt-4 border-t border-border">
@@ -431,11 +502,11 @@ export default function InterpolationPage() {
             </Card>
           )}
 
-          {/* Vandermonde Matrix (Direct) */}
+          {/* Coefficient Matrix (Direct) */}
           {interpolationResult?.vandermondeMatrix && (
             <Card>
               <CardHeader className="py-3">
-                <CardTitle className="text-sm font-medium">{t('interpolation.vandermondeMatrix')}</CardTitle>
+                <CardTitle className="text-sm font-medium">{t('interpolation.coefficientMatrix')}</CardTitle>
               </CardHeader>
               <CardContent className="overflow-x-auto">
                 <MatrixDisplay matrix={interpolationResult.vandermondeMatrix} />

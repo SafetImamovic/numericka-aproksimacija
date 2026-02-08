@@ -1,4 +1,4 @@
-// Re-export nonlinear approximation methods from approximation.ts
-// This file exists for organizational purposes as mentioned in the plan
+// Re-eksport nelinearnih metoda aproksimacije iz aproksimacija.ts
+// Ovaj fajl postoji radi organizacije modula
 
-export { powerApproximation, exponentialApproximation } from './approximation'
+export { stepenaAproksimacija, eksponencijalnaAproksimacija } from './aproksimacija'

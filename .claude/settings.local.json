@@ -12,7 +12,10 @@
       "Bash(wc:*)",
       "Bash(find:*)",
       "Bash(git stash:*)",
-      "Bash(del \"C:\\\\Users\\\\User\\\\Development\\\\PNMUSI_PROJEKAT\\\\nul\")"
+      "Bash(del \"C:\\\\Users\\\\User\\\\Development\\\\PNMUSI_PROJEKAT\\\\nul\")",
+      "Bash(powershell:*)",
+      "Bash(git -C \"C:\\\\Users\\\\User\\\\Development\\\\PNMUSI_PROJEKAT\" mv lib/math/approximation.ts lib/math/aproksimacija.ts)",
+      "Bash(git -C \"C:\\\\Users\\\\User\\\\Development\\\\PNMUSI_PROJEKAT\" mv lib/math/matrix-utils.ts lib/math/matrica-utils.ts)"
     ]
   },
   "enableAllProjectMcpServers": true,

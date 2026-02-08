@@ -4,6 +4,9 @@ export interface DataPoint {
   y: number
 }
 
+// Solver method for linear systems (interpolation & approximation)
+export type MetodaRjesavanja = 'gauss' | 'gauss-jordan' | 'lu-doolittle'
+
 // Calculation types
 export type CalculationType =
   | 'linear-approximation'
@@ -43,6 +46,7 @@ export interface InterpolationResult {
   basisPolynomials?: string[] // For Lagrange method
   vandermondeMatrix?: number[][] // For direct method
   pointErrors?: PointError[] // Errors for each input point
+  metodaRjesavanja?: MetodaRjesavanja // Solver method used (direct interpolation)
 }
 
 // Calculation history entry
@@ -109,8 +113,7 @@ export interface StepTranslations {
   then: string
   linearRegressionTransformed: string
   result: string
-  vandermondeMatrix: string
-  normalEquationsVTV: string
+  coefficientMatrix: string
   expandingTerms: string
   standardForm: string
   lagrangeInterpolation: string
@@ -122,4 +125,26 @@ export interface StepTranslations {
   forNPoints: string
   findPolynomialDegree: string
   systemOfEquations: string
+  // Gauss elimination steps
+  gaussElimination?: string
+  augmentedMatrix?: string
+  pivoting?: string
+  rowSwap?: string
+  eliminationStep?: string
+  backSubstitution?: string
+  upperTriangularForm?: string
+  // Gauss-Jordan steps
+  gaussJordan?: string
+  reducedRowEchelonForm?: string
+  normalizeRow?: string
+  eliminateAbove?: string
+  // LU factorization steps
+  luFactorization?: string
+  lMatrix?: string
+  uMatrix?: string
+  forwardSubstitution?: string
+  backwardSubstitution?: string
+  luDecomposition?: string
+  solvingLy?: string
+  solvingUx?: string
 }

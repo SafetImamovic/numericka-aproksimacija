@@ -15,7 +15,7 @@ import { useCalculation } from '@/lib/hooks/use-calculation'
 import { useHistory } from '@/lib/hooks/use-history'
 import { approximationDatasets } from '@/lib/data/example-datasets'
 import { getValidationErrorKey } from '@/lib/math/validators'
-import type { DataPoint, ApproximationResult, PrecisionLevel } from '@/lib/types'
+import type { DataPoint, ApproximationResult, PrecisionLevel, MetodaRjesavanja } from '@/lib/types'
 import { PRECISION_OPTIONS } from '@/lib/types'
 
 type ApproximationMethod =
@@ -46,8 +46,26 @@ export default function ApproximationPage() {
   const [selectedMethod, setSelectedMethod] =
     useState<ApproximationMethod>('linear-approximation')
   const [polynomialDegree, setPolynomialDegree] = useState(3)
+  const [metodaRjesavanja, setMetodaRjesavanja] = useState<MetodaRjesavanja>('gauss')
   const [precision, setPrecision] = useState<PrecisionLevel>(4)
   const [originalCurve, setOriginalCurve] = useState<DataPoint[]>([])
+
+  // Restore from history (sessionStorage)
+  useEffect(() => {
+    try {
+      const stored = sessionStorage.getItem('restore-calculation')
+      if (stored) {
+        sessionStorage.removeItem('restore-calculation')
+        const data = JSON.parse(stored)
+        if (data.points?.length > 0) {
+          setPoints(data.points)
+        }
+        if (data.type?.includes('approximation')) {
+          setSelectedMethod(data.type as ApproximationMethod)
+        }
+      }
+    } catch { /* ignore */ }
+  }, [])
 
   // Za N tačaka, maksimalni stepen polinoma je N-1 (da izbjegnemo singularne matrice)
   const maxPolynomialDegree = Math.max(1, points.length - 1)
@@ -65,6 +83,12 @@ export default function ApproximationPage() {
     { id: 'polynomial-approximation', labelKey: 'polynomial', descKey: 'polynomialDesc' },
     { id: 'power-approximation', labelKey: 'power', descKey: 'powerDesc' },
     { id: 'exponential-approximation', labelKey: 'exponential', descKey: 'exponentialDesc' },
+  ]
+
+  const solverMethods: { id: MetodaRjesavanja; labelKey: string; descKey: string }[] = [
+    { id: 'gauss', labelKey: 'gaussElimination', descKey: 'gaussDesc' },
+    { id: 'gauss-jordan', labelKey: 'gaussJordan', descKey: 'gaussJordanDesc' },
+    { id: 'lu-doolittle', labelKey: 'luFactorization', descKey: 'luDesc' },
   ]
 
   const datasetTranslations = useMemo(
@@ -146,8 +170,7 @@ export default function ApproximationPage() {
       then: tSteps('then'),
       linearRegressionTransformed: tSteps('linearRegressionTransformed'),
       result: tSteps('result'),
-      vandermondeMatrix: tSteps('vandermondeMatrix'),
-      normalEquationsVTV: tSteps('normalEquationsVTV'),
+      coefficientMatrix: tSteps('coefficientMatrix'),
       expandingTerms: tSteps('expandingTerms'),
       standardForm: tSteps('standardForm'),
       lagrangeInterpolation: tSteps('lagrangeInterpolation'),
@@ -159,6 +182,25 @@ export default function ApproximationPage() {
       forNPoints: tSteps('forNPoints'),
       findPolynomialDegree: tSteps('findPolynomialDegree'),
       systemOfEquations: tSteps('systemOfEquations'),
+      gaussElimination: tSteps('gaussElimination'),
+      augmentedMatrix: tSteps('augmentedMatrix'),
+      pivoting: tSteps('pivoting'),
+      rowSwap: tSteps('rowSwap'),
+      eliminationStep: tSteps('eliminationStep'),
+      backSubstitution: tSteps('backSubstitution'),
+      upperTriangularForm: tSteps('upperTriangularForm'),
+      gaussJordan: tSteps('gaussJordan'),
+      reducedRowEchelonForm: tSteps('reducedRowEchelonForm'),
+      normalizeRow: tSteps('normalizeRow'),
+      eliminateAbove: tSteps('eliminateAbove'),
+      luFactorization: tSteps('luFactorization'),
+      lMatrix: tSteps('lMatrix'),
+      uMatrix: tSteps('uMatrix'),
+      forwardSubstitution: tSteps('forwardSubstitution'),
+      backwardSubstitution: tSteps('backwardSubstitution'),
+      luDecomposition: tSteps('luDecomposition'),
+      solvingLy: tSteps('solvingLy'),
+      solvingUx: tSteps('solvingUx'),
     }),
     [tSteps]
   )
@@ -173,8 +215,8 @@ export default function ApproximationPage() {
       return
     }
 
-    calculate(validPoints, selectedMethod, { degree: polynomialDegree, stepTranslations, precision })
-  }, [points, selectedMethod, polynomialDegree, calculate, stepTranslations, precision])
+    calculate(validPoints, selectedMethod, { degree: polynomialDegree, stepTranslations, precision, metodaRjesavanja })
+  }, [points, selectedMethod, polynomialDegree, calculate, stepTranslations, precision, metodaRjesavanja])
 
   const handleSaveToHistory = useCallback(() => {
     if (result) {
@@ -259,6 +301,33 @@ export default function ApproximationPage() {
                   />
                 </div>
               )}
+
+              {/* Solver method selector */}
+              <div className="mt-4 pt-4 border-t border-border">
+                <label className="text-xs font-medium block mb-2">
+                  {t('approximation.solverMethod')}:
+                </label>
+                <div className="grid gap-1.5">
+                  {solverMethods.map((solver) => (
+                    <button
+                      key={solver.id}
+                      onClick={() => setMetodaRjesavanja(solver.id)}
+                      className={`p-2 text-left rounded-lg border transition-colors ${
+                        metodaRjesavanja === solver.id
+                          ? 'border-primary bg-primary/10 text-primary'
+                          : 'border-border hover:border-primary/50'
+                      }`}
+                    >
+                      <div className="font-medium text-xs">
+                        {t(`approximation.${solver.labelKey}`)}
+                      </div>
+                      <div className="text-[10px] text-muted-foreground">
+                        {t(`approximation.${solver.descKey}`)}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
 
               {/* Precision selector */}
               <div className="mt-4 pt-4 border-t border-border">

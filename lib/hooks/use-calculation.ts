@@ -9,9 +9,10 @@ import type {
   ValidationResult,
   StepTranslations,
   PrecisionLevel,
+  MetodaRjesavanja,
 } from '@/lib/types'
 import { validateDataPoints } from '@/lib/math/validators'
-import { approximate } from '@/lib/math/approximation'
+import { aproksimiraj } from '@/lib/math/aproksimacija'
 import { interpolate, evaluateInterpolation } from '@/lib/math/interpolation'
 import { evaluatePolynomial } from '@/lib/math/expression-parser'
 
@@ -21,6 +22,7 @@ interface CalculationOptions {
   degree?: number
   stepTranslations?: StepTranslations
   precision?: PrecisionLevel
+  metodaRjesavanja?: MetodaRjesavanja
 }
 
 interface UseCalculationReturn {
@@ -92,9 +94,9 @@ export function useCalculation(): UseCalculationReturn {
         let calculationResult: CalculationResult
 
         if (isInterpolation) {
-          calculationResult = interpolate(points, type, options?.stepTranslations, precision)
+          calculationResult = interpolate(points, type, options?.stepTranslations, precision, options?.metodaRjesavanja)
         } else {
-          calculationResult = approximate(points, type, options?.degree, options?.stepTranslations, precision)
+          calculationResult = aproksimiraj(points, type, options?.degree, options?.stepTranslations, precision, options?.metodaRjesavanja)
         }
 
         setResult(calculationResult)
