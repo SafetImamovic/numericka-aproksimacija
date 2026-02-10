@@ -37,6 +37,10 @@ interface InputTabsProps {
     addRow: string
     clearAll: string
     point: string
+    copyData: string
+    pasteData: string
+    pastedPoints: string
+    copiedPoints: string
     uploadFile: string
     dragDrop: string
     or: string
@@ -156,6 +160,10 @@ export function InputTabs({
               addRow: translations.addRow,
               clearAll: translations.clearAll,
               point: translations.point,
+              copyData: translations.copyData,
+              pasteData: translations.pasteData,
+              pastedPoints: translations.pastedPoints,
+              copiedPoints: translations.copiedPoints,
             }}
           />
         )}
