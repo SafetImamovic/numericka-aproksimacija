@@ -287,7 +287,7 @@ export default function ApproximationPage() {
 
       {/* Tier 1: Method and Input */}
       <div className="grid gap-6 lg:grid-cols-12">
-        <div className="space-y-6 lg:col-span-3">
+        <div className="space-y-6 lg:col-span-4">
           <Card className="h-full">
             <CardHeader className="pb-3">
               <CardTitle className="text-base">{t('approximation.selectMethod')}</CardTitle>
@@ -340,21 +340,21 @@ export default function ApproximationPage() {
                 <label className="text-xs font-medium block mb-2">
                   {t('approximation.solverMethod')}:
                 </label>
-                <div className="grid gap-1.5">
+                <div className="grid grid-cols-2 gap-1.5">
                   {visibleSolverMethods.map((solver) => (
                     <button
                       key={solver.id}
                       onClick={() => setMetodaRjesavanja(solver.id)}
-                      className={`p-2 text-left rounded-lg border transition-colors ${
+                      className={`aspect-square p-2 flex flex-col items-center justify-center text-center rounded-lg border transition-colors ${
                         metodaRjesavanja === solver.id
                           ? 'border-primary bg-primary/10 text-primary'
                           : 'border-border hover:border-primary/50'
                       }`}
                     >
-                      <div className="font-medium text-xs">
+                      <div className="font-medium text-xs leading-tight">
                         {t(`approximation.${solver.labelKey}`)}
                       </div>
-                      <div className="text-[10px] text-muted-foreground">
+                      <div className="text-[9px] text-muted-foreground leading-tight mt-1">
                         {t(`approximation.${solver.descKey}`)}
                       </div>
                     </button>
@@ -387,7 +387,7 @@ export default function ApproximationPage() {
           </Card>
         </div>
 
-        <div className="space-y-6 flex flex-col lg:col-span-9">
+        <div className="space-y-6 flex flex-col lg:col-span-8">
           <Card className="flex-1">
             <CardContent className="pt-6">
               <InputTabs

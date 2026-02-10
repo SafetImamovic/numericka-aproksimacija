@@ -88,7 +88,7 @@ export function DataPointInput({
       </div>
 
       {/* Data rows */}
-      <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">
+      <div className="space-y-2 max-h-[calc(100vh-26rem)] overflow-y-auto pr-1">
         {points.map((point, index) => {
           const rowErrors = errors.get(index)
 
