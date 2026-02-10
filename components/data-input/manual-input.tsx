@@ -20,7 +20,7 @@ interface ManualInputProps {
     point: string
     copyData: string
     pasteData: string
-    pastedPoints: string
+    pastedPoints: (count: number) => string
     copiedPoints: string
   }
 }
@@ -55,10 +55,10 @@ export function ManualInput({
         e.preventDefault()
         e.stopPropagation()
         onChange(parsed)
-        showFeedback(translations.pastedPoints.replace('{count}', String(parsed.length)))
+        showFeedback(translations.pastedPoints(parsed.length))
       }
     },
-    [onChange, showFeedback, translations.pastedPoints]
+    [onChange, showFeedback, translations]
   )
 
   const handleCopy = useCallback(async () => {
@@ -68,7 +68,7 @@ export function ManualInput({
     const csv = validPoints.map((p) => `${p.x},${p.y}`).join('\n')
     await navigator.clipboard.writeText(csv)
     showFeedback(translations.copiedPoints)
-  }, [points, showFeedback, translations.copiedPoints])
+  }, [points, showFeedback, translations])
 
   const handlePasteButton = useCallback(async () => {
     try {
@@ -78,12 +78,12 @@ export function ManualInput({
 
       if (parsed.length >= 2) {
         onChange(parsed)
-        showFeedback(translations.pastedPoints.replace('{count}', String(parsed.length)))
+        showFeedback(translations.pastedPoints(parsed.length))
       }
     } catch {
       // Clipboard access denied — ignore silently
     }
-  }, [onChange, showFeedback, translations.pastedPoints])
+  }, [onChange, showFeedback, translations])
 
   return (
     <div className="space-y-4" onPaste={handlePaste}>

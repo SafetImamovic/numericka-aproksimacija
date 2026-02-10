@@ -101,7 +101,7 @@ export default function InterpolationPage() {
       point: tInput('point'),
       copyData: tInput('copyData'),
       pasteData: tInput('pasteData'),
-      pastedPoints: tInput('pastedPoints'),
+      pastedPoints: (count: number) => tInput('pastedPoints', { count }),
       copiedPoints: tInput('copiedPoints'),
       uploadFile: tInput('uploadFile'),
       dragDrop: tInput('dragDrop'),

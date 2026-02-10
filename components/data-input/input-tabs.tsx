@@ -39,7 +39,7 @@ interface InputTabsProps {
     point: string
     copyData: string
     pasteData: string
-    pastedPoints: string
+    pastedPoints: (count: number) => string
     copiedPoints: string
     uploadFile: string
     dragDrop: string
