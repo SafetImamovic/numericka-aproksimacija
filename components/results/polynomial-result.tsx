@@ -1,10 +1,11 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import { Copy, Save, Check } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { LatexBlock } from '@/components/math/latex-display'
+import { LatexBlock, LatexDisplay } from '@/components/math/latex-display'
+import { polynomialToLatexScientific } from '@/lib/math/expression-parser'
 import type { ApproximationResult, InterpolationResult, PrecisionLevel } from '@/lib/types'
 
 interface PolynomialResultProps {
@@ -26,7 +27,40 @@ interface PolynomialResultProps {
     absoluteError?: string
     relativeError?: string
     pointErrors?: string
+    scientificNotation?: string
   }
+}
+
+function formatCoefficientSci(n: number, precision: number): string {
+  if (n === 0) return '0'
+  const abs = Math.abs(n)
+  if (abs >= 0.01 && abs < 1e4) {
+    if (Math.abs(n - Math.round(n)) < 1e-10) return Math.round(n).toString()
+    return n.toFixed(precision).replace(/\.?0+$/, '')
+  }
+  const exp = Math.floor(Math.log10(abs))
+  const mantissa = n / Math.pow(10, exp)
+  const mStr = mantissa.toFixed(precision).replace(/\.?0+$/, '')
+  return `${mStr} \\cdot 10^{${exp}}`
+}
+
+function buildScientificPolynomial(result: ApproximationResult | InterpolationResult, precision: number): string {
+  const type = result.type
+  const [a, b] = result.coefficients
+
+  if (type === 'power-approximation') {
+    const aStr = formatCoefficientSci(a, precision)
+    const bStr = formatCoefficientSci(b, precision)
+    return `${aStr} \\cdot x^{${bStr}}`
+  }
+
+  if (type === 'exponential-approximation') {
+    const aStr = formatCoefficientSci(a, precision)
+    const bStr = formatCoefficientSci(b, precision)
+    return `${aStr} \\cdot e^{${bStr} \\cdot x}`
+  }
+
+  return polynomialToLatexScientific(result.coefficients, precision)
 }
 
 export function PolynomialResult({
@@ -40,16 +74,22 @@ export function PolynomialResult({
   const [evalResult, setEvalResult] = useState<{ x: number; y: number } | null>(null)
   const [copied, setCopied] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [scientificNotation, setScientificNotation] = useState(false)
+
+  const displayPolynomial = useMemo(() => {
+    if (!scientificNotation) return result.polynomial
+    return buildScientificPolynomial(result, precision)
+  }, [scientificNotation, result, precision])
 
   const handleCopyLatex = useCallback(async () => {
     try {
-      await navigator.clipboard.writeText(`P(x) = ${result.polynomial}`)
+      await navigator.clipboard.writeText(`P(x) = ${displayPolynomial}`)
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     } catch (error) {
       console.error('Failed to copy:', error)
     }
-  }, [result.polynomial])
+  }, [displayPolynomial])
 
   const handleSave = useCallback(() => {
     onSaveToHistory?.()
@@ -74,6 +114,17 @@ export function PolynomialResult({
         <div className="flex items-center justify-between">
           <h4 className="font-medium">{translations.polynomial}</h4>
           <div className="flex gap-2">
+            {translations.scientificNotation && (
+              <Button
+                variant={scientificNotation ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setScientificNotation((v) => !v)}
+                className="h-8 "
+              >
+                {translations.scientificNotation}
+                <LatexDisplay latex={`: 0.001 \\rightarrow 1.0 \\cdot 10^{-3}`} />
+              </Button>
+            )}
             <Button
               variant="ghost"
               size="sm"
@@ -105,7 +156,7 @@ export function PolynomialResult({
           </div>
         </div>
 
-        <LatexBlock latex={`P(x) = ${result.polynomial}`} />
+        <LatexBlock latex={`P(x) = ${displayPolynomial}`} />
       </div>
 
       {/* Coefficients */}

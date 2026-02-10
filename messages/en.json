@@ -189,7 +189,8 @@
     "absoluteError": "Absolute error",
     "relativeError": "Relative error",
     "pointErrors": "Point-wise Errors",
-    "point": "Point"
+    "point": "Point",
+    "scientificNotation": "Scientific Notation"
   },
   "plot": {
     "title": "Function Plot",

@@ -189,6 +189,51 @@ export function polynomialToLatex(coefficients: number[], precision: number = 4)
 }
 
 /**
+ * Format a polynomial as LaTeX with scientific notation for coefficients.
+ * Each coefficient is displayed as A·10^B where A has one digit before decimal.
+ */
+export function polynomialToLatexScientific(coefficients: number[], precision: number = 4): string {
+  if (coefficients.length === 0) return '0'
+
+  const terms: string[] = []
+
+  for (let i = coefficients.length - 1; i >= 0; i--) {
+    const coef = coefficients[i]
+    if (Math.abs(coef) < 1e-15) continue
+
+    const sign = coef < 0 ? '-' : terms.length > 0 ? '+' : ''
+    const absCoef = Math.abs(coef)
+    const coefStr = formatCoefficientScientific(absCoef, precision)
+
+    let term = ''
+    if (i === 0) {
+      term = `${sign} ${coefStr}`
+    } else if (i === 1) {
+      term = `${sign} ${coefStr} \\cdot x`
+    } else {
+      term = `${sign} ${coefStr} \\cdot x^{${i}}`
+    }
+
+    terms.push(term.trim())
+  }
+
+  if (terms.length === 0) return '0'
+  return terms.join(' ').replace(/^\+ /, '')
+}
+
+function formatCoefficientScientific(n: number, precision: number): string {
+  if (n === 0) return '0'
+  // Integers and "normal" numbers: keep as-is
+  if (Math.abs(n) >= 0.01 && Math.abs(n) < 1e4) {
+    return formatCoefficient(n, precision)
+  }
+  const eksponent = Math.floor(Math.log10(Math.abs(n)))
+  const mantisa = n / Math.pow(10, eksponent)
+  const mantisaStr = mantisa.toFixed(precision).replace(/\.?0+$/, '')
+  return `${mantisaStr} \\cdot 10^{${eksponent}}`
+}
+
+/**
  * Format a coefficient for display
  */
 function formatCoefficient(n: number | string, precision: number): string {

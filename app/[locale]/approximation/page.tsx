@@ -176,6 +176,7 @@ export default function ApproximationPage() {
       relativeError: tResults('relativeError'),
       pointErrors: tResults('pointErrors'),
       resultsTitle: tResults('title'),
+      scientificNotation: tResults('scientificNotation'),
     }),
     [tResults, tApproximation]
   )

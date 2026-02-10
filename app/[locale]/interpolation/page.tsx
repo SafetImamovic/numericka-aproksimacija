@@ -146,6 +146,7 @@ export default function InterpolationPage() {
       relativeError: tResults('relativeError'),
       pointErrors: tResults('pointErrors'),
       resultsTitle: tResults('title'),
+      scientificNotation: tResults('scientificNotation'),
     }),
     [tResults, t]
   )

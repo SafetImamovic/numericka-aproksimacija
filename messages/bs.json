@@ -189,7 +189,8 @@
     "absoluteError": "Apsolutna greška",
     "relativeError": "Relativna greška",
     "pointErrors": "Greške po tačkama",
-    "point": "Tačka"
+    "point": "Tačka",
+    "scientificNotation": "Naučna Notacija"
   },
   "plot": {
     "title": "Grafik Funkcije",
