@@ -44,6 +44,11 @@ export default function ApproximationPage() {
     { x: 3, y: 5 },
     { x: 4, y: 4 },
     { x: 5, y: 5 },
+    { x: 6, y: 7 },
+    { x: 7, y: 8 },
+    { x: 8, y: 6 },
+    { x: 9, y: 9 },
+    { x: 10, y: 10 },
   ])
   const [selectedMethod, setSelectedMethod] =
     useState<ApproximationMethod>('linear-approximation')
@@ -307,8 +312,9 @@ export default function ApproximationPage() {
                     <div className="font-medium text-sm">
                       {t(`approximation.${method.labelKey}`)}
                     </div>
-                    <div className="text-[10px] text-muted-foreground">
-                      {t(`approximation.${method.descKey}`)}
+                    <div className="text-[12px] text-muted-foreground">
+                      <LatexDisplay latex={t(`approximation.${method.descKey}`)} />
+
                     </div>
                   </button>
                 ))}
@@ -346,11 +352,10 @@ export default function ApproximationPage() {
                     <button
                       key={solver.id}
                       onClick={() => setMetodaRjesavanja(solver.id)}
-                      className={`aspect-square p-2 flex flex-col items-center justify-center text-center rounded-lg border transition-colors ${
-                        metodaRjesavanja === solver.id
-                          ? 'border-primary bg-primary/10 text-primary'
-                          : 'border-border hover:border-primary/50'
-                      }`}
+                      className={`aspect-square p-2 flex flex-col items-center justify-center text-center rounded-lg border transition-colors ${metodaRjesavanja === solver.id
+                        ? 'border-primary bg-primary/10 text-primary'
+                        : 'border-border hover:border-primary/50'
+                        }`}
                     >
                       <div className="font-medium text-xs leading-tight">
                         {t(`approximation.${solver.labelKey}`)}
@@ -373,11 +378,10 @@ export default function ApproximationPage() {
                     <button
                       key={opt.value}
                       onClick={() => setPrecision(opt.value)}
-                      className={`px-2 py-1 text-xs rounded border transition-colors ${
-                        precision === opt.value
-                          ? 'border-primary bg-primary/10 text-primary font-medium'
-                          : 'border-border hover:border-primary/50'
-                      }`}
+                      className={`px-2 py-1 text-xs rounded border transition-colors ${precision === opt.value
+                        ? 'border-primary bg-primary/10 text-primary font-medium'
+                        : 'border-border hover:border-primary/50'
+                        }`}
                     >
                       <LatexDisplay latex={opt.latex} />
                     </button>

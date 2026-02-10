@@ -37,6 +37,12 @@ export default function InterpolationPage() {
     { x: 1, y: 3 },
     { x: 2, y: 2 },
     { x: 3, y: 5 },
+    { x: 4, y: 4 },
+    { x: 5, y: 7 },
+    { x: 6, y: 6 },
+    { x: 7, y: 8 },
+    { x: 8, y: 5 },
+    { x: 9, y: 9 },
   ])
   const [selectedMethod, setSelectedMethod] =
     useState<InterpolationMethod>('lagrange-interpolation')

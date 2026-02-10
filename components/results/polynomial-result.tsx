@@ -32,9 +32,10 @@ interface PolynomialResultProps {
 }
 
 function formatCoefficientSci(n: number, precision: number): string {
+  console.log("Called! Polynomial Result")
   if (n === 0) return '0'
   const abs = Math.abs(n)
-  if (abs >= 0.01 && abs < 1e4) {
+  if (abs > 1.0 || abs < 0.0) {
     if (Math.abs(n - Math.round(n)) < 1e-10) return Math.round(n).toString()
     return n.toFixed(precision).replace(/\.?0+$/, '')
   }
@@ -121,8 +122,8 @@ export function PolynomialResult({
                 onClick={() => setScientificNotation((v) => !v)}
                 className="h-8 "
               >
-                {translations.scientificNotation}
-                <LatexDisplay latex={`: 0.001 \\rightarrow 1.0 \\cdot 10^{-3}`} />
+                {translations.scientificNotation}:
+                <LatexDisplay latex={`a \\cdot 10^n`} />
               </Button>
             )}
             <Button
