@@ -148,7 +148,9 @@
     "gaussJordan": "Gauss-Jordan",
     "gaussJordanDesc": "Reduced row echelon form (RREF)",
     "luFactorization": "LU Factorization",
-    "luDesc": "Doolittle decomposition A=LU"
+    "luDesc": "Doolittle decomposition A=LU",
+    "directFormulas": "Direct Formulas",
+    "directFormulasDesc": "Closed-form via partial derivatives"
   },
   "interpolation": {
     "title": "Interpolation Methods",
@@ -260,6 +262,12 @@
     "backwardSubstitution": "Backward substitution:",
     "luDecomposition": "LU Decomposition:",
     "solvingLy": "Solving Ly' = b:",
-    "solvingUx": "Solving Ux = y'"
+    "solvingUx": "Solving Ux = y'",
+    "directFormulas": "Direct Formulas (Partial Derivatives):",
+    "meanValues": "Mean values:",
+    "formulaForB": "Formula for b:",
+    "formulaForA": "Formula for a:",
+    "formulaForBCapital": "Formula for B:",
+    "formulaForACapital": "Formula for A:"
   }
 }

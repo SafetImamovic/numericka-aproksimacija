@@ -5,7 +5,7 @@ export interface DataPoint {
 }
 
 // Solver method for linear systems (interpolation & approximation)
-export type MetodaRjesavanja = 'gauss' | 'gauss-jordan' | 'lu-doolittle'
+export type MetodaRjesavanja = 'gauss' | 'gauss-jordan' | 'lu-doolittle' | 'direktne-formule'
 
 // Calculation types
 export type CalculationType =
@@ -147,4 +147,11 @@ export interface StepTranslations {
   luDecomposition?: string
   solvingLy?: string
   solvingUx?: string
+  // Direct formulas steps
+  directFormulas?: string
+  meanValues?: string
+  formulaForB?: string
+  formulaForA?: string
+  formulaForBCapital?: string
+  formulaForACapital?: string
 }

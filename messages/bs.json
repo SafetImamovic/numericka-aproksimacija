@@ -148,7 +148,9 @@
     "gaussJordan": "Gauss-Jordan",
     "gaussJordanDesc": "Reducirani redni ešalonski oblik (RREF)",
     "luFactorization": "LU Faktorizacija",
-    "luDesc": "Doolittle dekompozicija A=LU"
+    "luDesc": "Doolittle dekompozicija A=LU",
+    "directFormulas": "Direktne Formule",
+    "directFormulasDesc": "Zatvoreni oblik preko parcijalnih izvoda"
   },
   "interpolation": {
     "title": "Metode Interpolacije",
@@ -260,6 +262,12 @@
     "backwardSubstitution": "Povratna supstitucija:",
     "luDecomposition": "LU dekompozicija:",
     "solvingLy": "Rješavanje Ly' = b:",
-    "solvingUx": "Rješavanje Ux = y'"
+    "solvingUx": "Rješavanje Ux = y'",
+    "directFormulas": "Direktne formule (parcijalni izvodi):",
+    "meanValues": "Srednje vrijednosti:",
+    "formulaForB": "Formula za b:",
+    "formulaForA": "Formula za a:",
+    "formulaForBCapital": "Formula za B:",
+    "formulaForACapital": "Formula za A:"
   }
 }

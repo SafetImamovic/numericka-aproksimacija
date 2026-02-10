@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useMemo, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
-import { Calculator, AlertCircle } from 'lucide-react'
+import { Calculator, AlertCircle, Copy, Check } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -24,6 +24,8 @@ type ApproximationMethod =
   | 'polynomial-approximation'
   | 'power-approximation'
   | 'exponential-approximation'
+
+const LINEARIZABLE_METHODS: ApproximationMethod[] = ['linear-approximation', 'power-approximation', 'exponential-approximation']
 
 export default function ApproximationPage() {
   const t = useTranslations()
@@ -49,6 +51,7 @@ export default function ApproximationPage() {
   const [metodaRjesavanja, setMetodaRjesavanja] = useState<MetodaRjesavanja>('gauss')
   const [precision, setPrecision] = useState<PrecisionLevel>(4)
   const [originalCurve, setOriginalCurve] = useState<DataPoint[]>([])
+  const [stepsCopied, setStepsCopied] = useState(false)
 
   // Restore from history (sessionStorage)
   useEffect(() => {
@@ -77,6 +80,13 @@ export default function ApproximationPage() {
     }
   }, [maxPolynomialDegree, polynomialDegree])
 
+  // Reset solver to gauss if direct formulas selected but method doesn't support it
+  useEffect(() => {
+    if (metodaRjesavanja === 'direktne-formule' && !LINEARIZABLE_METHODS.includes(selectedMethod)) {
+      setMetodaRjesavanja('gauss')
+    }
+  }, [selectedMethod, metodaRjesavanja])
+
   const methods: { id: ApproximationMethod; labelKey: string; descKey: string }[] = [
     { id: 'linear-approximation', labelKey: 'linear', descKey: 'linearDesc' },
     { id: 'quadratic-approximation', labelKey: 'quadratic', descKey: 'quadraticDesc' },
@@ -85,11 +95,16 @@ export default function ApproximationPage() {
     { id: 'exponential-approximation', labelKey: 'exponential', descKey: 'exponentialDesc' },
   ]
 
-  const solverMethods: { id: MetodaRjesavanja; labelKey: string; descKey: string }[] = [
+  const solverMethods: { id: MetodaRjesavanja; labelKey: string; descKey: string; linearOnly?: boolean }[] = [
     { id: 'gauss', labelKey: 'gaussElimination', descKey: 'gaussDesc' },
     { id: 'gauss-jordan', labelKey: 'gaussJordan', descKey: 'gaussJordanDesc' },
     { id: 'lu-doolittle', labelKey: 'luFactorization', descKey: 'luDesc' },
+    { id: 'direktne-formule', labelKey: 'directFormulas', descKey: 'directFormulasDesc', linearOnly: true },
   ]
+
+  const visibleSolverMethods = solverMethods.filter(
+    (s) => !s.linearOnly || LINEARIZABLE_METHODS.includes(selectedMethod)
+  )
 
   const datasetTranslations = useMemo(
     () => ({
@@ -205,9 +220,23 @@ export default function ApproximationPage() {
       luDecomposition: tSteps('luDecomposition'),
       solvingLy: tSteps('solvingLy'),
       solvingUx: tSteps('solvingUx'),
+      directFormulas: tSteps('directFormulas'),
+      meanValues: tSteps('meanValues'),
+      formulaForB: tSteps('formulaForB'),
+      formulaForA: tSteps('formulaForA'),
+      formulaForBCapital: tSteps('formulaForBCapital'),
+      formulaForACapital: tSteps('formulaForACapital'),
     }),
     [tSteps]
   )
+
+  const handleCopySteps = useCallback(async (steps: string[]) => {
+    try {
+      await navigator.clipboard.writeText(steps.join('\n\n'))
+      setStepsCopied(true)
+      setTimeout(() => setStepsCopied(false), 2000)
+    } catch { /* ignore */ }
+  }, [])
 
   const handleCalculate = useCallback(() => {
     // Filter out invalid points
@@ -312,7 +341,7 @@ export default function ApproximationPage() {
                   {t('approximation.solverMethod')}:
                 </label>
                 <div className="grid gap-1.5">
-                  {solverMethods.map((solver) => (
+                  {visibleSolverMethods.map((solver) => (
                     <button
                       key={solver.id}
                       onClick={() => setMetodaRjesavanja(solver.id)}
@@ -449,8 +478,21 @@ export default function ApproximationPage() {
       {/* Tier 4: Steps - full width for LaTeX overflow */}
       {result && 'steps' in result && result.steps && (
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0">
             <CardTitle>{t('results.steps')}</CardTitle>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleCopySteps(result.steps)}
+              className="h-8"
+            >
+              {stepsCopied ? (
+                <Check className="h-4 w-4 mr-1 text-green-500" />
+              ) : (
+                <Copy className="h-4 w-4 mr-1" />
+              )}
+              {t('results.copyLatex')}
+            </Button>
           </CardHeader>
           <CardContent className="overflow-x-auto max-h-[400px] overflow-y-auto">
             <div className="space-y-4">

@@ -219,20 +219,48 @@ export function linearnaAproksimacija(tacke: DataPoint[], t?: StepTranslations, 
   koraci.push(`\\sum y_i = ${formatirajBroj(sumaY, preciznost)}`)
   koraci.push(`\\sum x_i y_i = ${formatirajBroj(sumaXY, preciznost)}`)
 
-  // Formiranje matrice normalnih jednadžbi
-  const A = [
-    [n, sumaX],
-    [sumaX, sumaX2],
-  ]
-  const b = [sumaY, sumaXY]
+  let koeficijenti: number[]
 
-  koraci.push(`\\text{${t?.normalEquations || 'Normal equations:'}}`)
-  koraci.push(`${matricaULatex(A, preciznost)} ${vektorULatex(['a', 'b'] as unknown as number[])} = ${vektorULatex(b, preciznost)}`)
+  if (metodaRjesavanja === 'direktne-formule') {
+    // Direktne formule iz parcijalnih izvoda
+    koraci.push(`\\text{${t?.directFormulas || 'Direct Formulas (Partial Derivatives):'}}`)
 
-  // Rješavanje sistema jednadžbi
-  const solverResult = rijesiSistem(A, b, preciznost, t, metodaRjesavanja)
-  const koeficijenti = solverResult.rjesenje
-  koraci.push(...solverResult.koraci)
+    const xBar = sumaX / n
+    const yBar = sumaY / n
+
+    koraci.push(`\\text{${t?.meanValues || 'Mean values:'}}`)
+    koraci.push(`\\bar{x} = \\frac{\\sum x_i}{n} = \\frac{${formatirajBroj(sumaX, preciznost)}}{${n}} = ${formatirajBroj(xBar, preciznost)}`)
+    koraci.push(`\\bar{y} = \\frac{\\sum y_i}{n} = \\frac{${formatirajBroj(sumaY, preciznost)}}{${n}} = ${formatirajBroj(yBar, preciznost)}`)
+
+    const bNumerator = n * sumaXY - sumaX * sumaY
+    const bDenominator = n * sumaX2 - sumaX * sumaX
+
+    koraci.push(`\\text{${t?.formulaForB || 'Formula for b:'}}`)
+    koraci.push(`b = \\frac{n \\sum x_i y_i - \\sum x_i \\cdot \\sum y_i}{n \\sum x_i^2 - (\\sum x_i)^2} = \\frac{${n} \\cdot ${formatirajBroj(sumaXY, preciznost)} - ${formatirajBroj(sumaX, preciznost)} \\cdot ${formatirajBroj(sumaY, preciznost)}}{${n} \\cdot ${formatirajBroj(sumaX2, preciznost)} - (${formatirajBroj(sumaX, preciznost)})^2} = \\frac{${formatirajBroj(bNumerator, preciznost)}}{${formatirajBroj(bDenominator, preciznost)}} = ${formatirajBroj(bNumerator / bDenominator, preciznost)}`)
+
+    const bVal = bNumerator / bDenominator
+    const aVal = yBar - bVal * xBar
+
+    koraci.push(`\\text{${t?.formulaForA || 'Formula for a:'}}`)
+    koraci.push(`a = \\bar{y} - b \\cdot \\bar{x} = ${formatirajBroj(yBar, preciznost)} - ${formatirajBroj(bVal, preciznost)} \\cdot ${formatirajBroj(xBar, preciznost)} = ${formatirajBroj(aVal, preciznost)}`)
+
+    koeficijenti = [aVal, bVal]
+  } else {
+    // Formiranje matrice normalnih jednadžbi
+    const A = [
+      [n, sumaX],
+      [sumaX, sumaX2],
+    ]
+    const b = [sumaY, sumaXY]
+
+    koraci.push(`\\text{${t?.normalEquations || 'Normal equations:'}}`)
+    koraci.push(`${matricaULatex(A, preciznost)} ${vektorULatex(['a', 'b'] as unknown as number[])} = ${vektorULatex(b, preciznost)}`)
+
+    // Rješavanje sistema jednadžbi
+    const solverResult = rijesiSistem(A, b, preciznost, t, metodaRjesavanja)
+    koeficijenti = solverResult.rjesenje
+    koraci.push(...solverResult.koraci)
+  }
 
   koraci.push(`\\text{${t?.solution || 'Solution:'}}`)
   koraci.push(`a = ${formatirajBroj(koeficijenti[0], preciznost)}, \\quad b = ${formatirajBroj(koeficijenti[1], preciznost)}`)
@@ -461,8 +489,8 @@ export function stepenaAproksimacija(tacke: DataPoint[], t?: StepTranslations, p
   }))
 
   koraci.push(`\\text{${t?.linearization || 'Linearization:'} } \\ln(y) = \\ln(a) + b \\ln(x)`)
-  koraci.push(`\\text{${t?.let || 'Let'} } X = \\ln(x), \\quad Y = \\ln(y)`)
-  koraci.push(`\\text{${t?.then || 'Then'} } Y = \\ln(a) + b X`)
+  koraci.push(`Y = \\ln(y), \\quad A = \\ln(a), \\quad X = \\ln(x) \\text{ i } B = b`)
+  koraci.push(`Y = A + BX`)
 
   // Primjena linearne regresije na transformisane podatke
   const n = transformisaneTacke.length
@@ -471,22 +499,48 @@ export function stepenaAproksimacija(tacke: DataPoint[], t?: StepTranslations, p
   const sumaY = transformisaneTacke.reduce((s, t) => s + t.y, 0)
   const sumaXY = transformisaneTacke.reduce((s, t) => s + t.x * t.y, 0)
 
-  const A = [
-    [n, sumaX],
-    [sumaX, sumaX2],
-  ]
-  const bVektor = [sumaY, sumaXY]
+  let lnA: number
+  let b: number
 
-  const solverResult = rijesiSistem(A, bVektor, preciznost, t, metodaRjesavanja)
-  const linearniKoef = solverResult.rjesenje
-  koraci.push(...solverResult.koraci)
-  const lnA = linearniKoef[0]
-  const b = linearniKoef[1]
+  if (metodaRjesavanja === 'direktne-formule') {
+    koraci.push(`\\text{${t?.directFormulas || 'Direct Formulas (Partial Derivatives):'}}`)
+
+    const xBar = sumaX / n
+    const yBar = sumaY / n
+
+    koraci.push(`\\text{${t?.meanValues || 'Mean values:'}}`)
+    koraci.push(`\\bar{X} = \\frac{\\sum X_i}{n} = \\frac{${formatirajBroj(sumaX, preciznost)}}{${n}} = ${formatirajBroj(xBar, preciznost)}`)
+    koraci.push(`\\bar{Y} = \\frac{\\sum Y_i}{n} = \\frac{${formatirajBroj(sumaY, preciznost)}}{${n}} = ${formatirajBroj(yBar, preciznost)}`)
+
+    const bNumerator = n * sumaXY - sumaX * sumaY
+    const bDenominator = n * sumaX2 - sumaX * sumaX
+
+    koraci.push(`\\text{${t?.formulaForBCapital || 'Formula for B:'}}`)
+    koraci.push(`B = \\frac{n \\sum X_i Y_i - \\sum X_i \\cdot \\sum Y_i}{n \\sum X_i^2 - (\\sum X_i)^2} = \\frac{${n} \\cdot ${formatirajBroj(sumaXY, preciznost)} - ${formatirajBroj(sumaX, preciznost)} \\cdot ${formatirajBroj(sumaY, preciznost)}}{${n} \\cdot ${formatirajBroj(sumaX2, preciznost)} - (${formatirajBroj(sumaX, preciznost)})^2} = \\frac{${formatirajBroj(bNumerator, preciznost)}}{${formatirajBroj(bDenominator, preciznost)}} = ${formatirajBroj(bNumerator / bDenominator, preciznost)}`)
+
+    b = bNumerator / bDenominator
+    lnA = yBar - b * xBar
+
+    koraci.push(`\\text{${t?.formulaForACapital || 'Formula for A:'}}`)
+    koraci.push(`A = \\bar{Y} - B \\cdot \\bar{X} = ${formatirajBroj(yBar, preciznost)} - ${formatirajBroj(b, preciznost)} \\cdot ${formatirajBroj(xBar, preciznost)} = ${formatirajBroj(lnA, preciznost)}`)
+  } else {
+    const A = [
+      [n, sumaX],
+      [sumaX, sumaX2],
+    ]
+    const bVektor = [sumaY, sumaXY]
+
+    const solverResult = rijesiSistem(A, bVektor, preciznost, t, metodaRjesavanja)
+    const linearniKoef = solverResult.rjesenje
+    koraci.push(...solverResult.koraci)
+    lnA = linearniKoef[0]
+    b = linearniKoef[1]
+  }
+
   const a = Math.exp(lnA)
 
-  koraci.push(`\\text{${t?.linearRegressionTransformed || 'Linear regression on transformed data:'}}`)
-  koraci.push(`\\ln(a) = ${formatirajBroj(lnA, preciznost)}, \\quad b = ${formatirajBroj(b, preciznost)}`)
-  koraci.push(`a = e^{${formatirajBroj(lnA, preciznost)}} = ${formatirajBroj(a, preciznost)}`)
+  koraci.push(`Y = A + BX = ${formatirajBroj(lnA, preciznost)} + ${formatirajBroj(b, preciznost)} \\cdot X`)
+  koraci.push(`a = e^{A} = e^{${formatirajBroj(lnA, preciznost)}} = ${formatirajBroj(a, preciznost)}, \\quad b = B = ${formatirajBroj(b, preciznost)}`)
   koraci.push(`\\text{${t?.result || 'Result:'} } y = ${formatirajBroj(a, preciznost)} \\cdot x^{${formatirajBroj(b, preciznost)}}`)
 
   // Generisanje tačaka prilagođene krive koristeći stepenu funkciju
@@ -559,8 +613,8 @@ export function eksponencijalnaAproksimacija(tacke: DataPoint[], t?: StepTransla
   }))
 
   koraci.push(`\\text{${t?.linearization || 'Linearization:'} } \\ln(y) = \\ln(a) + bx`)
-  koraci.push(`\\text{${t?.let || 'Let'} } Y = \\ln(y)`)
-  koraci.push(`\\text{${t?.then || 'Then'} } Y = \\ln(a) + bx`)
+  koraci.push(`Y = \\ln(y), \\quad A = \\ln(a), \\quad X = x \\text{ i } B = b`)
+  koraci.push(`Y = A + BX`)
 
   // Primjena linearne regresije na transformisane podatke
   const n = transformisaneTacke.length
@@ -569,23 +623,49 @@ export function eksponencijalnaAproksimacija(tacke: DataPoint[], t?: StepTransla
   const sumaY = transformisaneTacke.reduce((s, t) => s + t.y, 0)
   const sumaXY = transformisaneTacke.reduce((s, t) => s + t.x * t.y, 0)
 
-  const A = [
-    [n, sumaX],
-    [sumaX, sumaX2],
-  ]
-  const bVektor = [sumaY, sumaXY]
+  let lnA: number
+  let b: number
 
-  const solverResult = rijesiSistem(A, bVektor, preciznost, t, metodaRjesavanja)
-  const linearniKoef = solverResult.rjesenje
-  koraci.push(...solverResult.koraci)
-  const lnA = linearniKoef[0]
-  const b = linearniKoef[1]
+  if (metodaRjesavanja === 'direktne-formule') {
+    koraci.push(`\\text{${t?.directFormulas || 'Direct Formulas (Partial Derivatives):'}}`)
+
+    const xBar = sumaX / n
+    const yBar = sumaY / n
+
+    koraci.push(`\\text{${t?.meanValues || 'Mean values:'}}`)
+    koraci.push(`\\bar{X} = \\frac{\\sum X_i}{n} = \\frac{${formatirajBroj(sumaX, preciznost)}}{${n}} = ${formatirajBroj(xBar, preciznost)}`)
+    koraci.push(`\\bar{Y} = \\frac{\\sum Y_i}{n} = \\frac{${formatirajBroj(sumaY, preciznost)}}{${n}} = ${formatirajBroj(yBar, preciznost)}`)
+
+    const bNumerator = n * sumaXY - sumaX * sumaY
+    const bDenominator = n * sumaX2 - sumaX * sumaX
+
+    koraci.push(`\\text{${t?.formulaForBCapital || 'Formula for B:'}}`)
+    koraci.push(`B = \\frac{n \\sum X_i Y_i - \\sum X_i \\cdot \\sum Y_i}{n \\sum X_i^2 - (\\sum X_i)^2} = \\frac{${n} \\cdot ${formatirajBroj(sumaXY, preciznost)} - ${formatirajBroj(sumaX, preciznost)} \\cdot ${formatirajBroj(sumaY, preciznost)}}{${n} \\cdot ${formatirajBroj(sumaX2, preciznost)} - (${formatirajBroj(sumaX, preciznost)})^2} = \\frac{${formatirajBroj(bNumerator, preciznost)}}{${formatirajBroj(bDenominator, preciznost)}} = ${formatirajBroj(bNumerator / bDenominator, preciznost)}`)
+
+    b = bNumerator / bDenominator
+    lnA = yBar - b * xBar
+
+    koraci.push(`\\text{${t?.formulaForACapital || 'Formula for A:'}}`)
+    koraci.push(`A = \\bar{Y} - B \\cdot \\bar{X} = ${formatirajBroj(yBar, preciznost)} - ${formatirajBroj(b, preciznost)} \\cdot ${formatirajBroj(xBar, preciznost)} = ${formatirajBroj(lnA, preciznost)}`)
+  } else {
+    const A = [
+      [n, sumaX],
+      [sumaX, sumaX2],
+    ]
+    const bVektor = [sumaY, sumaXY]
+
+    const solverResult = rijesiSistem(A, bVektor, preciznost, t, metodaRjesavanja)
+    const linearniKoef = solverResult.rjesenje
+    koraci.push(...solverResult.koraci)
+    lnA = linearniKoef[0]
+    b = linearniKoef[1]
+  }
+
   const a = Math.exp(lnA)
 
-  koraci.push(`\\text{${t?.linearRegressionTransformed || 'Linear regression on transformed data:'}}`)
-  koraci.push(`\\ln(a) = ${formatirajBroj(lnA, preciznost)}, \\quad b = ${formatirajBroj(b, preciznost)}`)
-  koraci.push(`a = e^{${formatirajBroj(lnA, preciznost)}} = ${formatirajBroj(a, preciznost)}`)
-  koraci.push(`\\text{${t?.result || 'Result:'} } y = ${formatirajBroj(a, preciznost)} \\cdot e^{${formatirajBroj(b, preciznost)}x}`)
+  koraci.push(`Y = A + Bx = ${formatirajBroj(lnA, preciznost)} + ${formatirajBroj(b, preciznost)} \\cdot x`)
+  koraci.push(`a = e^{A} = e^{${formatirajBroj(lnA, preciznost)}} = ${formatirajBroj(a, preciznost)}, \\quad b = B = ${formatirajBroj(b, preciznost)}`)
+  koraci.push(`\\text{${t?.result || 'Result:'} } y = ${formatirajBroj(a, preciznost)} \\cdot e^{${formatirajBroj(b, preciznost)}x} = ${formatirajBroj(a, preciznost)} \\cdot (e^{${formatirajBroj(b, preciznost)}})^x = ${formatirajBroj(a, preciznost)} \\cdot ${formatirajBroj(Math.exp(b), preciznost)}^x`)
 
   // Generisanje tačaka prilagođene krive koristeći eksponencijalnu funkciju
   const xMin = Math.min(...tacke.map((t) => t.x))

@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useMemo, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
-import { Calculator, AlertCircle } from 'lucide-react'
+import { Calculator, AlertCircle, Copy, Check } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { InputTabs } from '@/components/data-input/input-tabs'
@@ -43,6 +43,7 @@ export default function InterpolationPage() {
   const [metodaRjesavanja, setMetodaRjesavanja] = useState<MetodaRjesavanja>('gauss')
   const [precision, setPrecision] = useState<PrecisionLevel>(4)
   const [originalCurve, setOriginalCurve] = useState<DataPoint[]>([])
+  const [stepsCopied, setStepsCopied] = useState(false)
 
   // Restore from history (sessionStorage)
   useEffect(() => {
@@ -192,6 +193,14 @@ export default function InterpolationPage() {
     }),
     [tSteps]
   )
+
+  const handleCopySteps = useCallback(async (steps: string[]) => {
+    try {
+      await navigator.clipboard.writeText(steps.join('\n\n'))
+      setStepsCopied(true)
+      setTimeout(() => setStepsCopied(false), 2000)
+    } catch { /* ignore */ }
+  }, [])
 
   const handleCalculate = useCallback(() => {
     // Filter out invalid points
@@ -523,8 +532,21 @@ export default function InterpolationPage() {
       {/* Tier 5: Steps - full width for LaTeX overflow */}
       {resultWithCurve && interpolationResult?.steps && (
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0">
             <CardTitle>{t('results.steps')}</CardTitle>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleCopySteps(interpolationResult.steps)}
+              className="h-8"
+            >
+              {stepsCopied ? (
+                <Check className="h-4 w-4 mr-1 text-green-500" />
+              ) : (
+                <Copy className="h-4 w-4 mr-1" />
+              )}
+              {t('results.copyLatex')}
+            </Button>
           </CardHeader>
           <CardContent className="overflow-x-auto max-h-[400px] overflow-y-auto">
             <div className="space-y-4">
