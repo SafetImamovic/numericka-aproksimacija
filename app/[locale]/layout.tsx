@@ -36,6 +36,7 @@ export default async function LocaleLayout({
     home: (messages as Record<string, Record<string, string>>).nav?.home || 'Home',
     approximation: (messages as Record<string, Record<string, string>>).nav?.approximation || 'Approximation',
     interpolation: (messages as Record<string, Record<string, string>>).nav?.interpolation || 'Interpolation',
+    linearSystems: (messages as Record<string, Record<string, string>>).nav?.linearSystems || 'Linear Systems',
     history: (messages as Record<string, Record<string, string>>).nav?.history || 'History',
   }
 

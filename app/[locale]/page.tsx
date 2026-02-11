@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useLocale, useTranslations } from 'next-intl'
-import { TrendingUp, GitBranch, History, ArrowRight, Github, ExternalLink } from 'lucide-react'
+import { TrendingUp, GitBranch, History, ArrowRight, Github, ExternalLink, Sigma } from 'lucide-react'
 import {
   Card,
   CardHeader,
@@ -30,6 +30,13 @@ export default function HomePage() {
       title: t('interpolationCard.title'),
       description: t('interpolationCard.description'),
       color: 'text-blue-400',
+    },
+    {
+      href: `/${locale}/linear-systems`,
+      icon: Sigma,
+      title: t('linearSystemsCard.title'),
+      description: t('linearSystemsCard.description'),
+      color: 'text-orange-400',
     },
     {
       href: `/${locale}/history`,

@@ -26,6 +26,7 @@
     "home": "Početna",
     "approximation": "Aproksimacija",
     "interpolation": "Interpolacija",
+    "linearSystems": "Linearni Sistemi",
     "history": "Historija",
     "language": "Jezik"
   },
@@ -50,7 +51,11 @@
     "openSource": "Open Source Projekat",
     "openSourceDesc": "Ovo je open source projekat razvijen kao dio kursa PNMuSI (Primjena Numeričkih Metoda u Softverskom Inženjerstvu).",
     "openSourceIssue": "Ako imate problem, grešku ili savjet za poboljšanje, otvorite issue na repozitoriju.",
-    "viewOnGitHub": "Pogledaj na GitHub-u"
+    "viewOnGitHub": "Pogledaj na GitHub-u",
+    "linearSystemsCard": {
+      "title": "Linearni Sistemi",
+      "description": "Riješite sisteme linearnih jednadžbi Ax = b pomoću Gaussove eliminacije, Gauss-Jordana ili LU faktorizacije s korak-po-korak rješenjem."
+    }
   },
   "input": {
     "title": "Unos Podataka",
@@ -121,6 +126,27 @@
     "emptyFile": "Učitani fajl je prazan",
     "positiveXRequired": "Vrijednosti X moraju biti pozitivne (X > 0)",
     "positiveYRequired": "Vrijednosti Y moraju biti pozitivne (Y > 0)"
+  },
+  "linearSystems": {
+    "title": "Linearni Sistemi",
+    "subtitle": "Riješite sisteme linearnih jednadžbi Ax = b",
+    "solverMethod": "Metoda Rješavanja",
+    "matrixInput": "Unos Sistema [A|b]",
+    "solveButton": "Riješi",
+    "solution": "Rješenje",
+    "noSolution": "Sistem nema jedinstveno rješenje — matrica može biti singularna.",
+    "invalidInput": "Neispravna vrijednost u matrici ili vektoru.",
+    "steps": "Koraci Izračuna",
+    "copyLatex": "Kopiraj LaTeX",
+    "addRowCol": "+ Red / Kol",
+    "pasteHint": "Ctrl+V za lijepljenje redova (razmak ili zarez, zadnja vrijednost = b)",
+    "copyData": "Kopiraj",
+    "examples": "Učitaj Primjer",
+    "selectExample": "Primjeri Sistema...",
+    "example2x2": "2×2 Osnovni",
+    "example3x3": "3×3 Standardni",
+    "example3x3k": "3×3 Kirchhoff",
+    "example4x4": "4×4 Sistem"
   },
   "approximation": {
     "title": "Metode Aproksimacije",

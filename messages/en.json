@@ -26,6 +26,7 @@
     "home": "Home",
     "approximation": "Approximation",
     "interpolation": "Interpolation",
+    "linearSystems": "Linear Systems",
     "history": "History",
     "language": "Language"
   },
@@ -50,7 +51,11 @@
     "openSource": "Open Source Project",
     "openSourceDesc": "This is an open source project developed as part of the PNMuSI (Primjena Numeričkih Metoda u Softverskom Inženjerstvu) course.",
     "openSourceIssue": "If you have an issue, bug, or advice to improve it, open an issue on the repository.",
-    "viewOnGitHub": "View on GitHub"
+    "viewOnGitHub": "View on GitHub",
+    "linearSystemsCard": {
+      "title": "Linear Systems",
+      "description": "Solve systems of linear equations Ax = b using Gauss elimination, Gauss-Jordan, or LU factorization with step-by-step solutions."
+    }
   },
   "input": {
     "title": "Data Input",
@@ -121,6 +126,27 @@
     "emptyFile": "Uploaded file is empty",
     "positiveXRequired": "X values must be positive (X > 0)",
     "positiveYRequired": "Y values must be positive (Y > 0)"
+  },
+  "linearSystems": {
+    "title": "Linear Systems",
+    "subtitle": "Solve systems of linear equations Ax = b",
+    "solverMethod": "Solver Method",
+    "matrixInput": "System Input [A|b]",
+    "solveButton": "Solve",
+    "solution": "Solution",
+    "noSolution": "No unique solution — matrix may be singular.",
+    "invalidInput": "Invalid value in matrix or vector.",
+    "steps": "Calculation Steps",
+    "copyLatex": "Copy LaTeX",
+    "addRowCol": "+ Row / Col",
+    "pasteHint": "Ctrl+V to paste rows (space or comma separated, last value = b)",
+    "copyData": "Copy",
+    "examples": "Load Example",
+    "selectExample": "Example Systems...",
+    "example2x2": "2×2 Basic",
+    "example3x3": "3×3 Standard",
+    "example3x3k": "3×3 Kirchhoff",
+    "example4x4": "4×4 System"
   },
   "approximation": {
     "title": "Approximation Methods",

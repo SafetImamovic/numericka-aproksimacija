@@ -3,13 +3,14 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useLocale } from 'next-intl'
-import { Calculator, TrendingUp, GitBranch, History } from 'lucide-react'
+import { Calculator, TrendingUp, GitBranch, History, Sigma } from 'lucide-react'
 
 interface MobileNavProps {
   translations: {
     home: string
     approximation: string
     interpolation: string
+    linearSystems: string
     history: string
   }
 }
@@ -33,6 +34,11 @@ export function MobileNav({ translations }: MobileNavProps) {
       href: `/${locale}/interpolation`,
       label: translations.interpolation,
       icon: GitBranch,
+    },
+    {
+      href: `/${locale}/linear-systems`,
+      label: translations.linearSystems,
+      icon: Sigma,
     },
     {
       href: `/${locale}/history`,

@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useLocale } from 'next-intl'
-import { Calculator, TrendingUp, GitBranch, History, Menu, X, Github } from 'lucide-react'
+import { Calculator, TrendingUp, GitBranch, History, Menu, X, Github, Sigma } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { LanguageSwitcher } from './language-switcher'
@@ -14,6 +14,7 @@ interface NavbarProps {
     home: string
     approximation: string
     interpolation: string
+    linearSystems: string
     history: string
   }
 }
@@ -38,6 +39,11 @@ export function Navbar({ translations }: NavbarProps) {
       href: `/${locale}/interpolation`,
       label: translations.interpolation,
       icon: GitBranch,
+    },
+    {
+      href: `/${locale}/linear-systems`,
+      label: translations.linearSystems,
+      icon: Sigma,
     },
     {
       href: `/${locale}/history`,
