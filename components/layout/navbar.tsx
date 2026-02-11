@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useLocale } from 'next-intl'
-import { Calculator, TrendingUp, GitBranch, History, Menu, X } from 'lucide-react'
+import { Calculator, TrendingUp, GitBranch, History, Menu, X, Github } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { LanguageSwitcher } from './language-switcher'
@@ -93,6 +93,15 @@ export function Navbar({ translations }: NavbarProps) {
 
           {/* Right side - language switcher and mobile menu */}
           <div className="flex items-center gap-2">
+            <a
+              href="https://github.com/SafetImamovic/numericka-aproksimacija"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center h-9 w-9 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+              aria-label="GitHub repository"
+            >
+              <Github className="h-5 w-5" />
+            </a>
             <LanguageSwitcher />
 
             {/* Mobile menu button */}

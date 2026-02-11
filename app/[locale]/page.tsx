@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useLocale, useTranslations } from 'next-intl'
-import { TrendingUp, GitBranch, History, ArrowRight } from 'lucide-react'
+import { TrendingUp, GitBranch, History, ArrowRight, Github, ExternalLink } from 'lucide-react'
 import {
   Card,
   CardHeader,
@@ -74,6 +74,25 @@ export default function HomePage() {
             </Link>
           )
         })}
+      </div>
+
+      {/* Open source banner */}
+      <div className="flex items-start gap-4 p-4 rounded-lg border border-border bg-card">
+        <Github className="h-5 w-5 mt-0.5 shrink-0 text-muted-foreground" />
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-medium mb-0.5">{t('openSource')}</p>
+          <p className="text-sm text-muted-foreground">{t('openSourceDesc')}</p>
+          <p className="text-sm text-muted-foreground mt-1">{t('openSourceIssue')}</p>
+        </div>
+        <a
+          href="https://github.com/SafetImamovic/numericka-aproksimacija"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-md border border-border hover:border-primary/50 hover:bg-accent transition-colors"
+        >
+          <ExternalLink className="h-3.5 w-3.5" />
+          {t('viewOnGitHub')}
+        </a>
       </div>
 
       {/* Quick formulas preview */}

@@ -46,7 +46,11 @@
     },
     "quickReference": "Quick Reference",
     "leastSquares": "Least Squares",
-    "lagrangeBasis": "Lagrange Basis"
+    "lagrangeBasis": "Lagrange Basis",
+    "openSource": "Open Source Project",
+    "openSourceDesc": "This is an open source project developed as part of the PNMuSI (Primjena Numeričkih Metoda u Softverskom Inženjerstvu) course.",
+    "openSourceIssue": "If you have an issue, bug, or advice to improve it, open an issue on the repository.",
+    "viewOnGitHub": "View on GitHub"
   },
   "input": {
     "title": "Data Input",

@@ -46,7 +46,11 @@
     },
     "quickReference": "Brza Referenca",
     "leastSquares": "Najmanji Kvadrati",
-    "lagrangeBasis": "Lagrangeova Baza"
+    "lagrangeBasis": "Lagrangeova Baza",
+    "openSource": "Open Source Projekat",
+    "openSourceDesc": "Ovo je open source projekat razvijen kao dio kursa PNMuSI (Primjena Numeričkih Metoda u Softverskom Inženjerstvu).",
+    "openSourceIssue": "Ako imate problem, grešku ili savjet za poboljšanje, otvorite issue na repozitoriju.",
+    "viewOnGitHub": "Pogledaj na GitHub-u"
   },
   "input": {
     "title": "Unos Podataka",
