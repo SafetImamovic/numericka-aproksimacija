@@ -133,6 +133,12 @@ export function parseCSV(content: string): DataPoint[] {
     if (parts.length !== 2) {
       parts = trimmed.split(';')
     }
+    if (parts.length !== 2) {
+      parts = trimmed.split('\t')
+    }
+    if (parts.length !== 2) {
+      parts = trimmed.split(/\s+/)
+    }
 
     if (parts.length === 2) {
       const x = parseFloat(parts[0].trim())
